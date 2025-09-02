@@ -16,10 +16,10 @@ Additionally, to enforce minimum daily growth, the system checks the price appre
 
 ## Variable Definitions
 
-- **X**: Quantity of USDT (or equivalent stablecoin) in the virtual "liquidity pool" reserve.  
+- **X**: Quantity of USDC (or equivalent stablecoin) in the virtual "liquidity pool" reserve.  
     
-  - Initial Value: 100,000 USDT.  
-  - Behavior: Increases when users buy from reserves (adding USDT to the pool) or through treasury actions. Does not decrease on sells, as sells queue for peer matches.  
+  - Initial Value: 100,000 USDC.  
+  - Behavior: Increases when users buy from reserves (adding USDC to the pool) or through treasury actions. Does not decrease on sells, as sells queue for peer matches.  
   - Role: Represents accumulated value backing the token, driving the bonding curve higher as X grows.
 
 
@@ -36,7 +36,7 @@ Additionally, to enforce minimum daily growth, the system checks the price appre
   - Role: Ensures price stability and automatic appreciation as reserves are tapped.
 
 
-- **V**: Volume of the purchase in USDT, specifically for buys fulfilled from the sales queue (peer-to-peer).  
+- **V**: Volume of the purchase in USDC, specifically for buys fulfilled from the sales queue (peer-to-peer).  
     
   - Behavior: Measured at the time of the transaction; ignored for reserve buys (no bonus applied).  
   - Role: Scales the appreciation bonus; larger queue trades yield bigger cumulative uplifts.
@@ -49,7 +49,7 @@ Additionally, to enforce minimum daily growth, the system checks the price appre
   - Role: Normalizes the bonus to prevent over-inflation as the ecosystem scales; larger SC means smaller relative impact per trade.
 
 
-- **P(Y)**: Current price of $EVER in USDT, as a function of Y.  
+- **P(Y)**: Current price of $EVER in USDC, as a function of Y.  
     
   - Formula: P(Y) \= \[X / Y \+ Σ\[(0.001 \* V) / ((X / Y) \* SC)\]\] \* (1 \+ DailyBoost) if applicable.  
   - Components:  
@@ -74,7 +74,7 @@ Where:
 
 - The sum is over all historical queue-based buys (i \= 1 to n).  
 - For each historical buy i:  
-  - (V\_i): USDT volume of that specific queue buy.  
+  - (V\_i): USDC volume of that specific queue buy.  
   - (X\_i / Y\_i): Bonding curve price at the exact time of that buy.  
   - (SC\_i): Circulating supply at the time of that buy.  
 - Note: The bonus is cumulative and permanent—once added, it persists in the price forever, stacking like layers of rocket boosters.
@@ -92,12 +92,12 @@ Else (new day or growth already met): Reset P\_start to current P\_organic(Y), u
 
 1. **Initialize System**:  
      
-   - Set X \= 100,000 USDT.  
+   - Set X \= 100,000 USDC.  
    - Set Y \= 1,000,000,000 $EVER.  
    - Set SC \= 0\.  
    - K \= X \* Y \= 100,000 \* 1,000,000,000.  
    - Bonus Sum \= 0 (no queue buys yet).  
-   - Set P\_start \= X / Y ≈ 0.0001 USDT.  
+   - Set P\_start \= X / Y ≈ 0.0001 USDC.  
    - Set T\_start \= Current day start timestamp (e.g., floor to midnight UTC).  
    - Initial P(Y) \= P\_organic(Y) (no boost needed yet).
 
@@ -113,7 +113,7 @@ Else (new day or growth already met): Reset P\_start to current P\_organic(Y), u
        - Update SC \+= tokens\_bought.  
      - If queue empty: Fulfill from reserves (if Y \> 0).  
        - No bonus added (sum unchanged).  
-       - Update X \+= V (USDT added to pool).  
+       - Update X \+= V (USDC added to pool).  
        - Update Y \-= tokens\_bought.  
        - Recalculate K \= X \* Y.  
        - Update SC \+= tokens\_bought.  

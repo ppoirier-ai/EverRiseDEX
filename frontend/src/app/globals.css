@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Custom styles for wallet adapter */
+.wallet-adapter-button {
+  @apply !bg-gradient-to-r !from-blue-500 !to-purple-600 hover:!from-blue-600 hover:!to-purple-700 !rounded-lg !px-6 !py-3 !text-white !font-semibold !border-0 !transition-all !duration-200;
+}
+
+.wallet-adapter-button:not([disabled]):hover {
+  @apply !shadow-lg !transform !scale-105;
+}
+
+.wallet-adapter-button[disabled] {
+  @apply !opacity-50 !cursor-not-allowed;
+}
+
+.wallet-adapter-modal-wrapper {
+  @apply !z-50;
+}
+
+.wallet-adapter-modal {
+  @apply !rounded-xl !shadow-2xl;
+}
+
+.wallet-adapter-modal-container {
+  @apply !bg-white !rounded-xl;
+}
+
+.wallet-adapter-modal-title {
+  @apply !text-2xl !font-bold !text-gray-900;
+}
+
+.wallet-adapter-modal-list {
+  @apply !space-y-2;
+}
+
+.wallet-adapter-modal-list-item {
+  @apply !rounded-lg !border !border-gray-200 !hover:border-blue-500 !transition-colors;
+}
+
+.wallet-adapter-modal-list-item button {
+  @apply !p-4 !w-full !text-left !rounded-lg !hover:bg-blue-50 !transition-colors;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

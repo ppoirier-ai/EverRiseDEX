@@ -1,0 +1,34 @@
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { WalletContextProvider } from '@/contexts/WalletContext'
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'EverRise DEX - Perpetual Growth Trading',
+  description: 'The first decentralized exchange with guaranteed perpetual upward price momentum. Built on Solana with bonding curve mechanics.',
+  keywords: ['DeFi', 'DEX', 'Solana', 'Trading', 'EverRise', 'Bonding Curve'],
+  authors: [{ name: 'EverRise Team' }],
+  openGraph: {
+    title: 'EverRise DEX - Perpetual Growth Trading',
+    description: 'Trade with guaranteed upward momentum on Solana',
+    type: 'website',
+  },
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        <WalletContextProvider>
+          {children}
+        </WalletContextProvider>
+      </body>
+    </html>
+  )
+}
