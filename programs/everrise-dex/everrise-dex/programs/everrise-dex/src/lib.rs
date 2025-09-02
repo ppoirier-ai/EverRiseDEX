@@ -102,7 +102,7 @@ pub mod everrise_dex {
         Ok(())
     }
 
-    /// Sell EVER tokens to the queue system with transaction safety
+    /// Sell EVER tokens to the queue system with enhanced transaction safety
     pub fn sell(ctx: Context<Sell>, ever_amount: u64) -> Result<()> {
         // Validate input parameters for transaction safety
         require!(ever_amount > 0, ErrorCode::InvalidAmount);
@@ -111,15 +111,27 @@ pub mod everrise_dex {
         let bonding_curve = &mut ctx.accounts.bonding_curve;
         let clock = Clock::get()?;
 
+        // Apply daily boost if needed before calculating price
+        apply_daily_boost(bonding_curve, clock.unix_timestamp)?;
+
         // Calculate current effective price including all bonuses
         let current_price = calculate_effective_price(bonding_curve);
-        require!(current_price > 0, ErrorCode::InvalidAmount);
+        require!(current_price > 0, ErrorCode::PriceCalculationFailed);
         
+        // Calculate USDC value with overflow protection
         let usdc_value = ever_amount
             .checked_mul(current_price)
-            .unwrap()
+            .ok_or(ErrorCode::MathOverflow)?
             .checked_div(1_000_000_000) // Convert from 9 decimals to 6
-            .unwrap();
+            .ok_or(ErrorCode::MathOverflow)?;
+
+        // Validate that the sell order has reasonable value
+        require!(usdc_value > 0, ErrorCode::InvalidAmount);
+        require!(usdc_value <= 1_000_000_000_000, ErrorCode::AmountTooLarge); // Max 1M USDC value
+
+        // Check if there's sufficient liquidity in the bonding curve
+        let organic_price = calculate_organic_price(bonding_curve);
+        require!(organic_price > 0, ErrorCode::InsufficientLiquidity);
 
         // Add to sell queue
         let sell_order = &mut ctx.accounts.sell_order;
@@ -134,7 +146,7 @@ pub mod everrise_dex {
 
         bonding_curve.sell_queue_tail = bonding_curve.sell_queue_tail.checked_add(1).unwrap();
 
-        // Transfer EVER tokens from user to program
+        // Transfer EVER tokens from user to program (atomic operation)
         let cpi_accounts = token::Transfer {
             from: ctx.accounts.user_ever_account.to_account_info(),
             to: ctx.accounts.program_ever_account.to_account_info(),
@@ -157,8 +169,8 @@ pub mod everrise_dex {
             timestamp: clock.unix_timestamp,
         });
 
-        msg!("Sell: {} EVER tokens queued for {} USDC (position: {})", 
-             ever_amount, usdc_value, bonding_curve.sell_queue_tail - 1);
+        msg!("Sell: {} EVER tokens queued for {} USDC at price {} (position: {})", 
+             ever_amount, usdc_value, current_price, bonding_curve.sell_queue_tail - 1);
 
         Ok(())
     }
@@ -252,6 +264,129 @@ pub mod everrise_dex {
 
         msg!("Buy processed: {} USDC -> {} EVER tokens (queue: {}, reserve: {})", 
              usdc_amount, result.total_ever_received, result.queue_usdc, result.reserve_usdc);
+
+        Ok(())
+    }
+
+    /// Process sell orders from the queue - handles matching with buy orders or direct processing
+    pub fn process_sell_queue(ctx: Context<ProcessSellQueue>) -> Result<()> {
+        let clock = Clock::get()?;
+
+        // Check if there are sell orders to process
+        if ctx.accounts.bonding_curve.sell_queue_head >= ctx.accounts.bonding_curve.sell_queue_tail {
+            return Err(ErrorCode::QueueEmpty.into());
+        }
+
+        // Get the next sell order to process
+        if ctx.accounts.sell_order.processed {
+            return Err(ErrorCode::InvalidAmount.into()); // Already processed
+        }
+
+        // Validate sell order for transaction safety
+        require!(ctx.accounts.sell_order.ever_amount > 0, ErrorCode::InvalidAmount);
+        require!(ctx.accounts.sell_order.remaining_amount > 0, ErrorCode::InvalidAmount);
+        require!(ctx.accounts.sell_order.seller != Pubkey::default(), ErrorCode::InvalidBuyer);
+
+        // Extract values before mutable borrows
+        let ever_amount = ctx.accounts.sell_order.remaining_amount;
+        let locked_price = ctx.accounts.sell_order.locked_price;
+        let seller = ctx.accounts.sell_order.seller;
+        let bonding_curve_bump = ctx.accounts.bonding_curve.bump;
+
+        // Calculate USDC value for this sell order
+        let usdc_value = ever_amount
+            .checked_mul(locked_price)
+            .ok_or(ErrorCode::MathOverflow)?
+            .checked_div(1_000_000_000) // Convert from 9 decimals to 6
+            .ok_or(ErrorCode::MathOverflow)?;
+
+        // Check if there are buy orders waiting
+        if ctx.accounts.bonding_curve.buy_queue_head < ctx.accounts.bonding_curve.buy_queue_tail {
+            // There are buy orders - this sell order will be matched when buy orders are processed
+            // For now, we just validate the sell order and leave it in the queue
+            msg!("Sell order {} EVER at price {} waiting for buy order matching", 
+                 ever_amount, locked_price);
+        } else {
+            // No buy orders - process this sell order directly against the bonding curve
+            // This is a direct sell to the treasury/reserves
+            
+            // Calculate how much USDC the bonding curve can provide
+            let available_usdc = ctx.accounts.bonding_curve.x;
+            let max_ever_sellable = available_usdc
+                .checked_mul(1_000_000_000) // Convert to 9 decimals
+                .ok_or(ErrorCode::MathOverflow)?
+                .checked_div(locked_price)
+                .ok_or(ErrorCode::MathOverflow)?;
+
+            let ever_to_sell = if ever_amount <= max_ever_sellable {
+                ever_amount
+            } else {
+                max_ever_sellable
+            };
+
+            if ever_to_sell > 0 {
+                let usdc_to_pay = ever_to_sell
+                    .checked_mul(locked_price)
+                    .ok_or(ErrorCode::MathOverflow)?
+                    .checked_div(1_000_000_000)
+                    .ok_or(ErrorCode::MathOverflow)?;
+
+                // Prepare CPI accounts and signer
+                let seeds = &[b"bonding_curve", &[bonding_curve_bump][..]];
+                let signer = &[&seeds[..]];
+
+                // Transfer USDC from treasury to seller
+                let cpi_accounts = token::Transfer {
+                    from: ctx.accounts.treasury_usdc_account.to_account_info(),
+                    to: ctx.accounts.seller_usdc_account.to_account_info(),
+                    authority: ctx.accounts.bonding_curve.to_account_info(),
+                };
+                let cpi_program = ctx.accounts.token_program.to_account_info();
+                let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+                token::transfer(cpi_ctx, usdc_to_pay)?;
+
+                // Burn EVER tokens (transfer to a burn address or reduce supply)
+                // For now, we'll transfer to the program's EVER account (effectively removing from circulation)
+                let cpi_accounts = token::Transfer {
+                    from: ctx.accounts.program_ever_account.to_account_info(),
+                    to: ctx.accounts.burn_ever_account.to_account_info(),
+                    authority: ctx.accounts.bonding_curve.to_account_info(),
+                };
+                let cpi_program = ctx.accounts.token_program.to_account_info();
+                let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+                token::transfer(cpi_ctx, ever_to_sell)?;
+
+                // Update bonding curve state
+                let bonding_curve = &mut ctx.accounts.bonding_curve;
+                let sell_order = &mut ctx.accounts.sell_order;
+
+                // Update bonding curve (X decreases, Y increases)
+                bonding_curve.x = bonding_curve.x.checked_sub(usdc_to_pay).ok_or(ErrorCode::MathOverflow)?;
+                bonding_curve.y = bonding_curve.y.checked_add(ever_to_sell).ok_or(ErrorCode::MathOverflow)?;
+                bonding_curve.k = bonding_curve.x.checked_mul(bonding_curve.y).ok_or(ErrorCode::MathOverflow)?;
+
+                // Update sell order
+                sell_order.remaining_amount = sell_order.remaining_amount.checked_sub(ever_to_sell).ok_or(ErrorCode::MathOverflow)?;
+                
+                if sell_order.remaining_amount == 0 {
+                    sell_order.processed = true;
+                    bonding_curve.sell_queue_head = bonding_curve.sell_queue_head.checked_add(1).unwrap();
+                }
+
+                // Emit sell processed event
+                emit!(SellProcessedEvent {
+                    seller,
+                    ever_amount: ever_to_sell,
+                    usdc_amount: usdc_to_pay,
+                    locked_price,
+                    processing_type: 1, // Direct to reserves
+                    timestamp: clock.unix_timestamp,
+                });
+
+                msg!("Sell processed: {} EVER -> {} USDC (direct to reserves)", 
+                     ever_to_sell, usdc_to_pay);
+            }
+        }
 
         Ok(())
     }
@@ -620,6 +755,37 @@ pub struct ProcessBuyQueue<'info> {
 }
 
 #[derive(Accounts)]
+pub struct ProcessSellQueue<'info> {
+    #[account(
+        mut,
+        seeds = [b"bonding_curve"],
+        bump = bonding_curve.bump
+    )]
+    pub bonding_curve: Account<'info, BondingCurve>,
+    
+    #[account(
+        mut,
+        seeds = [b"sell_order", bonding_curve.sell_queue_head.to_le_bytes().as_ref()],
+        bump = sell_order.bump
+    )]
+    pub sell_order: Account<'info, SellOrder>,
+    
+    #[account(mut)]
+    pub program_ever_account: Account<'info, TokenAccount>,
+    
+    #[account(mut)]
+    pub seller_usdc_account: Account<'info, TokenAccount>,
+    
+    #[account(mut)]
+    pub treasury_usdc_account: Account<'info, TokenAccount>,
+    
+    #[account(mut)]
+    pub burn_ever_account: Account<'info, TokenAccount>, // Account to burn EVER tokens
+    
+    pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
 pub struct ApplyDailyBoost<'info> {
     #[account(
         mut,
@@ -746,6 +912,16 @@ pub struct EmergencyRefundEvent {
     pub buyer: Pubkey,
     pub usdc_amount: u64,
     pub time_elapsed: i64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct SellProcessedEvent {
+    pub seller: Pubkey,
+    pub ever_amount: u64,
+    pub usdc_amount: u64,
+    pub locked_price: u64,
+    pub processing_type: u8, // 0 = queue matching, 1 = direct to reserves
     pub timestamp: i64,
 }
 
