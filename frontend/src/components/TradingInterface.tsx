@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { ArrowUpDown, ArrowUp, ArrowDown, Info } from 'lucide-react';
+import { EnhancedWalletButton } from './EnhancedWalletButton';
 
 interface TradingInterfaceProps {
   currentPrice: number;
@@ -94,7 +94,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
             Connect your Solana wallet to start trading EverRise tokens
           </p>
         </div>
-        <WalletMultiButton className="!bg-gradient-to-r !from-blue-500 !to-purple-600 hover:!from-blue-600 hover:!to-purple-700 !rounded-lg !px-6 !py-3 !text-white !font-semibold" />
+        <EnhancedWalletButton className="w-full" />
       </div>
     );
   }
