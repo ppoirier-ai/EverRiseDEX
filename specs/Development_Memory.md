@@ -71,12 +71,22 @@
 - Daily boost mechanism for minimum growth
 - Treasury system for buybacks
 
+### 🚨 CRITICAL ISSUES IDENTIFIED
+- **Missing Buy Queue System**: No FIFO ordering for buy transactions
+- **Race Conditions**: Concurrent transactions can interfere with each other
+- **Price Inconsistency**: Price reconstructed from scratch each time
+- **Transaction Safety**: Risk of USDC loss on failed transactions
+- **Missing Queue Processing**: `process_sell_queue` function not implemented
+- **Volume-Weighted Formula**: Appreciation bonus formula not properly implemented
+
 ### Security Considerations
 - Use fixed-point arithmetic (no floats)
 - Implement overflow protection
 - Atomic transaction processing
 - Input validation for all user inputs
 - Access control for admin functions
+- **CRITICAL**: Implement buy queue system to prevent race conditions
+- **CRITICAL**: Add transaction safety measures to prevent USDC loss
 
 ## Common Mistakes to Avoid
 
@@ -86,6 +96,10 @@
 4. **Mathematical Precision**: Use fixed-point arithmetic, avoid floats
 5. **Wallet Address Mix-ups**: Use correct USDC treasury wallet address
 6. **Reserve vs Treasury Confusion**: Reserve = unsold EVER tokens (Y), Treasury = USDC wallet (X)
+7. **🚨 CRITICAL: Race Conditions**: Never process buys without queuing - use buy queue system
+8. **🚨 CRITICAL: Price Consistency**: Always lock price at queue entry time
+9. **🚨 CRITICAL: Transaction Safety**: Never allow USDC loss on failed transactions
+10. **🚨 CRITICAL: Volume-Weighted Formula**: Use (0.001 × V) / (current_price × SC), not flat 0.1%
 
 ## Testing Environment
 
