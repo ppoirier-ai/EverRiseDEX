@@ -142,22 +142,78 @@ EverRiseDEX is a decentralized exchange built on Solana that implements a unique
 - Treasury efficiency > 95% for buyback operations
 - User transaction success rate > 99%
 
+## 🚨 CRITICAL ISSUES IDENTIFIED (Priority Fix Required)
+
+### **Race Condition & Transaction Safety Issues**
+1. **Missing Buy Queue System**
+   - Current implementation processes buys immediately without queuing
+   - Risk of concurrent transactions interfering with each other
+   - No atomic price locking mechanism
+   - Potential for users to lose USDC on failed transactions
+
+2. **Price Calculation Inconsistencies**
+   - Price reconstructed from scratch each time (no stored state)
+   - Missing cumulative bonus tracking implementation
+   - No daily boost state persistence
+   - Volume-weighted appreciation formula not properly implemented
+
+3. **Queue Processing Logic Missing**
+   - `process_sell_queue` function referenced but not implemented
+   - No peer-to-peer matching mechanism
+   - No appreciation bonus calculation for queue-based buys
+
+### **Implementation Gaps**
+- **Buy Queue**: No FIFO ordering for buy transactions
+- **Price Storage**: No persistent price state with cumulative bonuses
+- **Transaction Atomicity**: No protection against mid-transaction price changes
+- **Volume-Weighted Bonuses**: Formula not implemented correctly
+
+## 🔧 IMMEDIATE FIXES REQUIRED
+
+### **Phase 0: Critical Security Fixes (URGENT)**
+- [ ] **Implement Buy Queue System**
+  - Create BuyOrder PDA structure
+  - Add buy queue management (head/tail pointers)
+  - Implement FIFO processing for buy transactions
+  - Add price locking mechanism for queue entries
+
+- [ ] **Fix Price Calculation System**
+  - Implement persistent price storage with cumulative bonuses
+  - Add proper volume-weighted appreciation formula
+  - Implement daily boost state management
+  - Add price consistency checks
+
+- [ ] **Implement Queue Processing Logic**
+  - Complete the missing `process_sell_queue` function
+  - Add peer-to-peer matching algorithm
+  - Implement appreciation bonus calculation
+  - Add transaction atomicity protection
+
+- [ ] **Add Transaction Safety Measures**
+  - Implement atomic price updates
+  - Add USDC protection for failed transactions
+  - Add concurrent transaction handling
+  - Implement proper error handling and rollback
+
 ## Next Steps
 
-1. **Immediate Actions**:
-   - Finalize specification reconciliation
-   - Set up Solana development environment
-   - Create initial project structure
+1. **Immediate Actions** (CRITICAL):
+   - Fix race condition issues in smart contract
+   - Implement buy queue system
+   - Add proper price storage and calculation
+   - Ensure transaction safety and atomicity
 
 2. **Week 1 Deliverables**:
-   - Unified specification document
-   - Program architecture design
-   - Initial smart contract skeleton
+   - Secure smart contract with proper queue system
+   - Fixed price calculation with cumulative bonuses
+   - Transaction safety measures implemented
+   - Comprehensive testing of concurrent scenarios
 
 3. **Stakeholder Communication**:
    - Weekly progress updates
    - Technical milestone reviews
    - Risk assessment updates
+   - Security audit preparation
 
 ---
 
