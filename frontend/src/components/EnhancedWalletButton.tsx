@@ -46,8 +46,6 @@ export const EnhancedWalletButton: React.FC<EnhancedWalletButtonProps> = ({ clas
     );
   }
 
-
-
   if (!connected) {
     return (
       <WalletMultiButton 
