@@ -102,12 +102,8 @@ pub mod everrise_dex {
         let bonding_curve = &mut ctx.accounts.bonding_curve;
         let clock = Clock::get()?;
 
-        // Calculate current price using bonding curve formula
-        let current_price = bonding_curve.x
-            .checked_mul(1_000_000_000) // 9 decimals for EVER
-            .unwrap()
-            .checked_div(bonding_curve.y)
-            .unwrap();
+        // Calculate current effective price including all bonuses
+        let current_price = calculate_effective_price(bonding_curve);
         
         let usdc_value = ever_amount
             .checked_mul(current_price)
@@ -242,6 +238,19 @@ pub mod everrise_dex {
 
         msg!("Buy processed: {} USDC -> {} EVER tokens (queue: {}, reserve: {})", 
              usdc_amount, result.total_ever_received, result.queue_usdc, result.reserve_usdc);
+
+        Ok(())
+    }
+
+    /// Manually apply daily boost (for testing and maintenance)
+    pub fn apply_daily_boost_manual(ctx: Context<ApplyDailyBoost>) -> Result<()> {
+        let bonding_curve = &mut ctx.accounts.bonding_curve;
+        let clock = Clock::get()?;
+
+        // Apply daily boost
+        apply_daily_boost(bonding_curve, clock.unix_timestamp)?;
+
+        msg!("Daily boost manually applied at timestamp: {}", clock.unix_timestamp);
 
         Ok(())
     }
@@ -541,6 +550,19 @@ pub struct ProcessBuyQueue<'info> {
     pub token_program: Program<'info, Token>,
 }
 
+#[derive(Accounts)]
+pub struct ApplyDailyBoost<'info> {
+    #[account(
+        mut,
+        seeds = [b"bonding_curve"],
+        bump = bonding_curve.bump
+    )]
+    pub bonding_curve: Account<'info, BondingCurve>,
+    
+    #[account(mut)]
+    pub authority: Signer<'info>,
+}
+
 #[account]
 #[derive(InitSpace)]
 pub struct BondingCurve {
@@ -615,6 +637,16 @@ pub struct SellQueueEvent {
     pub timestamp: i64,
 }
 
+#[event]
+pub struct DailyBoostEvent {
+    pub organic_price: u64,
+    pub minimum_price: u64,
+    pub final_price: u64,
+    pub days_passed: i64,
+    pub boost_amount: u64,
+    pub timestamp: i64,
+}
+
 // Helper functions
 /// Calculate how many EVER tokens a user will receive for a given USDC amount
 fn calculate_buy_amount(bonding_curve: &BondingCurve, usdc_amount: u64) -> Result<u64> {
@@ -624,8 +656,79 @@ fn calculate_buy_amount(bonding_curve: &BondingCurve, usdc_amount: u64) -> Resul
     Ok(tokens_received)
 }
 
-/// Calculate current price using bonding curve formula
+/// Calculate current effective price including all bonuses and daily boosts
+fn calculate_effective_price(bonding_curve: &BondingCurve) -> u64 {
+    // Start with organic price from bonding curve
+    let organic_price = calculate_organic_price(bonding_curve);
+    
+    // Add cumulative bonus (from queue transactions and daily boosts)
+    organic_price
+        .checked_add(bonding_curve.cumulative_bonus)
+        .unwrap_or(organic_price)
+}
+
+/// Calculate current price using bonding curve formula (legacy function)
 fn calculate_price(bonding_curve: &BondingCurve) -> u64 {
+    calculate_organic_price(bonding_curve)
+}
+
+/// Apply daily boost if needed - ensures minimum 0.02% daily price growth
+fn apply_daily_boost(bonding_curve: &mut BondingCurve, current_timestamp: i64) -> Result<()> {
+    let days_since_last_boost = (current_timestamp - bonding_curve.last_daily_boost) / 86400; // 86400 seconds in a day
+    
+    if days_since_last_boost > 0 {
+        // Reset daily boost flag for new day
+        bonding_curve.daily_boost_applied = false;
+        
+        // Calculate organic growth from bonding curve
+        let organic_price = calculate_organic_price(bonding_curve);
+        
+        // Calculate minimum required price (0.02% daily growth)
+        let minimum_price = calculate_minimum_daily_price(bonding_curve, days_since_last_boost)?;
+        
+        // Use the higher of organic price or minimum price
+        let boosted_price = if organic_price >= minimum_price {
+            organic_price
+        } else {
+            minimum_price
+        };
+        
+        // Apply the boost to cumulative bonus
+        let price_difference = boosted_price.checked_sub(organic_price).unwrap_or(0);
+        if price_difference > 0 {
+            bonding_curve.cumulative_bonus = bonding_curve.cumulative_bonus
+                .checked_add(price_difference)
+                .ok_or(ErrorCode::MathOverflow)?;
+        }
+        
+        // Update current price and state
+        bonding_curve.current_price = boosted_price;
+        bonding_curve.last_daily_boost = current_timestamp;
+        bonding_curve.daily_boost_applied = true;
+        
+        // Emit daily boost event
+        emit!(DailyBoostEvent {
+            organic_price,
+            minimum_price,
+            final_price: boosted_price,
+            days_passed: days_since_last_boost,
+            boost_amount: price_difference,
+            timestamp: current_timestamp,
+        });
+        
+        msg!("Daily boost applied: organic={}, minimum={}, final={}", 
+             organic_price, minimum_price, boosted_price);
+    }
+    
+    Ok(())
+}
+
+/// Calculate organic price from bonding curve (X/Y)
+fn calculate_organic_price(bonding_curve: &BondingCurve) -> u64 {
+    if bonding_curve.y == 0 {
+        return 0;
+    }
+    
     bonding_curve.x
         .checked_mul(1_000_000_000) // 9 decimals for EVER
         .unwrap_or(0)
@@ -633,27 +736,29 @@ fn calculate_price(bonding_curve: &BondingCurve) -> u64 {
         .unwrap_or(0)
 }
 
-/// Apply daily boost if needed
-fn apply_daily_boost(bonding_curve: &mut BondingCurve, current_timestamp: i64) -> Result<()> {
-    let days_since_last_boost = (current_timestamp - bonding_curve.last_daily_boost) / 86400; // 86400 seconds in a day
-    
-    if days_since_last_boost > 0 && !bonding_curve.daily_boost_applied {
-        // Apply 0.02% daily boost
-        let boost_amount = bonding_curve.current_price
-            .checked_mul(2) // 0.02% = 2 basis points
-            .unwrap_or(0)
-            .checked_div(10000) // 10,000 basis points = 100%
-            .unwrap_or(0);
-        
-        bonding_curve.current_price = bonding_curve.current_price
-            .checked_add(boost_amount)
-            .ok_or(ErrorCode::MathOverflow)?;
-        
-        bonding_curve.last_daily_boost = current_timestamp;
-        bonding_curve.daily_boost_applied = true;
+/// Calculate minimum daily price based on 0.02% daily growth guarantee
+fn calculate_minimum_daily_price(bonding_curve: &BondingCurve, days_passed: i64) -> Result<u64> {
+    if days_passed <= 0 {
+        return Ok(bonding_curve.current_price);
     }
     
-    Ok(())
+    // Calculate compound growth: price * (1.0002)^days
+    // For small percentages, we can approximate: price * (1 + 0.0002 * days)
+    let growth_factor = 1_000_000u64 // 1.0 in 6 decimal places
+        .checked_add(
+            (days_passed as u64)
+                .checked_mul(200) // 0.02% = 200 basis points in 6 decimals
+                .ok_or(ErrorCode::MathOverflow)?
+        )
+        .ok_or(ErrorCode::MathOverflow)?;
+    
+    let minimum_price = bonding_curve.current_price
+        .checked_mul(growth_factor)
+        .ok_or(ErrorCode::MathOverflow)?
+        .checked_div(1_000_000) // Convert back from 6 decimal places
+        .ok_or(ErrorCode::MathOverflow)?;
+    
+    Ok(minimum_price)
 }
 
 /// Calculate appreciation bonus for queue-based transactions
