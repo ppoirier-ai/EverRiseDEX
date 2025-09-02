@@ -99,12 +99,8 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            EverRise DEX
-          </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            The first decentralized exchange with guaranteed perpetual upward price momentum. 
-            Built on Solana with bonding curve mechanics and daily growth guarantees.
+            Bitcoin Pioneered Unprintable Money. EverRise Improved with Unhaggleable Price
           </p>
         </div>
 
