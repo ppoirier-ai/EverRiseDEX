@@ -97,9 +97,12 @@
 5. **Wallet Address Mix-ups**: Use correct USDC treasury wallet address
 6. **Reserve vs Treasury Confusion**: Reserve = unsold EVER tokens (Y), Treasury = USDC wallet (X)
 7. **🚨 CRITICAL: Race Conditions**: Never process buys without queuing - use buy queue system
-8. **🚨 CRITICAL: Price Consistency**: Always lock price at queue entry time
+8. **🚨 CRITICAL: Price Determination**: Price determined at processing time, NOT queue entry time
 9. **🚨 CRITICAL: Transaction Safety**: Never allow USDC loss on failed transactions
 10. **🚨 CRITICAL: Volume-Weighted Formula**: Use (0.001 × V) / (current_price × SC), not flat 0.1%
+11. **🚨 CRITICAL: Partial Fills**: Sell orders can be partially filled - use remaining_amount tracking
+12. **🚨 CRITICAL: Appreciation Bonus**: Only apply to queue transactions, NOT reserve buys
+13. **🚨 CRITICAL: Buy Order Structure**: NO locked_price field - only USDC amount
 
 ## Testing Environment
 
