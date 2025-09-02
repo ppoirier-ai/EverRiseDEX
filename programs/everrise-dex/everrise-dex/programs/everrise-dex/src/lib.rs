@@ -49,8 +49,12 @@ pub mod everrise_dex {
         Ok(())
     }
 
-    /// Buy EVER tokens using USDC from the bonding curve
+    /// Buy EVER tokens using USDC from the bonding curve with transaction safety
     pub fn buy(ctx: Context<Buy>, usdc_amount: u64) -> Result<()> {
+        // Validate input parameters for transaction safety
+        require!(usdc_amount > 0, ErrorCode::InvalidAmount);
+        require!(usdc_amount <= 1_000_000_000_000, ErrorCode::AmountTooLarge); // Max 1M USDC per transaction
+
         let bonding_curve = &mut ctx.accounts.bonding_curve;
         let clock = Clock::get()?;
 
@@ -59,6 +63,7 @@ pub mod everrise_dex {
 
         // Calculate estimated tokens (this can change based on actual fills)
         let estimated_tokens = calculate_buy_amount(bonding_curve, usdc_amount)?;
+        require!(estimated_tokens > 0, ErrorCode::InvalidAmount);
 
         // Add to buy queue
         let buy_order = &mut ctx.accounts.buy_order;
@@ -97,13 +102,18 @@ pub mod everrise_dex {
         Ok(())
     }
 
-    /// Sell EVER tokens to the queue system
+    /// Sell EVER tokens to the queue system with transaction safety
     pub fn sell(ctx: Context<Sell>, ever_amount: u64) -> Result<()> {
+        // Validate input parameters for transaction safety
+        require!(ever_amount > 0, ErrorCode::InvalidAmount);
+        require!(ever_amount <= 1_000_000_000_000, ErrorCode::AmountTooLarge); // Max 1B EVER per transaction
+
         let bonding_curve = &mut ctx.accounts.bonding_curve;
         let clock = Clock::get()?;
 
         // Calculate current effective price including all bonuses
         let current_price = calculate_effective_price(bonding_curve);
+        require!(current_price > 0, ErrorCode::InvalidAmount);
         
         let usdc_value = ever_amount
             .checked_mul(current_price)
@@ -153,7 +163,7 @@ pub mod everrise_dex {
         Ok(())
     }
 
-    /// Process buy orders from the queue with partial fill support
+    /// Process buy orders from the queue with partial fill support and transaction safety
     pub fn process_buy_queue(ctx: Context<ProcessBuyQueue>) -> Result<()> {
         let clock = Clock::get()?;
 
@@ -166,6 +176,10 @@ pub mod everrise_dex {
         if ctx.accounts.buy_order.processed {
             return Err(ErrorCode::InvalidAmount.into()); // Already processed
         }
+
+        // Validate buy order for transaction safety
+        require!(ctx.accounts.buy_order.usdc_amount > 0, ErrorCode::InvalidAmount);
+        require!(ctx.accounts.buy_order.buyer != Pubkey::default(), ErrorCode::InvalidBuyer);
 
         // Extract values before mutable borrows
         let usdc_amount = ctx.accounts.buy_order.usdc_amount;
@@ -251,6 +265,61 @@ pub mod everrise_dex {
         apply_daily_boost(bonding_curve, clock.unix_timestamp)?;
 
         msg!("Daily boost manually applied at timestamp: {}", clock.unix_timestamp);
+
+        Ok(())
+    }
+
+    /// Emergency refund function - refunds USDC to buyer if transaction fails
+    /// This is a safety mechanism to prevent USDC loss
+    pub fn emergency_refund(ctx: Context<EmergencyRefund>) -> Result<()> {
+        let clock = Clock::get()?;
+
+        // Extract values before mutable borrows
+        let bonding_curve_bump = ctx.accounts.bonding_curve.bump;
+        let usdc_amount = ctx.accounts.buy_order.usdc_amount;
+        let buyer = ctx.accounts.buy_order.buyer;
+        let timestamp = ctx.accounts.buy_order.timestamp;
+
+        // Validate that this is a failed transaction
+        require!(!ctx.accounts.buy_order.processed, ErrorCode::InvalidAmount);
+        require!(usdc_amount > 0, ErrorCode::InvalidAmount);
+
+        // Check if enough time has passed (e.g., 1 hour) to allow emergency refund
+        let time_elapsed = clock.unix_timestamp - timestamp;
+        require!(time_elapsed >= 3600, ErrorCode::RefundNotReady); // 1 hour = 3600 seconds
+
+        // Prepare CPI accounts and signer for refund
+        let seeds = &[b"bonding_curve", &[bonding_curve_bump][..]];
+        let signer = &[&seeds[..]];
+
+        // Refund USDC from program to buyer
+        let cpi_accounts = token::Transfer {
+            from: ctx.accounts.program_usdc_account.to_account_info(),
+            to: ctx.accounts.buyer_usdc_account.to_account_info(),
+            authority: ctx.accounts.bonding_curve.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+        token::transfer(cpi_ctx, usdc_amount)?;
+
+        // Now update state after CPI calls
+        let bonding_curve = &mut ctx.accounts.bonding_curve;
+        let buy_order = &mut ctx.accounts.buy_order;
+
+        // Mark buy order as processed (refunded)
+        buy_order.processed = true;
+        bonding_curve.buy_queue_head = bonding_curve.buy_queue_head.checked_add(1).unwrap();
+
+        // Emit emergency refund event
+        emit!(EmergencyRefundEvent {
+            buyer,
+            usdc_amount,
+            time_elapsed,
+            timestamp: clock.unix_timestamp,
+        });
+
+        msg!("Emergency refund: {} USDC refunded to buyer {}", 
+             usdc_amount, buyer);
 
         Ok(())
     }
@@ -563,6 +632,31 @@ pub struct ApplyDailyBoost<'info> {
     pub authority: Signer<'info>,
 }
 
+#[derive(Accounts)]
+pub struct EmergencyRefund<'info> {
+    #[account(
+        mut,
+        seeds = [b"bonding_curve"],
+        bump = bonding_curve.bump
+    )]
+    pub bonding_curve: Account<'info, BondingCurve>,
+    
+    #[account(
+        mut,
+        seeds = [b"buy_order", bonding_curve.buy_queue_head.to_le_bytes().as_ref()],
+        bump = buy_order.bump
+    )]
+    pub buy_order: Account<'info, BuyOrder>,
+    
+    #[account(mut)]
+    pub program_usdc_account: Account<'info, TokenAccount>,
+    
+    #[account(mut)]
+    pub buyer_usdc_account: Account<'info, TokenAccount>,
+    
+    pub token_program: Program<'info, Token>,
+}
+
 #[account]
 #[derive(InitSpace)]
 pub struct BondingCurve {
@@ -644,6 +738,14 @@ pub struct DailyBoostEvent {
     pub final_price: u64,
     pub days_passed: i64,
     pub boost_amount: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct EmergencyRefundEvent {
+    pub buyer: Pubkey,
+    pub usdc_amount: u64,
+    pub time_elapsed: i64,
     pub timestamp: i64,
 }
 
@@ -799,4 +901,14 @@ pub enum ErrorCode {
     InvalidAmount,
     #[msg("Queue is empty")]
     QueueEmpty,
+    #[msg("Transaction amount too large")]
+    AmountTooLarge,
+    #[msg("Invalid buyer address")]
+    InvalidBuyer,
+    #[msg("Transaction not ready for refund")]
+    RefundNotReady,
+    #[msg("Price calculation failed")]
+    PriceCalculationFailed,
+    #[msg("Insufficient liquidity")]
+    InsufficientLiquidity,
 }
