@@ -1,0 +1,129 @@
+# EverRiseDEX Development Memory
+
+## Important Token and Wallet Addresses
+
+### Test Token (Devnet)
+- **EVER Token Mint**: `85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb`
+  - This is the test token for EverRise ($EVER) on Solana devnet
+  - Used for development and testing purposes
+  - **IMPORTANT**: Always use this address when referencing the EVER token in development
+
+### Treasury Wallet
+- **Treasury Address**: `FEVyge83aMu6gP2uSXUFFH7ujVs2SQqfA425S7mJJGqA`
+  - This wallet receives USDC when buys are taken from the reserve
+  - Used for bonding curve mechanics (X variable in the formula)
+  - **IMPORTANT**: All reserve buy transactions should send USDC to this address
+  - **NOTE**: This is the TREASURY, not the reserve. The reserve refers to unsold EVER tokens.
+
+## Development Guidelines
+
+### Specification Consistency
+- **CRITICAL**: Always check both specification files before starting any task:
+  - `EverRise - Formula.md` (Primary source of truth)
+  - `EverRiseDEX - Technical Specs.md` (Secondary reference)
+- Look for conflicts between the two documents
+- Ensure mathematical formulas are consistent
+- Verify variable definitions match across both files
+- **Action Required**: Check specs files at least once per development session
+
+### Stablecoin Standard
+- **USDC is the chosen stablecoin** (not USDT)
+- All references should use USDC
+- Initial treasury value: 100,000 USDC
+- All price calculations in USDC
+
+### Key Formula Constants
+- **Daily Minimum Growth**: 0.02% (0.0002)
+- **Queue Bonus Factor**: 0.1% (0.001)
+- **Initial X (USDC Treasury)**: 100,000 USDC
+- **Initial Y (EVER Reserve)**: 1,000,000,000 EVER tokens (unsold tokens)
+- **Initial K (Constant Product)**: 100,000 × 1,000,000,000
+
+## Frontend Development Notes
+
+### Current Status
+- ✅ Frontend completed with Next.js 14 + TypeScript
+- ✅ Solana wallet integration (Phantom, Solflare)
+- ✅ Trading interface with buy/sell functionality
+- ✅ Real-time price display and charts
+- ✅ Queue status monitoring
+- ✅ Responsive design with Tailwind CSS
+
+### Mock Data Implementation
+- Currently using simulated data for demonstration
+- Price updates every 5 seconds with small increases
+- Queue processing simulation
+- **TODO**: Replace with actual smart contract integration
+
+## Smart Contract Development
+
+### Architecture Decisions
+- Solana program with Program Derived Addresses (PDAs)
+- Bonding curve mechanics (K = X × Y)
+- Queue-based peer-to-peer matching
+- Daily boost mechanism for minimum growth
+- Treasury system for buybacks
+
+### Security Considerations
+- Use fixed-point arithmetic (no floats)
+- Implement overflow protection
+- Atomic transaction processing
+- Input validation for all user inputs
+- Access control for admin functions
+
+## Common Mistakes to Avoid
+
+1. **Token Address Confusion**: Always use the correct EVER token mint address
+2. **Stablecoin References**: Use USDC, not USDT
+3. **Specification Conflicts**: Check both spec files for consistency
+4. **Mathematical Precision**: Use fixed-point arithmetic, avoid floats
+5. **Wallet Address Mix-ups**: Use correct USDC treasury wallet address
+6. **Reserve vs Treasury Confusion**: Reserve = unsold EVER tokens (Y), Treasury = USDC wallet (X)
+
+## Testing Environment
+
+### Devnet Configuration
+- **Network**: Solana Devnet
+- **RPC Endpoint**: https://api.devnet.solana.com
+- **Wallet**: Use devnet-compatible wallets (Phantom, Solflare)
+- **Test Tokens**: Use devnet USDC and EVER test tokens
+
+## Deployment Notes
+
+### Smart Contract Deployment Rules
+- NEVER deploy using admin panel's "Deploy" button
+- ALWAYS use `solana program deploy` command
+- Ensure Program ID matches `declare_id!` in contract
+- Deployer wallet should be the authority
+- Double-check Program ID before deployment
+
+## Commit Message Format
+
+Always prefix commit messages:
+- `Feat(component): add new component`
+- `Fix(api): fix api error`
+- `Docs(readme): update readme`
+- `Refactor(utils): refactor utils`
+- `Style(tailwind): add new tailwind class`
+- `Test(unit): add unit test`
+- `Chore(deps): update dependencies`
+
+## Regular Maintenance Tasks
+
+### Weekly Checklist
+- [ ] Review specification files for consistency
+- [ ] Check for any new conflicts between docs
+- [ ] Verify token addresses are still valid
+- [ ] Update any outdated information
+- [ ] Review commit message format compliance
+
+### Before Each Development Session
+- [ ] Read this memory file
+- [ ] Check specification files for updates
+- [ ] Verify current token addresses
+- [ ] Review any new requirements or changes
+
+---
+
+**Last Updated**: [Current Date]
+**Next Review**: [Set reminder for weekly review]

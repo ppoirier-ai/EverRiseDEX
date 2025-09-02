@@ -1,0 +1,114 @@
+'use client';
+
+import React from 'react';
+import { TrendingUp, DollarSign, Activity } from 'lucide-react';
+
+interface PriceDisplayProps {
+  currentPrice: number;
+  priceChange24h: number;
+  volume24h: number;
+  marketCap: number;
+  circulatingSupply: number;
+}
+
+export const PriceDisplay: React.FC<PriceDisplayProps> = ({
+  currentPrice,
+  priceChange24h,
+  volume24h,
+  marketCap,
+  circulatingSupply,
+}) => {
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 6,
+      maximumFractionDigits: 8,
+    }).format(price);
+  };
+
+  const formatNumber = (num: number) => {
+    if (num >= 1e9) {
+      return (num / 1e9).toFixed(2) + 'B';
+    } else if (num >= 1e6) {
+      return (num / 1e6).toFixed(2) + 'M';
+    } else if (num >= 1e3) {
+      return (num / 1e3).toFixed(2) + 'K';
+    }
+    return num.toFixed(2);
+  };
+
+  const formatPercentage = (percentage: number) => {
+    const sign = percentage >= 0 ? '+' : '';
+    return `${sign}${percentage.toFixed(4)}%`;
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+            <span className="text-white font-bold text-lg">E</span>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">EverRise</h1>
+            <p className="text-gray-500">$EVER</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-3xl font-bold text-gray-900">
+            {formatPrice(currentPrice)}
+          </div>
+          <div className={`flex items-center space-x-1 ${
+            priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'
+          }`}>
+            <TrendingUp className="w-4 h-4" />
+            <span className="font-medium">
+              {formatPercentage(priceChange24h)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <DollarSign className="w-4 h-4 text-gray-500" />
+            <span className="text-sm text-gray-600">Market Cap</span>
+          </div>
+          <div className="text-lg font-semibold text-gray-900">
+            ${formatNumber(marketCap)}
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <Activity className="w-4 h-4 text-gray-500" />
+            <span className="text-sm text-gray-600">24h Volume</span>
+          </div>
+          <div className="text-lg font-semibold text-gray-900">
+            ${formatNumber(volume24h)}
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <span className="text-sm text-gray-600">Circulating Supply</span>
+          </div>
+          <div className="text-lg font-semibold text-gray-900">
+            {formatNumber(circulatingSupply)}
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <span className="text-sm text-gray-600">Reserve Supply</span>
+          </div>
+          <div className="text-lg font-semibold text-gray-900">
+            {formatNumber(1000000000 - circulatingSupply)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
