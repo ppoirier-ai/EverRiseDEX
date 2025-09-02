@@ -28,8 +28,19 @@ pub mod everrise_dex {
         bonding_curve.k = INITIAL_X.checked_mul(INITIAL_Y).unwrap(); // K = X * Y
         bonding_curve.last_daily_boost = clock.unix_timestamp;
         bonding_curve.total_volume_24h = 0;
-        bonding_curve.queue_head = 0;
-        bonding_curve.queue_tail = 0;
+        bonding_curve.sell_queue_head = 0;
+        bonding_curve.sell_queue_tail = 0;
+        bonding_curve.buy_queue_head = 0;
+        bonding_curve.buy_queue_tail = 0;
+        bonding_curve.cumulative_bonus = 0;
+        bonding_curve.current_price = INITIAL_X
+            .checked_mul(1_000_000_000)
+            .unwrap()
+            .checked_div(INITIAL_Y)
+            .unwrap();
+        bonding_curve.last_price_update = clock.unix_timestamp;
+        bonding_curve.daily_boost_applied = false;
+        bonding_curve.circulating_supply = 0;
         bonding_curve.bump = ctx.bumps.bonding_curve;
 
         msg!("EverRise DEX initialized with K={}, X={}, Y={}", 
@@ -117,12 +128,13 @@ pub mod everrise_dex {
 
         sell_order.seller = ctx.accounts.user.key();
         sell_order.ever_amount = ever_amount;
-        sell_order.usdc_value = usdc_value;
+        sell_order.locked_price = current_price;
+        sell_order.expected_usdc = usdc_value;
         sell_order.timestamp = clock.unix_timestamp;
         sell_order.processed = false;
         sell_order.bump = ctx.bumps.sell_order;
 
-        bonding_curve.queue_tail = bonding_curve.queue_tail.checked_add(1).unwrap();
+        bonding_curve.sell_queue_tail = bonding_curve.sell_queue_tail.checked_add(1).unwrap();
 
         // Transfer EVER tokens from user to program
         let cpi_accounts = token::Transfer {
@@ -201,7 +213,7 @@ pub struct Sell<'info> {
         init,
         payer = user,
         space = 8 + SellOrder::INIT_SPACE,
-        seeds = [b"sell_order", bonding_curve.queue_tail.to_le_bytes().as_ref()],
+        seeds = [b"sell_order", bonding_curve.sell_queue_tail.to_le_bytes().as_ref()],
         bump
     )]
     pub sell_order: Account<'info, SellOrder>,
@@ -229,8 +241,15 @@ pub struct BondingCurve {
     pub k: u64, // K = X * Y (constant)
     pub last_daily_boost: i64,
     pub total_volume_24h: u64,
-    pub queue_head: u64,
-    pub queue_tail: u64,
+    pub sell_queue_head: u64,
+    pub sell_queue_tail: u64,
+    pub buy_queue_head: u64,
+    pub buy_queue_tail: u64,
+    pub cumulative_bonus: u64, // Sum of all historical bonuses
+    pub current_price: u64, // Current locked price
+    pub last_price_update: i64, // Timestamp of last price update
+    pub daily_boost_applied: bool, // Whether daily boost was applied today
+    pub circulating_supply: u64, // Total EVER tokens in circulation
     pub bump: u8,
 }
 
@@ -239,7 +258,20 @@ pub struct BondingCurve {
 pub struct SellOrder {
     pub seller: Pubkey,
     pub ever_amount: u64,
-    pub usdc_value: u64,
+    pub locked_price: u64, // Price at time of queue entry
+    pub expected_usdc: u64, // Expected USDC to receive
+    pub timestamp: i64,
+    pub processed: bool,
+    pub bump: u8,
+}
+
+#[account]
+#[derive(InitSpace)]
+pub struct BuyOrder {
+    pub buyer: Pubkey,
+    pub usdc_amount: u64,
+    pub locked_price: u64, // Price at time of queue entry
+    pub expected_tokens: u64, // Expected tokens to receive
     pub timestamp: i64,
     pub processed: bool,
     pub bump: u8,
