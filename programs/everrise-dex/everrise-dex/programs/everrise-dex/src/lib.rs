@@ -156,6 +156,86 @@ pub mod everrise_dex {
 
         Ok(())
     }
+
+    /// Process buy orders from the queue (simplified version for now)
+    pub fn process_buy_queue(ctx: Context<ProcessBuyQueue>) -> Result<()> {
+        let clock = Clock::get()?;
+
+        // Check if there are buy orders to process
+        if ctx.accounts.bonding_curve.buy_queue_head >= ctx.accounts.bonding_curve.buy_queue_tail {
+            return Err(ErrorCode::QueueEmpty.into());
+        }
+
+        // Get the next buy order to process
+        if ctx.accounts.buy_order.processed {
+            return Err(ErrorCode::InvalidAmount.into()); // Already processed
+        }
+
+        // Extract values before mutable borrows
+        let usdc_amount = ctx.accounts.buy_order.usdc_amount;
+        let buyer = ctx.accounts.buy_order.buyer;
+        let bonding_curve_bump = ctx.accounts.bonding_curve.bump;
+
+        // Calculate tokens to receive
+        let ever_from_reserves = calculate_buy_amount(&ctx.accounts.bonding_curve, usdc_amount)?;
+
+        // Prepare CPI accounts and signer
+        let seeds = &[b"bonding_curve", &[bonding_curve_bump][..]];
+        let signer = &[&seeds[..]];
+
+        // Transfer USDC from program to treasury
+        let cpi_accounts = token::Transfer {
+            from: ctx.accounts.program_usdc_account.to_account_info(),
+            to: ctx.accounts.treasury_usdc_account.to_account_info(),
+            authority: ctx.accounts.bonding_curve.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+        token::transfer(cpi_ctx, usdc_amount)?;
+
+        // Mint EVER tokens to buyer
+        let mint_instruction = anchor_spl::token::MintTo {
+            mint: ctx.accounts.ever_mint.to_account_info(),
+            to: ctx.accounts.buyer_ever_account.to_account_info(),
+            authority: ctx.accounts.bonding_curve.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, mint_instruction, signer);
+        token::mint_to(cpi_ctx, ever_from_reserves)?;
+
+        // Now update bonding curve state
+        let bonding_curve = &mut ctx.accounts.bonding_curve;
+        let buy_order = &mut ctx.accounts.buy_order;
+
+        // Update bonding curve state
+        bonding_curve.x = bonding_curve.x.checked_add(usdc_amount).unwrap();
+        bonding_curve.y = bonding_curve.y.checked_sub(ever_from_reserves).unwrap();
+        bonding_curve.k = bonding_curve.x.checked_mul(bonding_curve.y).unwrap();
+
+        // Mark buy order as processed
+        buy_order.processed = true;
+        bonding_curve.buy_queue_head = bonding_curve.buy_queue_head.checked_add(1).unwrap();
+
+        // Update total volume
+        bonding_curve.total_volume_24h = bonding_curve.total_volume_24h
+            .checked_add(usdc_amount)
+            .unwrap();
+
+        // Emit processed event
+        emit!(BuyProcessedEvent {
+            buyer,
+            usdc_amount,
+            ever_tokens: ever_from_reserves,
+            queue_transactions: 0, // No queue transactions in simplified version
+            reserve_transactions: usdc_amount,
+            timestamp: clock.unix_timestamp,
+        });
+
+        msg!("Buy processed: {} USDC -> {} EVER tokens (reserve only)", 
+             usdc_amount, ever_from_reserves);
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -241,6 +321,37 @@ pub struct Sell<'info> {
     
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct ProcessBuyQueue<'info> {
+    #[account(
+        mut,
+        seeds = [b"bonding_curve"],
+        bump = bonding_curve.bump
+    )]
+    pub bonding_curve: Account<'info, BondingCurve>,
+    
+    #[account(
+        mut,
+        seeds = [b"buy_order", bonding_curve.buy_queue_head.to_le_bytes().as_ref()],
+        bump = buy_order.bump
+    )]
+    pub buy_order: Account<'info, BuyOrder>,
+    
+    #[account(mut)]
+    pub program_usdc_account: Account<'info, TokenAccount>,
+    
+    #[account(mut)]
+    pub buyer_ever_account: Account<'info, TokenAccount>,
+    
+    #[account(mut)]
+    pub treasury_usdc_account: Account<'info, TokenAccount>,
+    
+    #[account(mut)]
+    pub ever_mint: Account<'info, token::Mint>,
+    
+    pub token_program: Program<'info, Token>,
 }
 
 #[account]
@@ -356,6 +467,33 @@ fn apply_daily_boost(bonding_curve: &mut BondingCurve, current_timestamp: i64) -
     }
     
     Ok(())
+}
+
+/// Calculate appreciation bonus for queue-based transactions
+/// Formula: (0.001 × V) / (current_price × SC)
+/// Where V = transaction volume, current_price = sell order locked price, SC = supply cap
+fn calculate_appreciation_bonus(
+    bonding_curve: &BondingCurve,
+    transaction_volume: u64,
+    current_price: u64
+) -> Result<u64> {
+    // Supply cap is the total supply (1 billion tokens)
+    let supply_cap = 1_000_000_000u64;
+    
+    // Calculate: (0.001 × V) / (current_price × SC)
+    let numerator = transaction_volume
+        .checked_mul(1) // 0.001 = 1/1000, but we'll use 1 for simplicity
+        .ok_or(ErrorCode::MathOverflow)?;
+    
+    let denominator = current_price
+        .checked_mul(supply_cap)
+        .ok_or(ErrorCode::MathOverflow)?;
+    
+    let bonus = numerator
+        .checked_div(denominator)
+        .unwrap_or(0);
+    
+    Ok(bonus)
 }
 
 // Error codes
