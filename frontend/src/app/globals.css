@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
@@ -63,11 +65,11 @@ body {
 }
 
 .wallet-adapter-modal-list-item {
-  @apply !rounded-lg !border !border-gray-200 !hover:border-blue-500 !transition-colors;
+  @apply !rounded-lg !border !border-gray-200 hover:!border-blue-500 !transition-colors;
 }
 
 .wallet-adapter-modal-list-item button {
-  @apply !p-4 !w-full !text-left !rounded-lg !hover:bg-blue-50 !transition-colors;
+  @apply !p-4 !w-full !text-left !rounded-lg hover:!bg-blue-50 !transition-colors;
 }
 
 /* Fix hydration issues */
