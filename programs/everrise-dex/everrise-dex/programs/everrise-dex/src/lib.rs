@@ -157,7 +157,7 @@ pub mod everrise_dex {
         Ok(())
     }
 
-    /// Process buy orders from the queue (simplified version for now)
+    /// Process buy orders from the queue with partial fill support
     pub fn process_buy_queue(ctx: Context<ProcessBuyQueue>) -> Result<()> {
         let clock = Clock::get()?;
 
@@ -176,41 +176,50 @@ pub mod everrise_dex {
         let buyer = ctx.accounts.buy_order.buyer;
         let bonding_curve_bump = ctx.accounts.bonding_curve.bump;
 
-        // Calculate tokens to receive
-        let ever_from_reserves = calculate_buy_amount(&ctx.accounts.bonding_curve, usdc_amount)?;
-
-        // Prepare CPI accounts and signer
-        let seeds = &[b"bonding_curve", &[bonding_curve_bump][..]];
-        let signer = &[&seeds[..]];
-
-        // Transfer USDC from program to treasury
-        let cpi_accounts = token::Transfer {
-            from: ctx.accounts.program_usdc_account.to_account_info(),
-            to: ctx.accounts.treasury_usdc_account.to_account_info(),
-            authority: ctx.accounts.bonding_curve.to_account_info(),
-        };
-        let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-        token::transfer(cpi_ctx, usdc_amount)?;
-
-        // Mint EVER tokens to buyer
-        let mint_instruction = anchor_spl::token::MintTo {
-            mint: ctx.accounts.ever_mint.to_account_info(),
-            to: ctx.accounts.buyer_ever_account.to_account_info(),
-            authority: ctx.accounts.bonding_curve.to_account_info(),
-        };
-        let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, mint_instruction, signer);
-        token::mint_to(cpi_ctx, ever_from_reserves)?;
-
-        // Now update bonding curve state
-        let bonding_curve = &mut ctx.accounts.bonding_curve;
-        let buy_order = &mut ctx.accounts.buy_order;
+        // Try to process with sell queue first, then reserves
+        let result = process_buy_with_sell_queue(
+            &ctx.accounts,
+            usdc_amount,
+            buyer,
+            bonding_curve_bump,
+            clock.unix_timestamp,
+        )?;
 
         // Update bonding curve state
-        bonding_curve.x = bonding_curve.x.checked_add(usdc_amount).unwrap();
-        bonding_curve.y = bonding_curve.y.checked_sub(ever_from_reserves).unwrap();
+        let bonding_curve = &mut ctx.accounts.bonding_curve;
+        let buy_order = &mut ctx.accounts.buy_order;
+        let sell_order = &mut ctx.accounts.sell_order;
+
+        // Update bonding curve state
+        bonding_curve.x = bonding_curve.x.checked_add(result.reserve_usdc).unwrap();
+        bonding_curve.y = bonding_curve.y.checked_sub(result.reserve_ever).unwrap();
         bonding_curve.k = bonding_curve.x.checked_mul(bonding_curve.y).unwrap();
+
+        // Update cumulative bonus
+        bonding_curve.cumulative_bonus = bonding_curve.cumulative_bonus
+            .checked_add(result.appreciation_bonus)
+            .unwrap();
+
+        // Update sell order if it was processed
+        if result.queue_usdc > 0 {
+            // Calculate how much of the sell order was consumed
+            let usdc_consumed = result.queue_usdc;
+            let ever_consumed = usdc_consumed
+                .checked_mul(1_000_000_000)
+                .unwrap_or(0)
+                .checked_div(sell_order.locked_price)
+                .unwrap_or(0);
+            
+            sell_order.remaining_amount = sell_order.remaining_amount
+                .checked_sub(ever_consumed)
+                .unwrap();
+            
+            // Mark as processed if fully consumed
+            if sell_order.remaining_amount == 0 {
+                sell_order.processed = true;
+                bonding_curve.sell_queue_head = bonding_curve.sell_queue_head.checked_add(1).unwrap();
+            }
+        }
 
         // Mark buy order as processed
         buy_order.processed = true;
@@ -225,17 +234,182 @@ pub mod everrise_dex {
         emit!(BuyProcessedEvent {
             buyer,
             usdc_amount,
-            ever_tokens: ever_from_reserves,
-            queue_transactions: 0, // No queue transactions in simplified version
-            reserve_transactions: usdc_amount,
+            ever_tokens: result.total_ever_received,
+            queue_transactions: result.queue_usdc,
+            reserve_transactions: result.reserve_usdc,
             timestamp: clock.unix_timestamp,
         });
 
-        msg!("Buy processed: {} USDC -> {} EVER tokens (reserve only)", 
-             usdc_amount, ever_from_reserves);
+        msg!("Buy processed: {} USDC -> {} EVER tokens (queue: {}, reserve: {})", 
+             usdc_amount, result.total_ever_received, result.queue_usdc, result.reserve_usdc);
 
         Ok(())
     }
+}
+
+// Result struct for buy processing
+#[derive(Debug)]
+struct BuyProcessingResult {
+    total_ever_received: u64,
+    queue_usdc: u64,
+    reserve_usdc: u64,
+    reserve_ever: u64,
+    appreciation_bonus: u64,
+}
+
+// Helper function to process buy with sell queue (one sell order at a time)
+fn process_buy_with_sell_queue(
+    accounts: &ProcessBuyQueue,
+    usdc_amount: u64,
+    _buyer: Pubkey,
+    bonding_curve_bump: u8,
+    _timestamp: i64,
+) -> Result<BuyProcessingResult> {
+    let mut remaining_usdc = usdc_amount;
+    let mut total_ever_received = 0u64;
+    let mut queue_usdc = 0u64;
+    let mut appreciation_bonus = 0u64;
+
+    // Prepare CPI accounts and signer
+    let seeds = &[b"bonding_curve", &[bonding_curve_bump][..]];
+    let signer = &[&seeds[..]];
+
+    // Try to fill from the current sell order if available
+    if accounts.bonding_curve.sell_queue_head < accounts.bonding_curve.sell_queue_tail {
+        let sell_order = &accounts.sell_order;
+        
+        if !sell_order.processed && sell_order.remaining_amount > 0 {
+            // Calculate how much USDC we can spend on this sell order
+            let usdc_for_this_sell = sell_order.remaining_amount
+                .checked_mul(sell_order.locked_price)
+                .unwrap_or(0)
+                .checked_div(1_000_000_000) // Convert from 9 decimals to 6
+                .unwrap_or(0);
+
+            if usdc_for_this_sell > 0 {
+                if usdc_for_this_sell <= remaining_usdc {
+                    // Full fill of this sell order
+                    let ever_from_sell = sell_order.remaining_amount;
+                    
+                    // Transfer USDC from program to seller
+                    let cpi_accounts = token::Transfer {
+                        from: accounts.program_usdc_account.to_account_info(),
+                        to: accounts.seller_usdc_account.to_account_info(),
+                        authority: accounts.bonding_curve.to_account_info(),
+                    };
+                    let cpi_program = accounts.token_program.to_account_info();
+                    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+                    token::transfer(cpi_ctx, usdc_for_this_sell)?;
+
+                    // Transfer EVER tokens from program to buyer
+                    let cpi_accounts = token::Transfer {
+                        from: accounts.program_ever_account.to_account_info(),
+                        to: accounts.buyer_ever_account.to_account_info(),
+                        authority: accounts.bonding_curve.to_account_info(),
+                    };
+                    let cpi_program = accounts.token_program.to_account_info();
+                    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+                    token::transfer(cpi_ctx, ever_from_sell)?;
+
+                    // Update tracking
+                    remaining_usdc = remaining_usdc.checked_sub(usdc_for_this_sell).unwrap();
+                    total_ever_received = total_ever_received.checked_add(ever_from_sell).unwrap();
+                    queue_usdc = queue_usdc.checked_add(usdc_for_this_sell).unwrap();
+
+                    // Apply appreciation bonus for queue transaction
+                    let bonus = calculate_appreciation_bonus(
+                        &accounts.bonding_curve,
+                        usdc_for_this_sell,
+                        sell_order.locked_price
+                    )?;
+                    appreciation_bonus = appreciation_bonus.checked_add(bonus).unwrap();
+
+                } else {
+                    // Partial fill of this sell order
+                    let ever_for_partial = remaining_usdc
+                        .checked_mul(1_000_000_000) // Convert to 9 decimals
+                        .unwrap_or(0)
+                        .checked_div(sell_order.locked_price)
+                        .unwrap_or(0);
+
+                    if ever_for_partial > 0 {
+                        // Transfer USDC from program to seller
+                        let cpi_accounts = token::Transfer {
+                            from: accounts.program_usdc_account.to_account_info(),
+                            to: accounts.seller_usdc_account.to_account_info(),
+                            authority: accounts.bonding_curve.to_account_info(),
+                        };
+                        let cpi_program = accounts.token_program.to_account_info();
+                        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+                        token::transfer(cpi_ctx, remaining_usdc)?;
+
+                        // Transfer EVER tokens from program to buyer
+                        let cpi_accounts = token::Transfer {
+                            from: accounts.program_ever_account.to_account_info(),
+                            to: accounts.buyer_ever_account.to_account_info(),
+                            authority: accounts.bonding_curve.to_account_info(),
+                        };
+                        let cpi_program = accounts.token_program.to_account_info();
+                        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+                        token::transfer(cpi_ctx, ever_for_partial)?;
+
+                        // Update tracking
+                        total_ever_received = total_ever_received.checked_add(ever_for_partial).unwrap();
+                        queue_usdc = queue_usdc.checked_add(remaining_usdc).unwrap();
+
+                        // Apply appreciation bonus for queue transaction
+                        let bonus = calculate_appreciation_bonus(
+                            &accounts.bonding_curve,
+                            remaining_usdc,
+                            sell_order.locked_price
+                        )?;
+                        appreciation_bonus = appreciation_bonus.checked_add(bonus).unwrap();
+
+                        remaining_usdc = 0; // Buy order fully satisfied
+                    }
+                }
+            }
+        }
+    }
+
+    // If there's still USDC remaining, buy from reserves
+    let mut reserve_usdc = 0u64;
+    let mut reserve_ever = 0u64;
+    
+    if remaining_usdc > 0 {
+        reserve_ever = calculate_buy_amount(&accounts.bonding_curve, remaining_usdc)?;
+
+        // Transfer USDC from program to treasury
+        let cpi_accounts = token::Transfer {
+            from: accounts.program_usdc_account.to_account_info(),
+            to: accounts.treasury_usdc_account.to_account_info(),
+            authority: accounts.bonding_curve.to_account_info(),
+        };
+        let cpi_program = accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+        token::transfer(cpi_ctx, remaining_usdc)?;
+
+        // Mint EVER tokens to buyer
+        let mint_instruction = anchor_spl::token::MintTo {
+            mint: accounts.ever_mint.to_account_info(),
+            to: accounts.buyer_ever_account.to_account_info(),
+            authority: accounts.bonding_curve.to_account_info(),
+        };
+        let cpi_program = accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, mint_instruction, signer);
+        token::mint_to(cpi_ctx, reserve_ever)?;
+
+        reserve_usdc = remaining_usdc;
+        total_ever_received = total_ever_received.checked_add(reserve_ever).unwrap();
+    }
+
+    Ok(BuyProcessingResult {
+        total_ever_received,
+        queue_usdc,
+        reserve_usdc,
+        reserve_ever,
+        appreciation_bonus,
+    })
 }
 
 #[derive(Accounts)]
@@ -339,11 +513,24 @@ pub struct ProcessBuyQueue<'info> {
     )]
     pub buy_order: Account<'info, BuyOrder>,
     
+    #[account(
+        mut,
+        seeds = [b"sell_order", bonding_curve.sell_queue_head.to_le_bytes().as_ref()],
+        bump = sell_order.bump
+    )]
+    pub sell_order: Account<'info, SellOrder>,
+    
     #[account(mut)]
     pub program_usdc_account: Account<'info, TokenAccount>,
     
     #[account(mut)]
+    pub program_ever_account: Account<'info, TokenAccount>,
+    
+    #[account(mut)]
     pub buyer_ever_account: Account<'info, TokenAccount>,
+    
+    #[account(mut)]
+    pub seller_usdc_account: Account<'info, TokenAccount>,
     
     #[account(mut)]
     pub treasury_usdc_account: Account<'info, TokenAccount>,
