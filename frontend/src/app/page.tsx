@@ -5,7 +5,6 @@ import { PriceDisplay } from '@/components/PriceDisplay';
 import { TradingInterface } from '@/components/TradingInterface';
 import { PriceChart } from '@/components/PriceChart';
 import { QueueStatus } from '@/components/QueueStatus';
-import { WalletStatus } from '@/components/WalletStatus';
 
 // Mock data - in real implementation, this would come from the smart contract
 const mockPriceData = [
@@ -121,9 +120,9 @@ export default function Home() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Trading Interface */}
-          <div className="lg:col-span-2">
+          <div>
             <TradingInterface
               currentPrice={currentPrice}
               onBuy={handleBuy}
@@ -132,12 +131,8 @@ export default function Home() {
             />
           </div>
 
-          {/* Right Sidebar */}
-          <div className="space-y-8">
-            {/* Wallet Status */}
-            <WalletStatus />
-            
-            {/* Queue Status */}
+          {/* Queue Status */}
+          <div>
             <QueueStatus
               sellQueueLength={sellQueueLength}
               averageWaitTime={averageWaitTime}
