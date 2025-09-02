@@ -52,55 +52,47 @@ pub mod everrise_dex {
     /// Buy EVER tokens using USDC from the bonding curve
     pub fn buy(ctx: Context<Buy>, usdc_amount: u64) -> Result<()> {
         let bonding_curve = &mut ctx.accounts.bonding_curve;
-        
-        // Calculate price and tokens to receive using bonding curve formula
-        let new_x = bonding_curve.x.checked_add(usdc_amount).unwrap();
-        let new_y = bonding_curve.k.checked_div(new_x).unwrap();
-        let tokens_received = bonding_curve.y.checked_sub(new_y).unwrap();
+        let clock = Clock::get()?;
 
-        // Update bonding curve state
-        bonding_curve.x = new_x;
-        bonding_curve.y = new_y;
-        bonding_curve.total_volume_24h = bonding_curve.total_volume_24h
-            .checked_add(usdc_amount)
-            .unwrap();
+        // Apply daily boost if needed
+        apply_daily_boost(bonding_curve, clock.unix_timestamp)?;
 
-        // Transfer USDC from user to treasury
+        // Calculate estimated tokens (this can change based on actual fills)
+        let estimated_tokens = calculate_buy_amount(bonding_curve, usdc_amount)?;
+
+        // Add to buy queue
+        let buy_order = &mut ctx.accounts.buy_order;
+        buy_order.buyer = ctx.accounts.user.key();
+        buy_order.usdc_amount = usdc_amount;
+        buy_order.expected_tokens = estimated_tokens;
+        buy_order.timestamp = clock.unix_timestamp;
+        buy_order.processed = false;
+        buy_order.bump = ctx.bumps.buy_order;
+
+        // Update buy queue tail
+        bonding_curve.buy_queue_tail = bonding_curve.buy_queue_tail.checked_add(1).unwrap();
+
+        // Transfer USDC from user to program (will be used for actual purchases)
         let cpi_accounts = token::Transfer {
             from: ctx.accounts.user_usdc_account.to_account_info(),
-            to: ctx.accounts.treasury_usdc_account.to_account_info(),
+            to: ctx.accounts.program_usdc_account.to_account_info(),
             authority: ctx.accounts.user.to_account_info(),
         };
-
-        let cpi_ctx = CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
-            cpi_accounts,
-        );
-
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         token::transfer(cpi_ctx, usdc_amount)?;
 
-        // Mint EVER tokens to user
-        let seeds = &[
-            b"bonding_curve",
-            &[bonding_curve.bump][..],
-        ];
-        let signer = &[&seeds[..]];
+        // Emit buy queue event
+        emit!(BuyQueueEvent {
+            buyer: ctx.accounts.user.key(),
+            usdc_amount,
+            estimated_tokens,
+            queue_position: bonding_curve.buy_queue_tail - 1,
+            timestamp: clock.unix_timestamp,
+        });
 
-        let mint_instruction = anchor_spl::token::MintTo {
-            mint: ctx.accounts.ever_mint.to_account_info(),
-            to: ctx.accounts.user_ever_account.to_account_info(),
-            authority: ctx.accounts.bonding_curve.to_account_info(),
-        };
-
-        let cpi_ctx = CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            mint_instruction,
-            signer,
-        );
-
-        token::mint_to(cpi_ctx, tokens_received)?;
-
-        msg!("Buy: {} USDC -> {} EVER tokens", usdc_amount, tokens_received);
+        msg!("Buy queued: {} USDC -> ~{} EVER tokens (position: {})", 
+             usdc_amount, estimated_tokens, bonding_curve.buy_queue_tail - 1);
 
         Ok(())
     }
@@ -150,7 +142,17 @@ pub mod everrise_dex {
 
         token::transfer(cpi_ctx, ever_amount)?;
 
-        msg!("Sell: {} EVER tokens queued for {} USDC", ever_amount, usdc_value);
+        // Emit sell queue event
+        emit!(SellQueueEvent {
+            seller: ctx.accounts.user.key(),
+            ever_amount,
+            locked_price: current_price,
+            queue_position: bonding_curve.sell_queue_tail - 1,
+            timestamp: clock.unix_timestamp,
+        });
+
+        msg!("Sell: {} EVER tokens queued for {} USDC (position: {})", 
+             ever_amount, usdc_value, bonding_curve.sell_queue_tail - 1);
 
         Ok(())
     }
@@ -182,6 +184,15 @@ pub struct Buy<'info> {
     )]
     pub bonding_curve: Account<'info, BondingCurve>,
     
+    #[account(
+        init,
+        payer = user,
+        space = 8 + BuyOrder::INIT_SPACE,
+        seeds = [b"buy_order", bonding_curve.buy_queue_tail.to_le_bytes().as_ref()],
+        bump
+    )]
+    pub buy_order: Account<'info, BuyOrder>,
+    
     #[account(mut)]
     pub user: Signer<'info>,
     
@@ -192,12 +203,13 @@ pub struct Buy<'info> {
     pub user_ever_account: Account<'info, TokenAccount>,
     
     #[account(mut)]
-    pub treasury_usdc_account: Account<'info, TokenAccount>,
+    pub program_usdc_account: Account<'info, TokenAccount>,
     
     #[account(mut)]
     pub ever_mint: Account<'info, token::Mint>,
     
     pub token_program: Program<'info, Token>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
@@ -274,4 +286,87 @@ pub struct BuyOrder {
     pub timestamp: i64,
     pub processed: bool,
     pub bump: u8,
+}
+
+// Events
+#[event]
+pub struct BuyQueueEvent {
+    pub buyer: Pubkey,
+    pub usdc_amount: u64,
+    pub estimated_tokens: u64,
+    pub queue_position: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct BuyProcessedEvent {
+    pub buyer: Pubkey,
+    pub usdc_amount: u64,
+    pub ever_tokens: u64,
+    pub queue_transactions: u64,
+    pub reserve_transactions: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct SellQueueEvent {
+    pub seller: Pubkey,
+    pub ever_amount: u64,
+    pub locked_price: u64,
+    pub queue_position: u64,
+    pub timestamp: i64,
+}
+
+// Helper functions
+/// Calculate how many EVER tokens a user will receive for a given USDC amount
+fn calculate_buy_amount(bonding_curve: &BondingCurve, usdc_amount: u64) -> Result<u64> {
+    let new_x = bonding_curve.x.checked_add(usdc_amount).ok_or(ErrorCode::MathOverflow)?;
+    let new_y = bonding_curve.k.checked_div(new_x).ok_or(ErrorCode::MathOverflow)?;
+    let tokens_received = bonding_curve.y.checked_sub(new_y).ok_or(ErrorCode::MathOverflow)?;
+    Ok(tokens_received)
+}
+
+/// Calculate current price using bonding curve formula
+fn calculate_price(bonding_curve: &BondingCurve) -> u64 {
+    bonding_curve.x
+        .checked_mul(1_000_000_000) // 9 decimals for EVER
+        .unwrap_or(0)
+        .checked_div(bonding_curve.y)
+        .unwrap_or(0)
+}
+
+/// Apply daily boost if needed
+fn apply_daily_boost(bonding_curve: &mut BondingCurve, current_timestamp: i64) -> Result<()> {
+    let days_since_last_boost = (current_timestamp - bonding_curve.last_daily_boost) / 86400; // 86400 seconds in a day
+    
+    if days_since_last_boost > 0 && !bonding_curve.daily_boost_applied {
+        // Apply 0.02% daily boost
+        let boost_amount = bonding_curve.current_price
+            .checked_mul(2) // 0.02% = 2 basis points
+            .unwrap_or(0)
+            .checked_div(10000) // 10,000 basis points = 100%
+            .unwrap_or(0);
+        
+        bonding_curve.current_price = bonding_curve.current_price
+            .checked_add(boost_amount)
+            .ok_or(ErrorCode::MathOverflow)?;
+        
+        bonding_curve.last_daily_boost = current_timestamp;
+        bonding_curve.daily_boost_applied = true;
+    }
+    
+    Ok(())
+}
+
+// Error codes
+#[error_code]
+pub enum ErrorCode {
+    #[msg("Math overflow")]
+    MathOverflow,
+    #[msg("Insufficient funds")]
+    InsufficientFunds,
+    #[msg("Invalid amount")]
+    InvalidAmount,
+    #[msg("Queue is empty")]
+    QueueEmpty,
 }
