@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { ArrowUpDown, ArrowUp, ArrowDown, Info } from 'lucide-react';
@@ -21,6 +21,11 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
   const { connected } = useWallet();
   const [amount, setAmount] = useState('');
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -59,6 +64,23 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
       maximumFractionDigits: 8,
     }).format(price);
   };
+
+  if (!mounted) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200 text-center">
+        <div className="mb-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <ArrowUpDown className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Connect Your Wallet</h2>
+          <p className="text-gray-600">
+            Connect your Solana wallet to start trading EverRise tokens
+          </p>
+        </div>
+        <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+      </div>
+    );
+  }
 
   if (!connected) {
     return (
