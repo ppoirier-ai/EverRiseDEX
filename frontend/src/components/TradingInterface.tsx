@@ -77,7 +77,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
             Connect your Solana wallet to start trading EverRise tokens
           </p>
         </div>
-        <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+        <EnhancedWalletButton className="w-full" />
       </div>
     );
   }
