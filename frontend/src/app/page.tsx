@@ -32,6 +32,24 @@ export default function Home() {
   const [averageWaitTime, setAverageWaitTime] = useState(0);
   const [lastProcessedTime, setLastProcessedTime] = useState(0);
   const [queueVolume, setQueueVolume] = useState(0);
+  
+  // Treasury data
+  const [treasuryBitcoin, setTreasuryBitcoin] = useState(0.5);
+  const [treasuryValueUSDC, setTreasuryValueUSDC] = useState(25000);
+  const [treasuryLastUpdated, setTreasuryLastUpdated] = useState('Never');
+
+  // Load treasury data from localStorage
+  useEffect(() => {
+    const savedBitcoin = localStorage.getItem('treasuryBitcoin');
+    const savedUSDC = localStorage.getItem('treasuryValueUSDC');
+    const savedLastUpdated = localStorage.getItem('treasuryLastUpdated');
+
+    if (savedBitcoin) setTreasuryBitcoin(parseFloat(savedBitcoin));
+    if (savedUSDC) setTreasuryValueUSDC(parseFloat(savedUSDC));
+    if (savedLastUpdated) {
+      setTreasuryLastUpdated(new Date(savedLastUpdated).toLocaleString());
+    }
+  }, []);
 
   // Simulate price updates
   useEffect(() => {
@@ -112,6 +130,9 @@ export default function Home() {
             volume24h={volume24h}
             marketCap={marketCap}
             circulatingSupply={circulatingSupply}
+            treasuryBitcoin={treasuryBitcoin}
+            treasuryValueUSDC={treasuryValueUSDC}
+            lastUpdated={treasuryLastUpdated}
           />
         </div>
 

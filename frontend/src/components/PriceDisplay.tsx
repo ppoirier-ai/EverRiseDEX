@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { TrendingUp, DollarSign, Activity } from 'lucide-react';
+import { TrendingUp, DollarSign, Activity, Coins, Clock } from 'lucide-react';
 
 interface PriceDisplayProps {
   currentPrice: number;
@@ -9,6 +9,9 @@ interface PriceDisplayProps {
   volume24h: number;
   marketCap: number;
   circulatingSupply: number;
+  treasuryBitcoin?: number;
+  treasuryValueUSDC?: number;
+  lastUpdated?: string;
 }
 
 export const PriceDisplay: React.FC<PriceDisplayProps> = ({
@@ -17,6 +20,9 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   volume24h,
   marketCap,
   circulatingSupply,
+  treasuryBitcoin = 0,
+  treasuryValueUSDC = 0,
+  lastUpdated = 'Never',
 }) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -70,7 +76,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="bg-gray-50 rounded-lg p-4">
           <div className="flex items-center space-x-2 mb-2">
             <DollarSign className="w-4 h-4 text-gray-500" />
@@ -106,6 +112,23 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
           </div>
           <div className="text-lg font-semibold text-gray-900">
             {formatNumber(1000000000 - circulatingSupply)}
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <Coins className="w-4 h-4 text-gray-500" />
+            <span className="text-sm text-gray-600">Treasury</span>
+          </div>
+          <div className="text-lg font-semibold text-gray-900">
+            {treasuryBitcoin.toFixed(4)} BTC
+          </div>
+          <div className="text-sm text-gray-600">
+            ${formatNumber(treasuryValueUSDC)} USDC
+          </div>
+          <div className="flex items-center space-x-1 mt-1">
+            <Clock className="w-3 h-3 text-gray-400" />
+            <span className="text-xs text-gray-500">Updated: {lastUpdated}</span>
           </div>
         </div>
       </div>
