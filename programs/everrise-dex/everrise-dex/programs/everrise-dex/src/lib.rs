@@ -128,8 +128,8 @@ pub mod everrise_dex {
 
         sell_order.seller = ctx.accounts.user.key();
         sell_order.ever_amount = ever_amount;
+        sell_order.remaining_amount = ever_amount; // Initially, all tokens are remaining
         sell_order.locked_price = current_price;
-        sell_order.expected_usdc = usdc_value;
         sell_order.timestamp = clock.unix_timestamp;
         sell_order.processed = false;
         sell_order.bump = ctx.bumps.sell_order;
@@ -257,11 +257,11 @@ pub struct BondingCurve {
 #[derive(InitSpace)]
 pub struct SellOrder {
     pub seller: Pubkey,
-    pub ever_amount: u64,
+    pub ever_amount: u64, // Total EVER tokens to sell
+    pub remaining_amount: u64, // Remaining EVER tokens (for partial fills)
     pub locked_price: u64, // Price at time of queue entry
-    pub expected_usdc: u64, // Expected USDC to receive
     pub timestamp: i64,
-    pub processed: bool,
+    pub processed: bool, // true when remaining_amount = 0
     pub bump: u8,
 }
 
@@ -270,8 +270,7 @@ pub struct SellOrder {
 pub struct BuyOrder {
     pub buyer: Pubkey,
     pub usdc_amount: u64,
-    pub locked_price: u64, // Price at time of queue entry
-    pub expected_tokens: u64, // Expected tokens to receive
+    pub expected_tokens: u64, // Estimated tokens (can change based on actual fills)
     pub timestamp: i64,
     pub processed: bool,
     pub bump: u8,
