@@ -15,6 +15,13 @@
   - **IMPORTANT**: All reserve buy transactions should send USDC to this address
   - **NOTE**: This is the TREASURY, not the reserve. The reserve refers to unsold EVER tokens.
 
+### Smart Contract Program ID
+- **Program ID**: `9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy`
+  - This is the deployed EverRise DEX smart contract program ID
+  - **CRITICAL**: Always use this exact ID when interacting with the contract
+  - **IMPORTANT**: If redeployed, this ID will change - update this memory file immediately
+  - Used in frontend integration and all contract interactions
+
 ## Development Guidelines
 
 ### Specification Consistency
@@ -96,6 +103,7 @@
 - Ensure Program ID matches `declare_id!` in contract
 - Deployer wallet should be the authority
 - Double-check Program ID before deployment
+- **CRITICAL**: If Program ID changes after deployment, update memory file immediately
 
 ## Commit Message Format
 
@@ -114,6 +122,7 @@ Always prefix commit messages:
 - [ ] Review specification files for consistency
 - [ ] Check for any new conflicts between docs
 - [ ] Verify token addresses are still valid
+- [ ] Verify smart contract Program ID is current
 - [ ] Update any outdated information
 - [ ] Review commit message format compliance
 
@@ -121,6 +130,7 @@ Always prefix commit messages:
 - [ ] Read this memory file
 - [ ] Check specification files for updates
 - [ ] Verify current token addresses
+- [ ] Verify smart contract Program ID is current
 - [ ] Review any new requirements or changes
 
 ---
