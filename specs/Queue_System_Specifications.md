@@ -35,23 +35,22 @@ pub struct BondingCurve {
 pub struct BuyOrder {
     pub buyer: Pubkey,          // Buyer's wallet address
     pub usdc_amount: u64,       // USDC amount to spend
-    pub locked_price: u64,      // Price at time of queue entry
-    pub expected_tokens: u64,   // Expected tokens to receive
+    pub expected_tokens: u64,   // Estimated tokens (can change based on actual fills)
     pub timestamp: i64,         // Queue entry timestamp
     pub processed: bool,        // Whether order has been processed
     pub bump: u8,              // PDA bump
 }
 ```
 
-### **Sell Order Structure** (Enhanced)
+### **Sell Order Structure** (Enhanced for Partial Fills)
 ```rust
 pub struct SellOrder {
     pub seller: Pubkey,         // Seller's wallet address
-    pub ever_amount: u64,       // EVER tokens to sell
+    pub ever_amount: u64,       // Total EVER tokens to sell
+    pub remaining_amount: u64,  // Remaining EVER tokens (for partial fills)
     pub locked_price: u64,      // Price at time of queue entry
-    pub expected_usdc: u64,     // Expected USDC to receive
     pub timestamp: i64,         // Queue entry timestamp
-    pub processed: bool,        // Whether order has been processed
+    pub processed: bool,        // true when remaining_amount = 0
     pub bump: u8,              // PDA bump
 }
 ```
@@ -60,16 +59,23 @@ pub struct SellOrder {
 
 ### **Buy Transaction Flow**
 ```
-1. User initiates buy → Add to buy queue with locked price
+1. User initiates buy → Add to buy queue with USDC amount (NO locked price)
 2. Queue processor handles orders sequentially (FIFO)
 3. For each buy order:
-   a. Check if sell queue has matching orders
-   b. If yes: Process peer-to-peer matching
-   c. If no: Buy from reserves (bonding curve)
-   d. Update price and cumulative bonuses
-   e. Mark order as processed
-4. Update bonding curve state
-5. Apply daily boost if needed
+   a. Calculate remaining USDC to spend
+   b. While remaining USDC > 0:
+      - Check if sell queue has orders
+      - If yes: Process partial/full fill from sell order
+        * Transfer USDC to seller at sell order's locked price
+        * Transfer EVER tokens to buyer
+        * Update sell order remaining_amount (or mark processed if fully consumed)
+        * Apply appreciation bonus for queue-based transaction
+      - If no more sell orders: Buy remaining from reserves
+        * Use current bonding curve price (X/Y)
+        * No appreciation bonus for reserve buys
+   c. Update bonding curve state and price
+   d. Mark buy order as processed
+4. Apply daily boost if needed
 ```
 
 ### **Sell Transaction Flow**
@@ -77,11 +83,63 @@ pub struct SellOrder {
 1. User initiates sell → Add to sell queue with locked price
 2. Order waits in queue for matching buy orders
 3. When processed by buy orders:
-   a. Transfer EVER tokens to buyer
-   b. Transfer USDC to seller
-   c. Apply appreciation bonus
-   d. Mark order as processed
+   a. Transfer EVER tokens to buyer (partial or full amount)
+   b. Transfer USDC to seller at locked price
+   c. Update remaining_amount (or mark processed if fully consumed)
+   d. Apply appreciation bonus for queue-based transaction
+4. Order remains in queue until fully consumed
 ```
+
+## 🔄 Partial Fill Scenarios
+
+### **Scenario 1: Buy Order < Sell Order**
+```
+Buy Order: $500 USDC
+Sell Order: 10,000 EVER at $0.0001 (locked price)
+
+Processing:
+- Buy $500 worth = 5,000 EVER at $0.0001
+- Sell order remaining: 5,000 EVER
+- Sell order stays in queue with updated remaining_amount
+- Apply appreciation bonus for $500 queue transaction
+```
+
+### **Scenario 2: Buy Order > Single Sell Order**
+```
+Buy Order: $1,000 USDC
+Sell Queue:
+- Order 1: 5,000 EVER at $0.0001 (locked price)
+- Order 2: 3,000 EVER at $0.0001 (same price)
+
+Processing:
+- Buy $500 from Order 1: 5,000 EVER at $0.0001
+- Buy $300 from Order 2: 3,000 EVER at $0.0001
+- Remaining $200: Buy from reserves at current bonding curve price
+- Apply appreciation bonus for $800 queue transactions
+- No bonus for $200 reserve transaction
+```
+
+### **Scenario 3: Buy Order > All Sell Orders**
+```
+Buy Order: $2,000 USDC
+Sell Queue:
+- Order 1: 1,000 EVER at $0.0001
+- Order 2: 500 EVER at $0.0002
+
+Processing:
+- Buy $100 from Order 1: 1,000 EVER at $0.0001
+- Buy $100 from Order 2: 500 EVER at $0.0002
+- Remaining $1,800: Buy from reserves at current bonding curve price
+- Apply appreciation bonus for $200 queue transactions
+- No bonus for $1,800 reserve transaction
+```
+
+### **Key Implementation Details**
+- **Partial Fill Handling**: Update `remaining_amount` instead of deleting sell orders
+- **Multiple Sell Order Consumption**: Process sell orders sequentially until buy is satisfied
+- **Price Consistency**: Each sell order maintains its locked price
+- **Appreciation Bonus**: Only applied to queue-based transactions (not reserve buys)
+- **FIFO Processing**: Sell orders processed in queue order (head to tail)
 
 ## 💰 Price Calculation System
 
@@ -135,24 +193,26 @@ Where:
 
 ### **Phase 1: Critical Fixes (URGENT)**
 1. **Implement Buy Queue System**
-   - Create BuyOrder PDA structure
-   - Add buy queue management
-   - Implement FIFO processing
+   - Create BuyOrder PDA structure (NO locked price)
+   - Add buy queue management with FIFO processing
+   - Implement sequential buy order processing
 
 2. **Fix Price Calculation**
    - Add persistent price storage
    - Implement cumulative bonus tracking
-   - Add volume-weighted formula
+   - Add volume-weighted formula for queue transactions only
 
-3. **Complete Queue Processing**
+3. **Complete Queue Processing with Partial Fills**
    - Implement `process_sell_queue` function
-   - Add peer-to-peer matching
-   - Add appreciation bonus calculation
+   - Add peer-to-peer matching with partial fill support
+   - Add `remaining_amount` tracking for sell orders
+   - Add appreciation bonus calculation for queue transactions only
 
 4. **Add Transaction Safety**
    - Implement atomic price updates
    - Add USDC protection
    - Add concurrent transaction handling
+   - Ensure proper partial fill handling
 
 ### **Phase 2: Testing & Validation**
 1. **Unit Testing**
@@ -177,6 +237,9 @@ Where:
 - ✅ 100% transaction success rate (no USDC loss)
 - ✅ Accurate price calculations with cumulative bonuses
 - ✅ Proper queue processing with FIFO ordering
+- ✅ Correct partial fill handling for sell orders
+- ✅ Proper price determination at processing time (not queue entry)
+- ✅ Appreciation bonus only for queue transactions (not reserve buys)
 
 ### **Performance Requirements**
 - ✅ Transaction processing time < 1 second
