@@ -51,10 +51,10 @@ describe("everrise-dex", () => {
     const bondingCurve = await program.account.bondingCurve.fetch(bondingCurvePDA);
     
     // Price = X / Y = 1,000 USDC / 1,000 EVER
-    // = 1 USDC per EVER = $1
-    const expectedPrice = 1_000_000_000 / 1_000_000_000; // 1 in proper decimals
+    // = 1.0 USDC per EVER = $1.0
+    const expectedPrice = 1_000_000_000 / 1_000_000_000; // 1.0 in proper decimals
     
-    console.log("Initial price should be approximately $1 per EVER");
+    console.log("Initial price should be approximately $1.0 per EVER");
     console.log("X (USDC):", bondingCurve.x.toString());
     console.log("Y (EVER):", bondingCurve.y.toString());
     console.log("K (constant):", bondingCurve.k.toString());

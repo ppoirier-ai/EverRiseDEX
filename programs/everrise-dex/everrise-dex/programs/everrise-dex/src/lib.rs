@@ -4,8 +4,8 @@ use anchor_spl::token::{self, Token, TokenAccount};
 declare_id!("9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy");
 
 // Constants from EverRise Formula
-const INITIAL_X: u64 = 1_000_000_000; // 1,000 USDC (6 decimals)
-const INITIAL_Y: u64 = 1_000_000_000; // 1,000 EVER (9 decimals)
+const INITIAL_X: u64 = 100_000_000_000; // 100,000 USDC (6 decimals)
+const INITIAL_Y: u64 = 1_000_000_000_000_000_000; // 1,000,000,000 EVER (9 decimals)
 const DAILY_GROWTH_RATE: u64 = 2; // 0.02% = 2 basis points
 const BASIS_POINTS: u64 = 10_000; // 100% = 10,000 basis points
 
