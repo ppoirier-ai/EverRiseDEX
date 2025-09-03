@@ -25,7 +25,8 @@ pub mod everrise_dex {
         bonding_curve.treasury_wallet = treasury_wallet;
         bonding_curve.x = INITIAL_X; // USDC in treasury
         bonding_curve.y = INITIAL_Y; // EVER in reserve
-        bonding_curve.k = INITIAL_X.checked_mul(INITIAL_Y).ok_or(ErrorCode::MathOverflow)?; // K = X * Y
+        // Calculate K = X * Y using u128 to handle overflow
+        bonding_curve.k = (INITIAL_X as u128).checked_mul(INITIAL_Y as u128).ok_or(ErrorCode::MathOverflow)?; // K = X * Y
         bonding_curve.last_daily_boost = clock.unix_timestamp;
         bonding_curve.total_volume_24h = 0;
         bonding_curve.sell_queue_head = 0;
@@ -215,7 +216,7 @@ pub mod everrise_dex {
         // Update bonding curve state
         bonding_curve.x = bonding_curve.x.checked_add(result.reserve_usdc).unwrap();
         bonding_curve.y = bonding_curve.y.checked_sub(result.reserve_ever).unwrap();
-        bonding_curve.k = bonding_curve.x.checked_mul(bonding_curve.y).unwrap();
+        bonding_curve.k = (bonding_curve.x as u128).checked_mul(bonding_curve.y as u128).unwrap();
 
         // Update cumulative bonus
         bonding_curve.cumulative_bonus = bonding_curve.cumulative_bonus
@@ -363,7 +364,7 @@ pub mod everrise_dex {
                 // Update bonding curve (X decreases, Y increases)
                 bonding_curve.x = bonding_curve.x.checked_sub(usdc_to_pay).ok_or(ErrorCode::MathOverflow)?;
                 bonding_curve.y = bonding_curve.y.checked_add(ever_to_sell).ok_or(ErrorCode::MathOverflow)?;
-                bonding_curve.k = bonding_curve.x.checked_mul(bonding_curve.y).ok_or(ErrorCode::MathOverflow)?;
+                bonding_curve.k = (bonding_curve.x as u128).checked_mul(bonding_curve.y as u128).ok_or(ErrorCode::MathOverflow)?;
 
                 // Update sell order
                 sell_order.remaining_amount = sell_order.remaining_amount.checked_sub(ever_to_sell).ok_or(ErrorCode::MathOverflow)?;
@@ -830,7 +831,7 @@ pub struct BondingCurve {
     pub treasury_wallet: Pubkey,
     pub x: u64, // USDC in treasury
     pub y: u64, // EVER in reserve
-    pub k: u64, // K = X * Y (constant)
+    pub k: u128, // K = X * Y (constant)
     pub last_daily_boost: i64,
     pub total_volume_24h: u64,
     pub sell_queue_head: u64,
@@ -929,7 +930,7 @@ pub struct SellProcessedEvent {
 /// Calculate how many EVER tokens a user will receive for a given USDC amount
 fn calculate_buy_amount(bonding_curve: &BondingCurve, usdc_amount: u64) -> Result<u64> {
     let new_x = bonding_curve.x.checked_add(usdc_amount).ok_or(ErrorCode::MathOverflow)?;
-    let new_y = bonding_curve.k.checked_div(new_x).ok_or(ErrorCode::MathOverflow)?;
+    let new_y = bonding_curve.k.checked_div(new_x as u128).ok_or(ErrorCode::MathOverflow)? as u64;
     let tokens_received = bonding_curve.y.checked_sub(new_y).ok_or(ErrorCode::MathOverflow)?;
     Ok(tokens_received)
 }
