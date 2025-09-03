@@ -18,6 +18,10 @@
 ### Smart Contract Program ID
 - **Program ID**: `9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy`
   - This is the deployed EverRise DEX smart contract program ID
+  - **Network**: Solana DevNet
+  - **Deployment Status**: ✅ Successfully Deployed and Initialized
+  - **Last Deployment**: September 3, 2024
+  - **Deployment Signature**: `5t1VEyuKcVH4TcD4awcHVer9U9EMT6QShVLePph9HjKaWqDWszKNjG2pPDBUNKZrxkkaR5yFYvphzwvhs9CtiW33`
   - **CRITICAL**: Always use this exact ID when interacting with the contract
   - **IMPORTANT**: If redeployed, this ID will change - update this memory file immediately
   - Used in frontend integration and all contract interactions
@@ -26,6 +30,15 @@
 - **USDC DevNet Address**: `Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr`
 - **Decimals**: 6 (standard USDC)
 - **Note**: This is the official USDC token on Solana DevNet
+
+### DevNet Deployment Details
+- **Bonding Curve PDA**: `9pdSYBWZfgm9S8qJJA2vVs1iRfPeosoagh1aKsm83ddU`
+- **Initial Treasury USDC**: 10,000 USDC (10,000,000,000 with 6 decimals)
+- **Initial Reserve EVER**: 100,000,000 EVER (100,000,000,000,000,000 with 9 decimals)
+- **Initial Price**: $0.0001 per EVER
+- **K Constant**: 1,000,000,000,000,000,000,000,000,000 (10^27)
+- **Initialization TX**: `5t1VEyuKcVH4TcD4awcHVer9U9EMT6QShVLePph9HjKaWqDWszKNjG2pPDBUNKZrxkkaR5yFYvphzwvhs9CtiW33`
+- **Status**: ✅ Live and operational on DevNet
 
 ## Development Guidelines
 
@@ -41,15 +54,16 @@
 ### Stablecoin Standard
 - **USDC is the chosen stablecoin** (not USDT)
 - All references should use USDC
-- Initial treasury value: 100,000 USDC
+- Initial treasury value: 10,000 USDC (corrected from 100,000)
 - All price calculations in USDC
 
 ### Key Formula Constants
 - **Daily Minimum Growth**: 0.02% (0.0002)
 - **Queue Bonus Factor**: 0.1% (0.001)
-- **Initial X (USDC Treasury)**: 100,000 USDC
-- **Initial Y (EVER Reserve)**: 1,000,000,000 EVER tokens (unsold tokens)
-- **Initial K (Constant Product)**: 100,000 × 1,000,000,000
+- **Initial X (USDC Treasury)**: 10,000 USDC (corrected from 100,000)
+- **Initial Y (EVER Reserve)**: 100,000,000 EVER tokens (corrected from 1,000,000,000)
+- **Initial K (Constant Product)**: 10,000 × 100,000,000 = 10^27
+- **Initial Price**: $0.0001 per EVER
 
 ## Frontend Development Notes
 
@@ -119,9 +133,17 @@
 
 ## Deployment Notes
 
+### Current Deployment Status
+- **Phase 1**: ✅ COMPLETED - Smart contract deployed and initialized on DevNet
+- **Network**: Solana DevNet
+- **Program ID**: `9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy`
+- **Bonding Curve**: ✅ Initialized with corrected values
+- **Ready for**: Buy/sell transactions and queue processing
+- **Next Phase**: Frontend integration with live contract
+
 ### Smart Contract Deployment Rules
 - NEVER deploy using admin panel's "Deploy" button
-- ALWAYS use `solana program deploy` command
+- ALWAYS use `anchor deploy --provider.cluster devnet` command
 - Ensure Program ID matches `declare_id!` in contract
 - Deployer wallet should be the authority
 - Double-check Program ID before deployment
