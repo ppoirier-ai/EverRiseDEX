@@ -39,6 +39,7 @@
 - **K Constant**: 1,000,000,000,000,000,000,000,000,000 (10^27)
 - **Initialization TX**: `5t1VEyuKcVH4TcD4awcHVer9U9EMT6QShVLePph9HjKaWqDWszKNjG2pPDBUNKZrxkkaR5yFYvphzwvhs9CtiW33`
 - **Status**: ✅ Live and operational on DevNet
+- **Bonding Curve**: ✅ Successfully initialized with transaction `mHePcpjnWfv4zsmwT24nhsn7Cfw6tJLqmPxUW7AdtNMBgQFYUUqt2tdGaN7mM5rxeVbahRHjA2KBf5QFvjw9rgj`
 
 ## Development Guidelines
 
