@@ -1,0 +1,1121 @@
+{
+  "address": "9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy",
+  "metadata": {
+    "name": "everrise_dex",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "apply_daily_boost_manual",
+      "docs": [
+        "Manually apply daily boost (for testing and maintenance)"
+      ],
+      "discriminator": [
+        135,
+        97,
+        225,
+        107,
+        101,
+        3,
+        45,
+        240
+      ],
+      "accounts": [
+        {
+          "name": "bonding_curve",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "buy",
+      "docs": [
+        "Buy EVER tokens using USDC from the bonding curve with transaction safety"
+      ],
+      "discriminator": [
+        102,
+        6,
+        61,
+        18,
+        1,
+        218,
+        235,
+        234
+      ],
+      "accounts": [
+        {
+          "name": "bonding_curve",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "buy_order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  95,
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "bonding_curve.buy_queue_tail",
+                "account": "BondingCurve"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user_usdc_account",
+          "writable": true
+        },
+        {
+          "name": "user_ever_account",
+          "writable": true
+        },
+        {
+          "name": "program_usdc_account",
+          "writable": true
+        },
+        {
+          "name": "ever_mint",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "usdc_amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "emergency_refund",
+      "docs": [
+        "Emergency refund function - refunds USDC to buyer if transaction fails",
+        "This is a safety mechanism to prevent USDC loss"
+      ],
+      "discriminator": [
+        188,
+        73,
+        52,
+        195,
+        137,
+        70,
+        180,
+        147
+      ],
+      "accounts": [
+        {
+          "name": "bonding_curve",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "buy_order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  95,
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "bonding_curve.buy_queue_head",
+                "account": "BondingCurve"
+              }
+            ]
+          }
+        },
+        {
+          "name": "program_usdc_account",
+          "writable": true
+        },
+        {
+          "name": "buyer_usdc_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "Initialize the EverRise DEX with initial bonding curve parameters"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "bonding_curve",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "treasury_wallet",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "process_buy_queue",
+      "docs": [
+        "Process buy orders from the queue with partial fill support and transaction safety"
+      ],
+      "discriminator": [
+        27,
+        219,
+        137,
+        135,
+        14,
+        221,
+        3,
+        217
+      ],
+      "accounts": [
+        {
+          "name": "bonding_curve",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "buy_order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  95,
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "bonding_curve.buy_queue_head",
+                "account": "BondingCurve"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sell_order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  108,
+                  108,
+                  95,
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "bonding_curve.sell_queue_head",
+                "account": "BondingCurve"
+              }
+            ]
+          }
+        },
+        {
+          "name": "program_usdc_account",
+          "writable": true
+        },
+        {
+          "name": "program_ever_account",
+          "writable": true
+        },
+        {
+          "name": "buyer_ever_account",
+          "writable": true
+        },
+        {
+          "name": "seller_usdc_account",
+          "writable": true
+        },
+        {
+          "name": "treasury_usdc_account",
+          "writable": true
+        },
+        {
+          "name": "ever_mint",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "process_sell_queue",
+      "docs": [
+        "Process sell orders from the queue - handles matching with buy orders or direct processing"
+      ],
+      "discriminator": [
+        235,
+        78,
+        232,
+        34,
+        50,
+        67,
+        229,
+        211
+      ],
+      "accounts": [
+        {
+          "name": "bonding_curve",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "sell_order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  108,
+                  108,
+                  95,
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "bonding_curve.sell_queue_head",
+                "account": "BondingCurve"
+              }
+            ]
+          }
+        },
+        {
+          "name": "program_ever_account",
+          "writable": true
+        },
+        {
+          "name": "seller_usdc_account",
+          "writable": true
+        },
+        {
+          "name": "treasury_usdc_account",
+          "writable": true
+        },
+        {
+          "name": "burn_ever_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "sell",
+      "docs": [
+        "Sell EVER tokens to the queue system with enhanced transaction safety"
+      ],
+      "discriminator": [
+        51,
+        230,
+        133,
+        164,
+        1,
+        127,
+        131,
+        173
+      ],
+      "accounts": [
+        {
+          "name": "bonding_curve",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "sell_order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  108,
+                  108,
+                  95,
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "bonding_curve.sell_queue_tail",
+                "account": "BondingCurve"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user_ever_account",
+          "writable": true
+        },
+        {
+          "name": "program_ever_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "ever_amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BondingCurve",
+      "discriminator": [
+        23,
+        183,
+        248,
+        55,
+        96,
+        216,
+        172,
+        96
+      ]
+    },
+    {
+      "name": "BuyOrder",
+      "discriminator": [
+        227,
+        11,
+        110,
+        187,
+        37,
+        80,
+        95,
+        121
+      ]
+    },
+    {
+      "name": "SellOrder",
+      "discriminator": [
+        125,
+        28,
+        219,
+        150,
+        25,
+        64,
+        250,
+        236
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "BuyProcessedEvent",
+      "discriminator": [
+        49,
+        249,
+        147,
+        191,
+        103,
+        88,
+        214,
+        155
+      ]
+    },
+    {
+      "name": "BuyQueueEvent",
+      "discriminator": [
+        91,
+        157,
+        77,
+        50,
+        47,
+        80,
+        247,
+        165
+      ]
+    },
+    {
+      "name": "DailyBoostEvent",
+      "discriminator": [
+        241,
+        202,
+        213,
+        104,
+        81,
+        101,
+        241,
+        61
+      ]
+    },
+    {
+      "name": "EmergencyRefundEvent",
+      "discriminator": [
+        241,
+        138,
+        170,
+        187,
+        139,
+        82,
+        188,
+        127
+      ]
+    },
+    {
+      "name": "SellProcessedEvent",
+      "discriminator": [
+        253,
+        169,
+        151,
+        11,
+        0,
+        11,
+        185,
+        2
+      ]
+    },
+    {
+      "name": "SellQueueEvent",
+      "discriminator": [
+        176,
+        33,
+        249,
+        113,
+        155,
+        68,
+        25,
+        185
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "MathOverflow",
+      "msg": "Math overflow"
+    },
+    {
+      "code": 6001,
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidAmount",
+      "msg": "Invalid amount"
+    },
+    {
+      "code": 6003,
+      "name": "QueueEmpty",
+      "msg": "Queue is empty"
+    },
+    {
+      "code": 6004,
+      "name": "AmountTooLarge",
+      "msg": "Transaction amount too large"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidBuyer",
+      "msg": "Invalid buyer address"
+    },
+    {
+      "code": 6006,
+      "name": "RefundNotReady",
+      "msg": "Transaction not ready for refund"
+    },
+    {
+      "code": 6007,
+      "name": "PriceCalculationFailed",
+      "msg": "Price calculation failed"
+    },
+    {
+      "code": 6008,
+      "name": "InsufficientLiquidity",
+      "msg": "Insufficient liquidity"
+    }
+  ],
+  "types": [
+    {
+      "name": "BondingCurve",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury_wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "x",
+            "type": "u64"
+          },
+          {
+            "name": "y",
+            "type": "u64"
+          },
+          {
+            "name": "k",
+            "type": "u128"
+          },
+          {
+            "name": "last_daily_boost",
+            "type": "i64"
+          },
+          {
+            "name": "total_volume_24h",
+            "type": "u64"
+          },
+          {
+            "name": "sell_queue_head",
+            "type": "u64"
+          },
+          {
+            "name": "sell_queue_tail",
+            "type": "u64"
+          },
+          {
+            "name": "buy_queue_head",
+            "type": "u64"
+          },
+          {
+            "name": "buy_queue_tail",
+            "type": "u64"
+          },
+          {
+            "name": "cumulative_bonus",
+            "type": "u64"
+          },
+          {
+            "name": "current_price",
+            "type": "u64"
+          },
+          {
+            "name": "last_price_update",
+            "type": "i64"
+          },
+          {
+            "name": "daily_boost_applied",
+            "type": "bool"
+          },
+          {
+            "name": "circulating_supply",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BuyOrder",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "usdc_amount",
+            "type": "u64"
+          },
+          {
+            "name": "expected_tokens",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "processed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BuyProcessedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "usdc_amount",
+            "type": "u64"
+          },
+          {
+            "name": "ever_tokens",
+            "type": "u64"
+          },
+          {
+            "name": "queue_transactions",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_transactions",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BuyQueueEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "usdc_amount",
+            "type": "u64"
+          },
+          {
+            "name": "estimated_tokens",
+            "type": "u64"
+          },
+          {
+            "name": "queue_position",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DailyBoostEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "organic_price",
+            "type": "u64"
+          },
+          {
+            "name": "minimum_price",
+            "type": "u64"
+          },
+          {
+            "name": "final_price",
+            "type": "u64"
+          },
+          {
+            "name": "days_passed",
+            "type": "i64"
+          },
+          {
+            "name": "boost_amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EmergencyRefundEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "usdc_amount",
+            "type": "u64"
+          },
+          {
+            "name": "time_elapsed",
+            "type": "i64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SellOrder",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "ever_amount",
+            "type": "u64"
+          },
+          {
+            "name": "remaining_amount",
+            "type": "u64"
+          },
+          {
+            "name": "locked_price",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "processed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SellProcessedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "ever_amount",
+            "type": "u64"
+          },
+          {
+            "name": "usdc_amount",
+            "type": "u64"
+          },
+          {
+            "name": "locked_price",
+            "type": "u64"
+          },
+          {
+            "name": "processing_type",
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SellQueueEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "ever_amount",
+            "type": "u64"
+          },
+          {
+            "name": "locked_price",
+            "type": "u64"
+          },
+          {
+            "name": "queue_position",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}

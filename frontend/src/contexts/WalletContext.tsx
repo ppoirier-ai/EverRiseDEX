@@ -10,6 +10,7 @@ import { clusterApiUrl } from '@solana/web3.js';
 // Default styles that can be overridden by your app
 import '@solana/wallet-adapter-react-ui/styles.css';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface WalletContextType {
   // Add any additional context values here if needed
 }

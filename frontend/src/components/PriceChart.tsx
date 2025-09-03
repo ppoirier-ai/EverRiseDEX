@@ -57,12 +57,13 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     }
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="text-sm text-gray-600 mb-1">
-            {formatTimestamp(label)}
+            {formatTimestamp(parseInt(label || '0'))}
           </p>
           <p className="text-lg font-semibold text-gray-900">
             {formatPrice(payload[0].value)}

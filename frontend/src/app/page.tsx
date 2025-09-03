@@ -5,6 +5,7 @@ import { PriceDisplay } from '@/components/PriceDisplay';
 import { TradingInterface } from '@/components/TradingInterface';
 import { PriceChart } from '@/components/PriceChart';
 import { QueueStatus } from '@/components/QueueStatus';
+import { useContract } from '@/contexts/ContractContext';
 
 // Mock data - in real implementation, this would come from the smart contract
 const mockPriceData = [
@@ -18,93 +19,73 @@ const mockPriceData = [
 ];
 
 export default function Home() {
-  const [currentPrice, setCurrentPrice] = useState(0.000115);
+  const { bondingCurveData, isLoading: contractLoading, error, buyTokens, sellTokens } = useContract();
+  
+  // Calculate derived values from contract data
+  const currentPrice = bondingCurveData ? bondingCurveData.currentPrice / 1_000_000 : 0.0001;
+  const volume24h = bondingCurveData ? bondingCurveData.totalVolume24h / 1_000_000 : 0;
+  const marketCap = bondingCurveData ? (bondingCurveData.circulatingSupply / 1_000_000_000) * currentPrice : 0;
+  const circulatingSupply = bondingCurveData ? bondingCurveData.circulatingSupply / 1_000_000_000 : 0;
+  
   const [priceChange24h, setPriceChange24h] = useState(0.02);
-  const [volume24h, setVolume24h] = useState(125000);
-  const [marketCap, setMarketCap] = useState(115000);
-  const [circulatingSupply, setCirculatingSupply] = useState(1000000000);
   const [chartData, setChartData] = useState(mockPriceData);
   const [timeRange, setTimeRange] = useState<'1h' | '24h' | '7d' | '30d'>('24h');
   const [isLoading, setIsLoading] = useState(false);
   
-  // Queue data
-  const [sellQueueLength, setSellQueueLength] = useState(0);
+  // Queue data from contract
+  const sellQueueLength = bondingCurveData ? bondingCurveData.sellQueueTail - bondingCurveData.sellQueueHead : 0;
+  const buyQueueLength = bondingCurveData ? bondingCurveData.buyQueueTail - bondingCurveData.buyQueueHead : 0;
   const [averageWaitTime, setAverageWaitTime] = useState(0);
   const [lastProcessedTime, setLastProcessedTime] = useState(0);
   const [queueVolume, setQueueVolume] = useState(0);
   
-  // Treasury data
+  // Treasury data from contract
+  const treasuryValueUSDC = bondingCurveData ? bondingCurveData.x / 1_000_000 : 0;
   const [treasuryBitcoin, setTreasuryBitcoin] = useState(0.5);
-  const [treasuryValueUSDC, setTreasuryValueUSDC] = useState(25000);
   const [treasuryLastUpdated, setTreasuryLastUpdated] = useState('Never');
 
-  // Load treasury data from localStorage
+  // Load treasury data from localStorage (only for Bitcoin, USDC comes from contract)
   useEffect(() => {
     const savedBitcoin = localStorage.getItem('treasuryBitcoin');
-    const savedUSDC = localStorage.getItem('treasuryValueUSDC');
     const savedLastUpdated = localStorage.getItem('treasuryLastUpdated');
 
     if (savedBitcoin) setTreasuryBitcoin(parseFloat(savedBitcoin));
-    if (savedUSDC) setTreasuryValueUSDC(parseFloat(savedUSDC));
     if (savedLastUpdated) {
       setTreasuryLastUpdated(new Date(savedLastUpdated).toLocaleString());
     }
   }, []);
 
-  // Simulate price updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Simulate small price increases (bonding curve effect)
-      setCurrentPrice(prev => prev * (1 + Math.random() * 0.0001));
-      
-      // Simulate queue processing
-      if (sellQueueLength > 0 && Math.random() > 0.7) {
-        setSellQueueLength(prev => Math.max(0, prev - 1));
-        setLastProcessedTime(Date.now() / 1000);
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [sellQueueLength]);
+  // Price updates are now handled by the contract context
+  // No need for simulation since we're using real contract data
 
   const handleBuy = async (amount: number) => {
     setIsLoading(true);
     
-    // Simulate transaction processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Update price based on bonding curve
-    const priceIncrease = amount * 0.000001; // Simulate bonding curve effect
-    setCurrentPrice(prev => prev + priceIncrease);
-    
-    // Update circulating supply
-    const tokensBought = amount / currentPrice;
-    setCirculatingSupply(prev => prev + tokensBought);
-    
-    // Update market cap
-    setMarketCap(prev => prev + amount);
-    
-    // Update volume
-    setVolume24h(prev => prev + amount);
-    
-    setIsLoading(false);
+    try {
+      const tx = await buyTokens(amount);
+      console.log('Buy transaction successful:', tx);
+      // Contract data will be automatically refreshed by the context
+    } catch (error) {
+      console.error('Buy transaction failed:', error);
+      // Error is handled by the contract context
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSell = async (amount: number) => {
     setIsLoading(true);
     
-    // Simulate transaction processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Add to sell queue
-    const tokensToSell = amount / currentPrice;
-    setSellQueueLength(prev => prev + 1);
-    setQueueVolume(prev => prev + amount);
-    
-    // Update average wait time based on queue length
-    setAverageWaitTime(sellQueueLength * 300); // 5 minutes per position
-    
-    setIsLoading(false);
+    try {
+      const tx = await sellTokens(amount);
+      console.log('Sell transaction successful:', tx);
+      // Contract data will be automatically refreshed by the context
+    } catch (error) {
+      console.error('Sell transaction failed:', error);
+      // Error is handled by the contract context
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleTimeRangeChange = (range: '1h' | '24h' | '7d' | '30d') => {
@@ -115,6 +96,25 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Contract Error</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{error}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-8">
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
