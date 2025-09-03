@@ -22,6 +22,11 @@
   - **IMPORTANT**: If redeployed, this ID will change - update this memory file immediately
   - Used in frontend integration and all contract interactions
 
+### USDC DevNet Contract
+- **USDC DevNet Address**: `Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr`
+- **Decimals**: 6 (standard USDC)
+- **Note**: This is the official USDC token on Solana DevNet
+
 ## Development Guidelines
 
 ### Specification Consistency
