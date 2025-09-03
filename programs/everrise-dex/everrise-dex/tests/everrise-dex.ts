@@ -38,9 +38,9 @@ describe("everrise-dex", () => {
     
     expect(bondingCurve.authority.toString()).to.equal(authority.publicKey.toString());
     expect(bondingCurve.treasuryWallet.toString()).to.equal(treasuryWallet.toString());
-    expect(bondingCurve.x.toString()).to.equal("100000000000"); // 100K USDC
-    expect(bondingCurve.y.toString()).to.equal("1000000000000000000"); // 1B EVER
-    expect(bondingCurve.k.toString()).to.equal("100000000000000000000000000000"); // K = X * Y
+    expect(bondingCurve.x.toString()).to.equal("10000000000"); // 10K USDC
+    expect(bondingCurve.y.toString()).to.equal("100000000000000000"); // 100M EVER
+    expect(bondingCurve.k.toString()).to.equal("1000000000000000000000000000"); // K = X * Y
     expect(bondingCurve.sellQueueHead.toNumber()).to.equal(0);
     expect(bondingCurve.sellQueueTail.toNumber()).to.equal(0);
     expect(bondingCurve.buyQueueHead.toNumber()).to.equal(0);
@@ -52,7 +52,7 @@ describe("everrise-dex", () => {
     
     // Price = X / Y = 100,000 USDC / 1,000,000,000 EVER
     // = 0.0001 USDC per EVER = $0.0001
-    const expectedPrice = 100_000_000_000 / 1_000_000_000_000_000_000; // 0.0001 in proper decimals
+    const expectedPrice = 10_000_000_000 / 100_000_000_000_000_000; // 0.0001 in proper decimals
     
     console.log("Initial price should be approximately $0.0001 per EVER");
     console.log("X (USDC):", bondingCurve.x.toString());
@@ -62,8 +62,8 @@ describe("everrise-dex", () => {
 
   it("Test bonding curve math", async () => {
     // Test the bonding curve formula: K = X * Y
-    const x = 100_000_000_000; // 100,000 USDC
-    const y = 1_000_000_000_000_000_000; // 1,000,000,000 EVER
+    const x = 10_000_000_000; // 10,000 USDC
+    const y = 100_000_000_000_000_000; // 100,000,000 EVER
     const k = x * y;
     
     console.log("Bonding curve test:");

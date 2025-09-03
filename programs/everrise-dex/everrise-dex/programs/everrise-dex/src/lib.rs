@@ -4,8 +4,8 @@ use anchor_spl::token::{self, Token, TokenAccount};
 declare_id!("9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy");
 
 // Constants from EverRise Formula
-const INITIAL_X: u64 = 100_000_000_000; // 100,000 USDC (6 decimals)
-const INITIAL_Y: u64 = 1_000_000_000_000_000_000; // 1,000,000,000 EVER (9 decimals)
+const INITIAL_X: u64 = 10_000_000_000; // 10,000 USDC (6 decimals)
+const INITIAL_Y: u64 = 100_000_000_000_000_000; // 100,000,000 EVER (9 decimals)
 const DAILY_GROWTH_RATE: u64 = 2; // 0.02% = 2 basis points
 const BASIS_POINTS: u64 = 10_000; // 100% = 10,000 basis points
 
@@ -34,11 +34,9 @@ pub mod everrise_dex {
         bonding_curve.buy_queue_head = 0;
         bonding_curve.buy_queue_tail = 0;
         bonding_curve.cumulative_bonus = 0;
-        bonding_curve.current_price = INITIAL_X
-            .checked_mul(1_000_000_000)
-            .unwrap()
-            .checked_div(INITIAL_Y)
-            .unwrap();
+        // Calculate initial price: X / Y * 10^3 (to convert from 6 decimals to 9 decimals)
+        // Price = (10,000 USDC / 100,000,000 EVER) * 10^3 = 0.1 * 10^3 = 100
+        bonding_curve.current_price = 100; // 0.0001 USDC per EVER in proper decimals
         bonding_curve.last_price_update = clock.unix_timestamp;
         bonding_curve.daily_boost_applied = false;
         bonding_curve.circulating_supply = 0;
