@@ -4,8 +4,8 @@ use anchor_spl::token::{self, Token, TokenAccount};
 declare_id!("9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy");
 
 // Constants from EverRise Formula
-const INITIAL_X: u64 = 100_000_000_000; // 100,000 USDC (6 decimals)
-const INITIAL_Y: u64 = 1_000_000_000_000_000; // 1,000,000,000 EVER (9 decimals)
+const INITIAL_X: u64 = 1_000_000_000; // 1,000 USDC (6 decimals)
+const INITIAL_Y: u64 = 1_000_000_000; // 1,000 EVER (9 decimals)
 const DAILY_GROWTH_RATE: u64 = 2; // 0.02% = 2 basis points
 const BASIS_POINTS: u64 = 10_000; // 100% = 10,000 basis points
 
@@ -25,7 +25,7 @@ pub mod everrise_dex {
         bonding_curve.treasury_wallet = treasury_wallet;
         bonding_curve.x = INITIAL_X; // USDC in treasury
         bonding_curve.y = INITIAL_Y; // EVER in reserve
-        bonding_curve.k = INITIAL_X.checked_mul(INITIAL_Y).unwrap(); // K = X * Y
+        bonding_curve.k = INITIAL_X.checked_mul(INITIAL_Y).ok_or(ErrorCode::MathOverflow)?; // K = X * Y
         bonding_curve.last_daily_boost = clock.unix_timestamp;
         bonding_curve.total_volume_24h = 0;
         bonding_curve.sell_queue_head = 0;
