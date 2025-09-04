@@ -58,15 +58,6 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
     }
   };
 
-  const calculateTokens = (usdcAmount: number) => {
-    if (usdcAmount <= 0) return 0;
-    return usdcAmount / currentPrice;
-  };
-
-  const calculateUSDC = (tokenAmount: number) => {
-    if (tokenAmount <= 0) return 0;
-    return tokenAmount * currentPrice;
-  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -177,21 +168,6 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
             </div>
           </div>
 
-          {amount && parseFloat(amount) > 0 && (
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">
-                  You will {activeTab === 'buy' ? 'receive' : 'spend'}:
-                </span>
-                <span className="font-semibold text-gray-900">
-                  {activeTab === 'buy' 
-                    ? `${calculateTokens(parseFloat(amount)).toLocaleString()} EVER`
-                    : `${calculateUSDC(parseFloat(amount)).toFixed(6)} USDC`
-                  }
-                </span>
-              </div>
-            </div>
-          )}
 
           <button
             type="submit"

@@ -1,4 +1,4 @@
-import { Program, AnchorProvider } from '@coral-xyz/anchor';
+import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import IDL from '../everrise_dex.json';
@@ -36,9 +36,24 @@ export class ContractService {
     this.connection = connection;
     this.wallet = wallet;
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const provider = new AnchorProvider(connection, wallet as any, {});
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // Create a proper wallet interface for Anchor
+    const anchorWallet = {
+      publicKey: wallet.publicKey!,
+      signTransaction: async (tx: any) => {
+        if (!wallet.signTransaction) {
+          throw new Error('Wallet does not support signing transactions');
+        }
+        return await wallet.signTransaction(tx);
+      },
+      signAllTransactions: async (txs: any[]) => {
+        if (!wallet.signAllTransactions) {
+          throw new Error('Wallet does not support signing multiple transactions');
+        }
+        return await wallet.signAllTransactions(txs);
+      }
+    };
+    
+    const provider = new AnchorProvider(connection, anchorWallet, {});
     this.program = new Program(IDL as any, provider);
   }
 
@@ -56,33 +71,51 @@ export class ContractService {
     try {
       const bondingCurvePDA = this.getBondingCurvePDA();
       
-      // Try to fetch the account data directly
-      const accountInfo = await this.connection.getAccountInfo(bondingCurvePDA);
-      if (!accountInfo) {
-        console.error('Bonding curve account does not exist');
-        return null;
+      // Try to fetch the account data using the program
+      try {
+        const data = await this.program.account.bondingCurve.fetch(bondingCurvePDA);
+        
+        return {
+          authority: data.authority,
+          treasuryWallet: data.treasuryWallet,
+          x: data.x ? parseInt(data.x.toString()) : 0,
+          y: data.y ? parseInt(data.y.toString()) : 0,
+          k: data.k ? data.k.toString() : "0",
+          currentPrice: data.currentPrice ? parseInt(data.currentPrice.toString()) : 0,
+          sellQueueHead: data.sellQueueHead ? parseInt(data.sellQueueHead.toString()) : 0,
+          sellQueueTail: data.sellQueueTail ? parseInt(data.sellQueueTail.toString()) : 0,
+          buyQueueHead: data.buyQueueHead ? parseInt(data.buyQueueHead.toString()) : 0,
+          buyQueueTail: data.buyQueueTail ? parseInt(data.buyQueueTail.toString()) : 0,
+          cumulativeBonus: data.cumulativeBonus ? parseInt(data.cumulativeBonus.toString()) : 0,
+          lastPriceUpdate: data.lastPriceUpdate ? parseInt(data.lastPriceUpdate.toString()) : 0,
+          dailyBoostApplied: data.dailyBoostApplied || false,
+          circulatingSupply: data.circulatingSupply ? parseInt(data.circulatingSupply.toString()) : 0,
+          lastDailyBoost: data.lastDailyBoost ? parseInt(data.lastDailyBoost.toString()) : 0,
+          totalVolume24h: data.totalVolume24h ? parseInt(data.totalVolume24h.toString()) : 0,
+        };
+      } catch (fetchError) {
+        console.log('Could not fetch bonding curve data, using mock data:', fetchError);
+        
+        // Fallback to mock data
+        return {
+          authority: bondingCurvePDA, // Placeholder
+          treasuryWallet: TREASURY_WALLET,
+          x: 10_000_000_000, // 10,000 USDC in 6 decimals
+          y: 100_000_000_000_000_000, // 100M EVER in 9 decimals
+          k: "1000000000000000000000000000", // K constant
+          currentPrice: 100, // 0.0001 USDC per EVER
+          sellQueueHead: 0,
+          sellQueueTail: 0, // Start with 0 for new orders
+          buyQueueHead: 0,
+          buyQueueTail: 0, // Start with 0 for new orders
+          cumulativeBonus: 0,
+          lastPriceUpdate: Math.floor(Date.now() / 1000),
+          dailyBoostApplied: false,
+          circulatingSupply: 0,
+          lastDailyBoost: Math.floor(Date.now() / 1000),
+          totalVolume24h: 0,
+        };
       }
-      
-      // For now, return mock data since the account layout might be different
-      // This will be fixed once we get the proper account structure
-      return {
-        authority: bondingCurvePDA, // Placeholder
-        treasuryWallet: TREASURY_WALLET,
-        x: 10_000_000_000, // 10,000 USDC in 6 decimals
-        y: 100_000_000_000_000_000, // 100M EVER in 9 decimals
-        k: "1000000000000000000000000000", // K constant
-        currentPrice: 100, // 0.0001 USDC per EVER
-        sellQueueHead: 0,
-        sellQueueTail: 0,
-        buyQueueHead: 0,
-        buyQueueTail: 0,
-        cumulativeBonus: 0,
-        lastPriceUpdate: Math.floor(Date.now() / 1000),
-        dailyBoostApplied: false,
-        circulatingSupply: 0,
-        lastDailyBoost: Math.floor(Date.now() / 1000),
-        totalVolume24h: 0,
-      };
     } catch (error) {
       console.error('Error fetching bonding curve data:', error);
       return null;
@@ -96,10 +129,15 @@ export class ContractService {
     return (x * 1_000_000_000) / (y * 1_000_000);
   }
 
-  // Get buy order PDA
-  getBuyOrderPDA(userPubkey: PublicKey, orderIndex: number): PublicKey {
+  // Get buy order PDA (uses bonding curve's buy_queue_tail)
+  getBuyOrderPDA(bondingCurvePDA: PublicKey, queueTail: number): PublicKey {
+    // Convert number to little-endian bytes (8 bytes for u64) to match to_le_bytes()
+    const buffer = Buffer.alloc(8);
+    buffer.writeUInt32LE(queueTail, 0);
+    buffer.writeUInt32LE(0, 4); // High 32 bits are 0 for small numbers
+    
     const [pda] = PublicKey.findProgramAddressSync(
-      [Buffer.from('buy_order'), userPubkey.toBuffer(), Buffer.from(orderIndex.toString())],
+      [Buffer.from('buy_order'), buffer],
       PROGRAM_ID
     );
     return pda;
@@ -138,20 +176,26 @@ export class ContractService {
     try {
       const bondingCurvePDA = this.getBondingCurvePDA();
       const userPubkey = this.wallet.publicKey!;
-      const buyOrderPDA = this.getBuyOrderPDA(userPubkey, 0); // Use index 0 for now
-      const usdcAmountBN = Math.floor(usdcAmount * 1_000_000); // Convert to 6 decimals
+      const usdcAmountBN = new BN(Math.floor(usdcAmount * 1_000_000)); // Convert to 6 decimals using BN
+
+      // Get bonding curve data to get current queue tail
+      const bondingCurveData = await this.getBondingCurveData();
+      if (!bondingCurveData) {
+        throw new Error('Failed to fetch bonding curve data');
+      }
+      
+      const buyOrderPDA = this.getBuyOrderPDA(bondingCurvePDA, bondingCurveData.buyQueueTail);
 
       // Get all required token accounts
       const userUsdcAccount = await this.getUserUsdcAccount();
       const userEverAccount = await this.getUserEverAccount();
       const programUsdcAccount = await this.getProgramUsdcAccount();
-      const programEverAccount = await this.getProgramEverAccount();
 
       // Token mint addresses
-      const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'); // USDC DevNet
       const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
 
-      const tx = await this.program.methods
+      // Try using instruction method with manual transaction building
+      const instruction = await this.program.methods
         .buy(usdcAmountBN)
         .accounts({
           bondingCurve: bondingCurvePDA,
@@ -164,7 +208,22 @@ export class ContractService {
           tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
           systemProgram: PublicKey.default,
         })
-        .rpc();
+        .instruction();
+
+      const { Transaction, sendAndConfirmTransaction } = await import('@solana/web3.js');
+      const transaction = new Transaction().add(instruction);
+      
+      // Get recent blockhash
+      const { blockhash } = await this.connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = userPubkey;
+      
+      // Sign and send transaction
+      const signedTransaction = await this.wallet.signTransaction!(transaction);
+      const tx = await this.connection.sendRawTransaction(signedTransaction.serialize());
+      
+      // Wait for confirmation
+      await this.connection.confirmTransaction(tx);
 
       return tx;
     } catch (error) {
@@ -173,10 +232,15 @@ export class ContractService {
     }
   }
 
-  // Get sell order PDA
-  getSellOrderPDA(userPubkey: PublicKey, orderIndex: number): PublicKey {
+  // Get sell order PDA (uses bonding curve's sell_queue_tail)
+  getSellOrderPDA(bondingCurvePDA: PublicKey, queueTail: number): PublicKey {
+    // Convert number to little-endian bytes (8 bytes for u64) to match to_le_bytes()
+    const buffer = Buffer.alloc(8);
+    buffer.writeUInt32LE(queueTail, 0);
+    buffer.writeUInt32LE(0, 4); // High 32 bits are 0 for small numbers
+    
     const [pda] = PublicKey.findProgramAddressSync(
-      [Buffer.from('sell_order'), userPubkey.toBuffer(), Buffer.from(orderIndex.toString())],
+      [Buffer.from('sell_order'), buffer],
       PROGRAM_ID
     );
     return pda;
@@ -187,34 +251,47 @@ export class ContractService {
     try {
       const bondingCurvePDA = this.getBondingCurvePDA();
       const userPubkey = this.wallet.publicKey!;
-      const sellOrderPDA = this.getSellOrderPDA(userPubkey, 0); // Use index 0 for now
-      const everAmountBN = Math.floor(everAmount * 1_000_000_000); // Convert to 9 decimals
+      const everAmountBN = new BN(Math.floor(everAmount * 1_000_000_000)); // Convert to 9 decimals using BN
 
-      // Get all required token accounts
-      const userUsdcAccount = await this.getUserUsdcAccount();
+      // Get bonding curve data to get current queue tail
+      const bondingCurveData = await this.getBondingCurveData();
+      if (!bondingCurveData) {
+        throw new Error('Failed to fetch bonding curve data');
+      }
+      
+      const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, bondingCurveData.sellQueueTail);
+
+      // Get required token accounts (sell only needs EVER accounts)
       const userEverAccount = await this.getUserEverAccount();
-      const programUsdcAccount = await this.getProgramUsdcAccount();
       const programEverAccount = await this.getProgramEverAccount();
 
-      // Token mint addresses
-      const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'); // USDC DevNet
-      const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
-
-      const tx = await this.program.methods
+      const instruction = await this.program.methods
         .sell(everAmountBN)
         .accounts({
           bondingCurve: bondingCurvePDA,
           sellOrder: sellOrderPDA,
           user: userPubkey,
-          userUsdcAccount: userUsdcAccount,
           userEverAccount: userEverAccount,
-          programUsdcAccount: programUsdcAccount,
           programEverAccount: programEverAccount,
-          everMint: EVER_MINT,
           tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
           systemProgram: PublicKey.default,
         })
-        .rpc();
+        .instruction();
+
+      const { Transaction } = await import('@solana/web3.js');
+      const transaction = new Transaction().add(instruction);
+      
+      // Get recent blockhash
+      const { blockhash } = await this.connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = userPubkey;
+      
+      // Sign and send transaction
+      const signedTransaction = await this.wallet.signTransaction!(transaction);
+      const tx = await this.connection.sendRawTransaction(signedTransaction.serialize());
+      
+      // Wait for confirmation
+      await this.connection.confirmTransaction(tx);
 
       return tx;
     } catch (error) {
