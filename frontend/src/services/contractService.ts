@@ -273,19 +273,19 @@ export class ContractService {
       }
       
       const buyOrderPDA = this.getBuyOrderPDA(bondingCurvePDA, bondingCurveData.buyQueueHead);
+      const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, bondingCurveData.sellQueueHead);
       
       // Get required accounts for processing
       const userEverAccount = await this.getUserEverAccount();
+      const userUsdcAccount = await this.getUserUsdcAccount(); // This is the seller_usdc_account
       const programUsdcAccount = await this.getProgramUsdcAccount();
       const programEverAccount = await this.getProgramEverAccount();
       
       // Token mint addresses
       const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
-      const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'); // USDC DevNet
       
       // Get treasury accounts
       const treasuryUsdcAccount = new PublicKey('9ib4KLusxgGmqQ5qvwPSwD7y4BJRiyyNyeZSQt8S6e61');
-      const treasuryEverAccount = new PublicKey('81xDWLArux2ni1HWXxzzrxFGrb5UyPJhByXahwPm2D6K');
       
       // Create instruction for processing buy queue
       const instruction = await this.program.methods
@@ -293,16 +293,14 @@ export class ContractService {
         .accounts({
           bondingCurve: bondingCurvePDA,
           buyOrder: buyOrderPDA,
-          sellOrder: buyOrderPDA, // This might need to be a different PDA for sell orders
+          sellOrder: sellOrderPDA,
           programUsdcAccount: programUsdcAccount,
           programEverAccount: programEverAccount,
           buyerEverAccount: userEverAccount,
+          sellerUsdcAccount: userUsdcAccount,
           treasuryUsdcAccount: treasuryUsdcAccount,
-          treasuryEverAccount: treasuryEverAccount,
           everMint: EVER_MINT,
-          usdcMint: USDC_MINT,
           tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
-          systemProgram: PublicKey.default,
         })
         .instruction();
 
