@@ -40,6 +40,8 @@
 - **Initialization TX**: `5t1VEyuKcVH4TcD4awcHVer9U9EMT6QShVLePph9HjKaWqDWszKNjG2pPDBUNKZrxkkaR5yFYvphzwvhs9CtiW33`
 - **Status**: ✅ Live and operational on DevNet
 - **Bonding Curve**: ✅ Successfully initialized with transaction `mHePcpjnWfv4zsmwT24nhsn7Cfw6tJLqmPxUW7AdtNMBgQFYUUqt2tdGaN7mM5rxeVbahRHjA2KBf5QFvjw9rgj`
+- **Treasury USDC Account**: `9ib4KLusxgGmqQ5qvwPSwD7y4BJRiyyNyeZSQt8S6e61` (✅ Created)
+- **Treasury EVER Account**: `81xDWLArux2ni1HWXxzzrxFGrb5UyPJhByXahwPm2D6K` (✅ Created)
 
 ## Development Guidelines
 
