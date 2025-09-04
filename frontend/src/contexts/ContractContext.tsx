@@ -75,6 +75,9 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
     setError(null);
 
     try {
+      // First debug the smart contract connection
+      await contractService.debugConnection();
+      
       const [data, usdcBalance, everBalance] = await Promise.all([
         contractService.getBondingCurveData(),
         contractService.getUserUSDCBalance(),

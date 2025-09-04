@@ -62,6 +62,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
+
   if (!connected) {
     return (
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8 text-center">
@@ -111,6 +112,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       <div className="p-6">
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Treasury Management</h3>
+          
+          {/* Clear Queues Section */}
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>

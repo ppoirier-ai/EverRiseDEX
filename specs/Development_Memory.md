@@ -20,11 +20,19 @@
   - This is the deployed EverRise DEX smart contract program ID
   - **Network**: Solana DevNet
   - **Deployment Status**: ✅ Successfully Deployed and Initialized
-  - **Last Deployment**: September 3, 2024
-  - **Deployment Signature**: `5t1VEyuKcVH4TcD4awcHVer9U9EMT6QShVLePph9HjKaWqDWszKNjG2pPDBUNKZrxkkaR5yFYvphzwvhs9CtiW33`
+  - **Last Deployment**: January 3, 2025
+- **Deployment Signature**: `3HqeDbKpKM3W49HX1xUFMgKQaE9LyZvGxKmwgW5WB2MBgkCEeVS2hBthVvBsnw2xgHvP47udtPQ39ws61JsWYxU6`
   - **CRITICAL**: Always use this exact ID when interacting with the contract
   - **IMPORTANT**: If redeployed, this ID will change - update this memory file immediately
   - Used in frontend integration and all contract interactions
+- **Version**: 10 (Added atomic buy function and queue reinitialization)
+  - **CRITICAL**: Always increment version number on each deployment
+  - **IMPORTANT**: Version is checked on page load to verify correct contract deployment
+  - **PRACTICE**: Every deployment must include version increment and verification
+  - **Version Check Function**: `get_version()` returns current version number
+  - **NEW FEATURES**: 
+    - `buy_atomic()` - USDC + EVER transfer in one transaction (no queue)
+    - `reinitialize_queues()` - Clear all buy/sell queues (emergency function)
 
 ### USDC DevNet Contract
 - **USDC DevNet Address**: `Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr`
@@ -42,6 +50,11 @@
 - **Bonding Curve**: ✅ Successfully initialized with transaction `mHePcpjnWfv4zsmwT24nhsn7Cfw6tJLqmPxUW7AdtNMBgQFYUUqt2tdGaN7mM5rxeVbahRHjA2KBf5QFvjw9rgj`
 - **Treasury USDC Account**: `9ib4KLusxgGmqQ5qvwPSwD7y4BJRiyyNyeZSQt8S6e61` (✅ Created)
 - **Treasury EVER Account**: `81xDWLArux2ni1HWXxzzrxFGrb5UyPJhByXahwPm2D6K` (✅ Created)
+
+### Program Token Accounts (Owned by Bonding Curve PDA)
+- **Program USDC Account**: `CcpCLzvrwcY9Ufupvp69BDKuYZieE2ExQLoHdPKa3Aus` (✅ Created)
+- **Program EVER Account**: `8t4CT8pfMjvVTGmvdtKUkVfaqrLZuEW8WaVKLPqaogpN` (100M EVER tokens available for distribution) (✅ Created)
+- **Note**: These accounts are owned by the bonding curve PDA and used for program-controlled token transfers
 
 ## Development Guidelines
 

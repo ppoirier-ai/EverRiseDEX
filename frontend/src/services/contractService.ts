@@ -36,9 +36,14 @@ export class ContractService {
     this.connection = connection;
     this.wallet = wallet;
     
+    // Ensure wallet is connected before creating provider
+    if (!wallet.publicKey) {
+      throw new Error('Wallet must be connected to create ContractService');
+    }
+    
     // Create a proper wallet interface for Anchor
     const anchorWallet = {
-      publicKey: wallet.publicKey!,
+      publicKey: wallet.publicKey,
       signTransaction: async (tx: any) => {
         if (!wallet.signTransaction) {
           throw new Error('Wallet does not support signing transactions');
@@ -181,18 +186,77 @@ export class ContractService {
     return getAssociatedTokenAddress(EVER_MINT, this.wallet.publicKey!);
   }
 
-  // Get program's USDC token account (treasury)
+  // Get program's USDC token account (owned by bonding curve PDA)
   async getProgramUsdcAccount(): Promise<PublicKey> {
-    const { getAssociatedTokenAddress } = await import('@solana/spl-token');
-    const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'); // USDC DevNet
-    return getAssociatedTokenAddress(USDC_MINT, TREASURY_WALLET);
+    // Program USDC account owned by the bonding curve PDA
+    return new PublicKey('CcpCLzvrwcY9Ufupvp69BDKuYZieE2ExQLoHdPKa3Aus');
   }
 
-  // Get program's EVER token account (reserve)
+  // Get program's EVER token account (owned by bonding curve PDA)
   async getProgramEverAccount(): Promise<PublicKey> {
-    const { getAssociatedTokenAddress } = await import('@solana/spl-token');
-    const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
-    return getAssociatedTokenAddress(EVER_MINT, TREASURY_WALLET);
+    // Program EVER account owned by the bonding curve PDA
+    return new PublicKey('8t4CT8pfMjvVTGmvdtKUkVfaqrLZuEW8WaVKLPqaogpN');
+  }
+
+  // Debug function to verify smart contract connection
+  async debugConnection(): Promise<void> {
+    try {
+      console.log('🔍 Smart Contract Connection Debug:');
+      console.log('  Program ID:', this.program.programId.toString());
+      console.log('  Bonding Curve PDA:', this.getBondingCurvePDA().toString());
+      console.log('  Program EVER Account:', (await this.getProgramEverAccount()).toString());
+      console.log('  Program USDC Account:', (await this.getProgramUsdcAccount()).toString());
+      
+      // Check smart contract version
+      try {
+        const version = await this.program.methods.getVersion().view();
+        console.log('🔍 Smart Contract Version:', version);
+      } catch (error) {
+        console.log('🔍 Version check failed (expected for some deployments):', error);
+      }
+    } catch (error) {
+      console.error('❌ Error in debug connection:', error);
+    }
+  }
+
+  // Clear all queues (emergency function)
+  async clearQueues(): Promise<string> {
+    try {
+      console.log('🧹 Clearing all queues...');
+      
+      // Ensure wallet is still connected
+      if (!this.wallet.publicKey) {
+        throw new Error('Wallet is not connected');
+      }
+      
+      const bondingCurvePDA = this.getBondingCurvePDA();
+      console.log('Bonding Curve PDA:', bondingCurvePDA.toString());
+      
+      // Call reinitialize_queues
+      const tx = await this.program.methods
+        .reinitializeQueues()
+        .accounts({
+          bondingCurve: bondingCurvePDA,
+          user: this.wallet.publicKey!,
+        })
+        .rpc();
+      
+      console.log('✅ Queues cleared successfully!');
+      console.log('Transaction signature:', tx);
+      
+      // Verify the queues are cleared
+      const bondingCurve = await this.program.account.bondingCurve.fetch(bondingCurvePDA);
+      console.log('\n📊 Updated queue status:');
+      console.log('Buy Queue Head:', bondingCurve.buyQueueHead.toString());
+      console.log('Buy Queue Tail:', bondingCurve.buyQueueTail.toString());
+      console.log('Sell Queue Head:', bondingCurve.sellQueueHead.toString());
+      console.log('Sell Queue Tail:', bondingCurve.sellQueueTail.toString());
+      
+      return tx;
+    } catch (error) {
+      console.error('❌ Error clearing queues:', error);
+      throw error;
+    }
   }
 
   // Buy EVER tokens (queues the order)
@@ -372,7 +436,81 @@ export class ContractService {
           buyerEverAccount: userEverAccount,
           sellerUsdcAccount: userUsdcAccount,
           treasuryUsdcAccount: treasuryUsdcAccount,
-          everMint: EVER_MINT,
+          tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
+        })
+        .instruction();
+
+      const { Transaction } = await import('@solana/web3.js');
+      const transaction = new Transaction().add(instruction);
+      
+      // Get recent blockhash
+      const { blockhash } = await this.connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = this.wallet.publicKey!;
+      
+      // Debug: Try to simulate the transaction first to see detailed error
+      try {
+        console.log('🔍 Simulating transaction before sending...');
+        const simulation = await this.connection.simulateTransaction(transaction);
+        console.log('🔍 Simulation result:', simulation);
+        
+        if (simulation.value.err) {
+          console.error('🔍 Simulation failed with error:', simulation.value.err);
+          console.error('🔍 Simulation logs:', simulation.value.logs);
+          throw new Error(`Simulation failed: ${JSON.stringify(simulation.value.err)}`);
+        }
+        
+        console.log('✅ Simulation successful, proceeding with transaction...');
+      } catch (simError) {
+        console.error('🔍 Simulation error details:', simError);
+        throw simError;
+      }
+      
+      // Sign and send transaction
+      const signedTransaction = await this.wallet.signTransaction!(transaction);
+      const tx = await this.connection.sendRawTransaction(signedTransaction.serialize());
+      
+      // Wait for confirmation
+      await this.connection.confirmTransaction(tx);
+
+      console.log('Buy queue processed successfully:', tx);
+      return tx;
+    } catch (error) {
+      console.error('Error processing buy queue:', error);
+      throw error;
+    }
+  }
+
+  // Atomic buy function - USDC + EVER transfer in one transaction (no queue)
+  async buyAtomic(usdcAmount: number): Promise<string> {
+    try {
+      console.log('🚀 Starting atomic buy transaction...');
+      console.log('💰 USDC Amount:', usdcAmount);
+
+      // Get user's USDC and EVER accounts
+      const userUsdcAccount = await this.getUserUsdcAccount();
+      const userEverAccount = await this.getUserEverAccount();
+      
+      // Get treasury and program accounts
+      const treasuryUsdcAccount = await this.getTreasuryUsdcAccount();
+      const programEverAccount = await this.getProgramEverAccount();
+
+      console.log('📊 Account addresses:');
+      console.log('  User USDC:', userUsdcAccount.toString());
+      console.log('  User EVER:', userEverAccount.toString());
+      console.log('  Treasury USDC:', treasuryUsdcAccount.toString());
+      console.log('  Program EVER:', programEverAccount.toString());
+
+      // Create atomic buy instruction
+      const instruction = await this.program.methods
+        .buyAtomic(new anchor.BN(usdcAmount))
+        .accounts({
+          bondingCurve: this.getBondingCurvePDA(),
+          user: this.wallet.publicKey!,
+          userUsdcAccount: userUsdcAccount,
+          userEverAccount: userEverAccount,
+          treasuryUsdcAccount: treasuryUsdcAccount,
+          programEverAccount: programEverAccount,
           tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
         })
         .instruction();
@@ -392,10 +530,10 @@ export class ContractService {
       // Wait for confirmation
       await this.connection.confirmTransaction(tx);
 
-      console.log('Buy queue processed successfully:', tx);
+      console.log('✅ Atomic buy completed successfully:', tx);
       return tx;
     } catch (error) {
-      console.error('Error processing buy queue:', error);
+      console.error('❌ Error in atomic buy:', error);
       throw error;
     }
   }
@@ -476,6 +614,10 @@ export class ContractService {
       const account = await getAccount(this.connection, userEverAccount);
       return Number(account.amount) / 1_000_000_000; // Convert from 9 decimals
     } catch (error) {
+      // Account doesn't exist yet - this is normal for new users
+      if (error.message?.includes('Account does not exist') || error.message?.includes('AbortError')) {
+        return 0;
+      }
       console.error('Error getting user EVER balance:', error);
       return 0;
     }
@@ -489,6 +631,10 @@ export class ContractService {
       const account = await getAccount(this.connection, userUsdcAccount);
       return Number(account.amount) / 1_000_000; // Convert from 6 decimals
     } catch (error) {
+      // Account doesn't exist yet - this is normal for new users
+      if (error.message?.includes('Account does not exist') || error.message?.includes('AbortError')) {
+        return 0;
+      }
       console.error('Error getting user USDC balance:', error);
       return 0;
     }
