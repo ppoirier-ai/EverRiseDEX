@@ -19,7 +19,7 @@ const mockPriceData = [
 ];
 
 export default function Home() {
-  const { bondingCurveData, isLoading: contractLoading, error, buyTokens, sellTokens } = useContract();
+  const { bondingCurveData, userUsdcBalance, userEverBalance, isLoading: contractLoading, error, buyTokens, sellTokens } = useContract();
   
   // Calculate derived values from contract data
   const currentPrice = bondingCurveData ? bondingCurveData.currentPrice / 1_000_000 : 0.0001;
@@ -142,6 +142,8 @@ export default function Home() {
           <div>
             <TradingInterface
               currentPrice={currentPrice}
+              userUsdcBalance={userUsdcBalance}
+              userEverBalance={userEverBalance}
               onBuy={handleBuy}
               onSell={handleSell}
               isLoading={isLoading}

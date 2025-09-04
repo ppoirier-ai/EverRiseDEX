@@ -7,6 +7,8 @@ import { ContractService, BondingCurveData } from '../services/contractService';
 interface ContractContextType {
   contractService: ContractService | null;
   bondingCurveData: BondingCurveData | null;
+  userUsdcBalance: number;
+  userEverBalance: number;
   isLoading: boolean;
   error: string | null;
   refreshData: () => Promise<void>;
@@ -17,6 +19,8 @@ interface ContractContextType {
 const ContractContext = createContext<ContractContextType>({
   contractService: null,
   bondingCurveData: null,
+  userUsdcBalance: 0,
+  userEverBalance: 0,
   isLoading: false,
   error: null,
   refreshData: async () => {},
@@ -41,6 +45,8 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
   const wallet = useWallet();
   const [contractService, setContractService] = useState<ContractService | null>(null);
   const [bondingCurveData, setBondingCurveData] = useState<BondingCurveData | null>(null);
+  const [userUsdcBalance, setUserUsdcBalance] = useState<number>(0);
+  const [userEverBalance, setUserEverBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,7 +67,7 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
     }
   }, [connection, wallet.connected, wallet.publicKey]);
 
-  // Fetch bonding curve data
+  // Fetch bonding curve data and user balances
   const refreshData = useCallback(async () => {
     if (!contractService) return;
 
@@ -69,10 +75,16 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
     setError(null);
 
     try {
-      const data = await contractService.getBondingCurveData();
+      const [data, usdcBalance, everBalance] = await Promise.all([
+        contractService.getBondingCurveData(),
+        contractService.getUserUSDCBalance(),
+        contractService.getUserEverBalance(),
+      ]);
       setBondingCurveData(data);
+      setUserUsdcBalance(usdcBalance);
+      setUserEverBalance(everBalance);
     } catch (err) {
-      console.error('Error fetching bonding curve data:', err);
+      console.error('Error fetching data:', err);
       setError('Failed to fetch contract data');
     } finally {
       setIsLoading(false);
@@ -138,6 +150,8 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
   const value: ContractContextType = {
     contractService,
     bondingCurveData,
+    userUsdcBalance,
+    userEverBalance,
     isLoading,
     error,
     refreshData,
