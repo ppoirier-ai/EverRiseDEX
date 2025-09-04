@@ -7,6 +7,8 @@ import { EnhancedWalletButton } from './EnhancedWalletButton';
 
 interface TradingInterfaceProps {
   currentPrice: number;
+  userUsdcBalance: number;
+  userEverBalance: number;
   onBuy: (amount: number) => void;
   onSell: (amount: number) => void;
   isLoading: boolean;
@@ -14,6 +16,8 @@ interface TradingInterfaceProps {
 
 export const TradingInterface: React.FC<TradingInterfaceProps> = ({
   currentPrice,
+  userUsdcBalance,
+  userEverBalance,
   onBuy,
   onSell,
   isLoading,
@@ -43,6 +47,14 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
       } else {
         onSell(numAmount);
       }
+    }
+  };
+
+  const handleMaxClick = () => {
+    if (activeTab === 'buy') {
+      setAmount(userUsdcBalance.toString());
+    } else {
+      setAmount(userEverBalance.toString());
     }
   };
 
@@ -134,20 +146,34 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Amount in USDC
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                {activeTab === 'buy' ? 'Amount in USDC' : 'Amount in EVER'}
+              </label>
+              <div className="text-sm text-gray-500">
+                Balance: {activeTab === 'buy' 
+                  ? `${userUsdcBalance.toFixed(2)} USDC` 
+                  : `${userEverBalance.toFixed(2)} EVER`}
+              </div>
+            </div>
             <div className="relative">
               <input
                 type="text"
                 value={amount}
                 onChange={handleAmountChange}
                 placeholder="0.00"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                className="w-full px-4 py-3 pr-20 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
               />
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                USDC
+              <div className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-500">
+                {activeTab === 'buy' ? 'USDC' : 'EVER'}
               </div>
+              <button
+                type="button"
+                onClick={handleMaxClick}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
+              >
+                Max
+              </button>
             </div>
           </div>
 

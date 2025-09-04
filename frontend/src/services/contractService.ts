@@ -147,6 +147,10 @@ export class ContractService {
       const programUsdcAccount = await this.getProgramUsdcAccount();
       const programEverAccount = await this.getProgramEverAccount();
 
+      // Token mint addresses
+      const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'); // USDC DevNet
+      const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
+
       const tx = await this.program.methods
         .buy(usdcAmountBN)
         .accounts({
@@ -156,8 +160,8 @@ export class ContractService {
           userUsdcAccount: userUsdcAccount,
           userEverAccount: userEverAccount,
           programUsdcAccount: programUsdcAccount,
-          programEverAccount: programEverAccount,
-          treasuryWallet: TREASURY_WALLET,
+          everMint: EVER_MINT,
+          tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
           systemProgram: PublicKey.default,
         })
         .rpc();
@@ -192,6 +196,10 @@ export class ContractService {
       const programUsdcAccount = await this.getProgramUsdcAccount();
       const programEverAccount = await this.getProgramEverAccount();
 
+      // Token mint addresses
+      const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'); // USDC DevNet
+      const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
+
       const tx = await this.program.methods
         .sell(everAmountBN)
         .accounts({
@@ -202,7 +210,8 @@ export class ContractService {
           userEverAccount: userEverAccount,
           programUsdcAccount: programUsdcAccount,
           programEverAccount: programEverAccount,
-          treasuryWallet: TREASURY_WALLET,
+          everMint: EVER_MINT,
+          tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
           systemProgram: PublicKey.default,
         })
         .rpc();
@@ -217,9 +226,10 @@ export class ContractService {
   // Get user's EVER token balance
   async getUserEverBalance(): Promise<number> {
     try {
-      // This would need to be implemented with SPL token accounts
-      // For now, return 0
-      return 0;
+      const { getAccount } = await import('@solana/spl-token');
+      const userEverAccount = await this.getUserEverAccount();
+      const account = await getAccount(this.connection, userEverAccount);
+      return Number(account.amount) / 1_000_000_000; // Convert from 9 decimals
     } catch (error) {
       console.error('Error getting user EVER balance:', error);
       return 0;
@@ -229,9 +239,10 @@ export class ContractService {
   // Get user's USDC balance
   async getUserUSDCBalance(): Promise<number> {
     try {
-      // This would need to be implemented with SPL token accounts
-      // For now, return 0
-      return 0;
+      const { getAccount } = await import('@solana/spl-token');
+      const userUsdcAccount = await this.getUserUsdcAccount();
+      const account = await getAccount(this.connection, userUsdcAccount);
+      return Number(account.amount) / 1_000_000; // Convert from 6 decimals
     } catch (error) {
       console.error('Error getting user USDC balance:', error);
       return 0;
