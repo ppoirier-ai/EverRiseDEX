@@ -105,6 +105,34 @@ export class ContractService {
     return pda;
   }
 
+  // Get user's USDC token account
+  async getUserUsdcAccount(): Promise<PublicKey> {
+    const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+    const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'); // USDC DevNet
+    return getAssociatedTokenAddress(USDC_MINT, this.wallet.publicKey!);
+  }
+
+  // Get user's EVER token account
+  async getUserEverAccount(): Promise<PublicKey> {
+    const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+    const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
+    return getAssociatedTokenAddress(EVER_MINT, this.wallet.publicKey!);
+  }
+
+  // Get program's USDC token account (treasury)
+  async getProgramUsdcAccount(): Promise<PublicKey> {
+    const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+    const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'); // USDC DevNet
+    return getAssociatedTokenAddress(USDC_MINT, TREASURY_WALLET);
+  }
+
+  // Get program's EVER token account (reserve)
+  async getProgramEverAccount(): Promise<PublicKey> {
+    const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+    const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
+    return getAssociatedTokenAddress(EVER_MINT, TREASURY_WALLET);
+  }
+
   // Buy EVER tokens
   async buyTokens(usdcAmount: number): Promise<string> {
     try {
@@ -113,12 +141,22 @@ export class ContractService {
       const buyOrderPDA = this.getBuyOrderPDA(userPubkey, 0); // Use index 0 for now
       const usdcAmountBN = Math.floor(usdcAmount * 1_000_000); // Convert to 6 decimals
 
+      // Get all required token accounts
+      const userUsdcAccount = await this.getUserUsdcAccount();
+      const userEverAccount = await this.getUserEverAccount();
+      const programUsdcAccount = await this.getProgramUsdcAccount();
+      const programEverAccount = await this.getProgramEverAccount();
+
       const tx = await this.program.methods
         .buy(usdcAmountBN)
         .accounts({
           bondingCurve: bondingCurvePDA,
           buyOrder: buyOrderPDA,
           user: userPubkey,
+          userUsdcAccount: userUsdcAccount,
+          userEverAccount: userEverAccount,
+          programUsdcAccount: programUsdcAccount,
+          programEverAccount: programEverAccount,
           treasuryWallet: TREASURY_WALLET,
           systemProgram: PublicKey.default,
         })
@@ -148,12 +186,22 @@ export class ContractService {
       const sellOrderPDA = this.getSellOrderPDA(userPubkey, 0); // Use index 0 for now
       const everAmountBN = Math.floor(everAmount * 1_000_000_000); // Convert to 9 decimals
 
+      // Get all required token accounts
+      const userUsdcAccount = await this.getUserUsdcAccount();
+      const userEverAccount = await this.getUserEverAccount();
+      const programUsdcAccount = await this.getProgramUsdcAccount();
+      const programEverAccount = await this.getProgramEverAccount();
+
       const tx = await this.program.methods
         .sell(everAmountBN)
         .accounts({
           bondingCurve: bondingCurvePDA,
           sellOrder: sellOrderPDA,
           user: userPubkey,
+          userUsdcAccount: userUsdcAccount,
+          userEverAccount: userEverAccount,
+          programUsdcAccount: programUsdcAccount,
+          programEverAccount: programEverAccount,
           treasuryWallet: TREASURY_WALLET,
           systemProgram: PublicKey.default,
         })
