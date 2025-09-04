@@ -137,6 +137,23 @@ export default function Home() {
                 onClick={async () => {
                   if (contractService) {
                     try {
+                      const tx = await contractService.initializeSellQueue();
+                      console.log('Initialize sell queue successful:', tx);
+                      // Refresh data after processing
+                      window.location.reload();
+                    } catch (error) {
+                      console.error('Initialize sell queue failed:', error);
+                    }
+                  }
+                }}
+                className="px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              >
+                Init Sell Queue
+              </button>
+              <button
+                onClick={async () => {
+                  if (contractService) {
+                    try {
                       const tx = await contractService.processBuyQueue();
                       console.log('Process buy queue successful:', tx);
                       // Refresh data after processing

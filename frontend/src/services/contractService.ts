@@ -256,6 +256,61 @@ export class ContractService {
     }
   }
 
+  // Initialize a minimal sell order to establish the sell queue
+  async initializeSellQueue(): Promise<string> {
+    try {
+      const bondingCurvePDA = this.getBondingCurvePDA();
+      const userPubkey = this.wallet.publicKey!;
+      
+      // Create a minimal sell order (1 EVER token) to establish the queue
+      const minimalEverAmount = new BN(1_000_000_000); // 1 EVER token (9 decimals)
+      
+      const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, 0); // Position 0
+      
+      // Get required accounts
+      const userEverAccount = await this.getUserEverAccount();
+      const programEverAccount = await this.getProgramEverAccount();
+      
+      // Token mint addresses
+      const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
+      
+      // Create instruction for selling minimal amount
+      const instruction = await this.program.methods
+        .sell(minimalEverAmount)
+        .accounts({
+          bondingCurve: bondingCurvePDA,
+          sellOrder: sellOrderPDA,
+          user: userPubkey,
+          userEverAccount: userEverAccount,
+          programEverAccount: programEverAccount,
+          tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
+          systemProgram: PublicKey.default,
+        })
+        .instruction();
+
+      const { Transaction } = await import('@solana/web3.js');
+      const transaction = new Transaction().add(instruction);
+      
+      // Get recent blockhash
+      const { blockhash } = await this.connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = userPubkey;
+      
+      // Sign and send transaction
+      const signedTransaction = await this.wallet.signTransaction!(transaction);
+      const tx = await this.connection.sendRawTransaction(signedTransaction.serialize());
+      
+      // Wait for confirmation
+      await this.connection.confirmTransaction(tx);
+
+      console.log('Initial sell order created successfully:', tx);
+      return tx;
+    } catch (error) {
+      console.error('Error initializing sell queue:', error);
+      throw error;
+    }
+  }
+
   // Process buy queue (actually executes the purchase)
   async processBuyQueue(): Promise<string> {
     try {
@@ -272,15 +327,30 @@ export class ContractService {
         throw new Error('No buy orders to process');
       }
       
-      const buyOrderPDA = this.getBuyOrderPDA(bondingCurvePDA, bondingCurveData.buyQueueHead);
+      // Check if we need to initialize the sell queue first
+      if (bondingCurveData.sellQueueHead >= bondingCurveData.sellQueueTail) {
+        console.log('No sell orders exist, initializing minimal sell order first...');
+        await this.initializeSellQueue();
+        
+        // Wait a moment for the transaction to be confirmed
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Refresh bonding curve data
+        const updatedBondingCurveData = await this.getBondingCurveData();
+        if (!updatedBondingCurveData) {
+          throw new Error('Failed to fetch updated bonding curve data');
+        }
+        
+        // Update the bonding curve data reference
+        Object.assign(bondingCurveData, updatedBondingCurveData);
+      }
       
-      // For now, let's try a different approach - process the buy order directly from reserves
-      // Since there are no sell orders, we'll process it as a reserve purchase
-      console.log('Processing buy order from reserves (no sell orders to match)');
+      const buyOrderPDA = this.getBuyOrderPDA(bondingCurvePDA, bondingCurveData.buyQueueHead);
+      const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, bondingCurveData.sellQueueHead);
       
       // Get required accounts for processing
       const userEverAccount = await this.getUserEverAccount();
-      const userUsdcAccount = await this.getUserUsdcAccount();
+      const userUsdcAccount = await this.getUserUsdcAccount(); // This is the seller_usdc_account
       const programUsdcAccount = await this.getProgramUsdcAccount();
       const programEverAccount = await this.getProgramEverAccount();
       
@@ -289,15 +359,41 @@ export class ContractService {
       
       // Get treasury accounts
       const treasuryUsdcAccount = new PublicKey('9ib4KLusxgGmqQ5qvwPSwD7y4BJRiyyNyeZSQt8S6e61');
-      const treasuryEverAccount = new PublicKey('81xDWLArux2ni1HWXxzzrxFGrb5UyPJhByXahwPm2D6K');
       
-      // Since there are no sell orders, we need to process this differently
-      // Let's try to create a simple transfer from treasury to user
-      console.log('Attempting direct treasury transfer for buy order');
+      // Create instruction for processing buy queue
+      const instruction = await this.program.methods
+        .processBuyQueue()
+        .accounts({
+          bondingCurve: bondingCurvePDA,
+          buyOrder: buyOrderPDA,
+          sellOrder: sellOrderPDA,
+          programUsdcAccount: programUsdcAccount,
+          programEverAccount: programEverAccount,
+          buyerEverAccount: userEverAccount,
+          sellerUsdcAccount: userUsdcAccount,
+          treasuryUsdcAccount: treasuryUsdcAccount,
+          everMint: EVER_MINT,
+          tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
+        })
+        .instruction();
+
+      const { Transaction } = await import('@solana/web3.js');
+      const transaction = new Transaction().add(instruction);
       
-      // For now, let's return an error with a helpful message
-      throw new Error('Cannot process buy queue: No sell orders exist to match against. The smart contract needs sell orders to process buy orders. Try creating a sell order first, or the smart contract logic needs to be updated to handle reserve purchases directly.');
+      // Get recent blockhash
+      const { blockhash } = await this.connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = this.wallet.publicKey!;
       
+      // Sign and send transaction
+      const signedTransaction = await this.wallet.signTransaction!(transaction);
+      const tx = await this.connection.sendRawTransaction(signedTransaction.serialize());
+      
+      // Wait for confirmation
+      await this.connection.confirmTransaction(tx);
+
+      console.log('Buy queue processed successfully:', tx);
+      return tx;
     } catch (error) {
       console.error('Error processing buy queue:', error);
       throw error;
