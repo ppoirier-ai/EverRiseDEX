@@ -19,7 +19,7 @@ const mockPriceData = [
 ];
 
 export default function Home() {
-  const { bondingCurveData, userUsdcBalance, userEverBalance, isLoading: contractLoading, error, buyTokens, sellTokens } = useContract();
+  const { bondingCurveData, userUsdcBalance, userEverBalance, isLoading: contractLoading, error, buyTokens, sellTokens, contractService } = useContract();
   
   // Calculate derived values from contract data
   const currentPrice = bondingCurveData ? bondingCurveData.currentPrice / 1_000_000 : 0.0001;
@@ -114,6 +114,26 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        {/* Debug Section */}
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-medium text-blue-800">Debug Tools</h3>
+              <p className="text-sm text-blue-700">Check console for bonding curve data debugging</p>
+            </div>
+            <button
+              onClick={async () => {
+                if (contractService) {
+                  await contractService.debugBondingCurveData();
+                }
+              }}
+              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Debug Data
+            </button>
+          </div>
+        </div>
 
         {/* Header */}
         <div className="text-center mb-8">

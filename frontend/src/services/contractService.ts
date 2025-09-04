@@ -75,7 +75,10 @@ export class ContractService {
       try {
         const data = await this.program.account.bondingCurve.fetch(bondingCurvePDA);
         
-        return {
+        console.log('Raw bonding curve data:', data);
+        
+        // Parse the data correctly - handle BN objects properly
+        const parsedData = {
           authority: data.authority,
           treasuryWallet: data.treasuryWallet,
           x: data.x ? parseInt(data.x.toString()) : 0,
@@ -93,8 +96,29 @@ export class ContractService {
           lastDailyBoost: data.lastDailyBoost ? parseInt(data.lastDailyBoost.toString()) : 0,
           totalVolume24h: data.totalVolume24h ? parseInt(data.totalVolume24h.toString()) : 0,
         };
+        
+        console.log('Parsed bonding curve data:', parsedData);
+        return parsedData;
+        
       } catch (fetchError) {
-        console.log('Could not fetch bonding curve data, using mock data:', fetchError);
+        console.error('Could not fetch bonding curve data:', fetchError);
+        
+        // Try alternative method - fetch raw account data
+        try {
+          const accountInfo = await this.connection.getAccountInfo(bondingCurvePDA);
+          if (!accountInfo) {
+            throw new Error('Bonding curve account not found');
+          }
+          
+          console.log('Raw account data length:', accountInfo.data.length);
+          console.log('Raw account data:', accountInfo.data);
+          
+          // For now, return mock data but log the error for debugging
+          console.log('Using mock data due to parsing error');
+          
+        } catch (rawFetchError) {
+          console.error('Could not fetch raw account data:', rawFetchError);
+        }
         
         // Fallback to mock data
         return {
@@ -323,6 +347,36 @@ export class ContractService {
     } catch (error) {
       console.error('Error getting user USDC balance:', error);
       return 0;
+    }
+  }
+
+  // Debug function to manually check bonding curve data
+  async debugBondingCurveData(): Promise<void> {
+    try {
+      const bondingCurvePDA = this.getBondingCurvePDA();
+      console.log('Bonding curve PDA:', bondingCurvePDA.toString());
+      
+      // Check if account exists
+      const accountInfo = await this.connection.getAccountInfo(bondingCurvePDA);
+      if (!accountInfo) {
+        console.error('Bonding curve account does not exist!');
+        return;
+      }
+      
+      console.log('Account exists, data length:', accountInfo.data.length);
+      console.log('Account owner:', accountInfo.owner.toString());
+      console.log('Account executable:', accountInfo.executable);
+      
+      // Try to fetch using program
+      try {
+        const data = await this.program.account.bondingCurve.fetch(bondingCurvePDA);
+        console.log('Successfully fetched data:', data);
+      } catch (fetchError) {
+        console.error('Failed to fetch with program:', fetchError);
+      }
+      
+    } catch (error) {
+      console.error('Debug error:', error);
     }
   }
 }
