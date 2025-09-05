@@ -1,5 +1,5 @@
 import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
-import { PublicKey, Connection } from '@solana/web3.js';
+import { PublicKey, Connection, SystemProgram } from '@solana/web3.js';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import IDL from '../everrise_dex.json';
 
@@ -321,60 +321,6 @@ export class ContractService {
     }
   }
 
-  // Initialize a minimal sell order to establish the sell queue
-  async initializeSellQueue(): Promise<string> {
-    try {
-      const bondingCurvePDA = this.getBondingCurvePDA();
-      const userPubkey = this.wallet.publicKey!;
-      
-      // Create a minimal sell order (1 EVER token) to establish the queue
-      const minimalEverAmount = new BN(1_000_000_000); // 1 EVER token (9 decimals)
-      
-      const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, 0); // Position 0
-      
-      // Get required accounts
-      const userEverAccount = await this.getUserEverAccount();
-      const programEverAccount = await this.getProgramEverAccount();
-      
-      // Token mint addresses
-      const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
-      
-      // Create instruction for selling minimal amount
-      const instruction = await this.program.methods
-        .sell(minimalEverAmount)
-        .accounts({
-          bondingCurve: bondingCurvePDA,
-          sellOrder: sellOrderPDA,
-          user: userPubkey,
-          userEverAccount: userEverAccount,
-          programEverAccount: programEverAccount,
-          tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
-          systemProgram: PublicKey.default,
-        })
-        .instruction();
-
-      const { Transaction } = await import('@solana/web3.js');
-      const transaction = new Transaction().add(instruction);
-      
-      // Get recent blockhash
-      const { blockhash } = await this.connection.getLatestBlockhash();
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = userPubkey;
-      
-      // Sign and send transaction
-      const signedTransaction = await this.wallet.signTransaction!(transaction);
-      const tx = await this.connection.sendRawTransaction(signedTransaction.serialize());
-      
-      // Wait for confirmation
-      await this.connection.confirmTransaction(tx);
-
-      console.log('Initial sell order created successfully:', tx);
-      return tx;
-    } catch (error) {
-      console.error('Error initializing sell queue:', error);
-      throw error;
-    }
-  }
 
   // Process buy queue (actually executes the purchase)
   async processBuyQueue(): Promise<string> {
@@ -392,30 +338,10 @@ export class ContractService {
         throw new Error('No buy orders to process');
       }
       
-      // Check if we need to initialize the sell queue first
-      if (bondingCurveData.sellQueueHead >= bondingCurveData.sellQueueTail) {
-        console.log('No sell orders exist, initializing minimal sell order first...');
-        await this.initializeSellQueue();
-        
-        // Wait a moment for the transaction to be confirmed
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Refresh bonding curve data
-        const updatedBondingCurveData = await this.getBondingCurveData();
-        if (!updatedBondingCurveData) {
-          throw new Error('Failed to fetch updated bonding curve data');
-        }
-        
-        // Update the bonding curve data reference
-        Object.assign(bondingCurveData, updatedBondingCurveData);
-      }
-      
       const buyOrderPDA = this.getBuyOrderPDA(bondingCurvePDA, bondingCurveData.buyQueueHead);
-      const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, bondingCurveData.sellQueueHead);
       
       // Get required accounts for processing
       const userEverAccount = await this.getUserEverAccount();
-      const userUsdcAccount = await this.getUserUsdcAccount(); // This is the seller_usdc_account
       const programUsdcAccount = await this.getProgramUsdcAccount();
       const programEverAccount = await this.getProgramEverAccount();
       
@@ -424,6 +350,22 @@ export class ContractService {
       
       // Get treasury accounts
       const treasuryUsdcAccount = new PublicKey('9ib4KLusxgGmqQ5qvwPSwD7y4BJRiyyNyeZSQt8S6e61');
+      
+      // Check if there's a sell order to process
+      const hasSellOrder = bondingCurveData.sellQueueHead < bondingCurveData.sellQueueTail;
+      let sellOrderPDA: PublicKey;
+      let sellerUsdcAccount: PublicKey;
+      
+      if (hasSellOrder) {
+        // There's a sell order, use the actual PDAs
+        sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, bondingCurveData.sellQueueHead);
+        // For now, use a dummy account for seller USDC (in real scenario, you'd get this from the sell order)
+        sellerUsdcAccount = await this.getUserUsdcAccount();
+      } else {
+        // No sell order, use dummy accounts that won't be accessed
+        sellOrderPDA = SystemProgram.programId; // Use system program as dummy
+        sellerUsdcAccount = SystemProgram.programId; // Use system program as dummy
+      }
       
       // Create instruction for processing buy queue
       const instruction = await this.program.methods
@@ -435,7 +377,7 @@ export class ContractService {
           programUsdcAccount: programUsdcAccount,
           programEverAccount: programEverAccount,
           buyerEverAccount: userEverAccount,
-          sellerUsdcAccount: userUsdcAccount,
+          sellerUsdcAccount: sellerUsdcAccount,
           treasuryUsdcAccount: treasuryUsdcAccount,
           tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
         })

@@ -107,6 +107,55 @@
       "args": []
     },
     {
+      "name": "bump_sell_tail",
+      "docs": [
+        "Bump sell_queue_tail by 1 to skip an occupied sell_order PDA"
+      ],
+      "discriminator": [
+        208,
+        132,
+        217,
+        107,
+        235,
+        46,
+        63,
+        124
+      ],
+      "accounts": [
+        {
+          "name": "bonding_curve",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "buy",
       "docs": [
         "Buy EVER tokens using USDC from the bonding curve with transaction safety"
@@ -497,32 +546,7 @@
           }
         },
         {
-          "name": "sell_order",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  101,
-                  108,
-                  108,
-                  95,
-                  111,
-                  114,
-                  100,
-                  101,
-                  114
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "bonding_curve.sell_queue_head",
-                "account": "BondingCurve"
-              }
-            ]
-          }
+          "name": "sell_order"
         },
         {
           "name": "program_usdc_account",
@@ -537,8 +561,7 @@
           "writable": true
         },
         {
-          "name": "seller_usdc_account",
-          "writable": true
+          "name": "seller_usdc_account"
         },
         {
           "name": "treasury_usdc_account",
