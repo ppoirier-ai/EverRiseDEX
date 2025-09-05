@@ -101,30 +101,7 @@
         },
         {
           "name": "buy_order",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  98,
-                  117,
-                  121,
-                  95,
-                  111,
-                  114,
-                  100,
-                  101,
-                  114
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "bonding_curve.buy_queue_tail",
-                "account": "BondingCurve"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "user",
@@ -714,6 +691,63 @@
         {
           "name": "ever_amount",
           "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "skip_orphaned_buy_orders",
+      "docs": [
+        "Skip orphaned buy order accounts (emergency function)"
+      ],
+      "discriminator": [
+        83,
+        140,
+        198,
+        115,
+        8,
+        227,
+        133,
+        13
+      ],
+      "accounts": [
+        {
+          "name": "bonding_curve",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "docs": [
+            "Anyone can call this function to skip orphaned accounts"
+          ],
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "count",
+          "type": "u32"
         }
       ]
     }

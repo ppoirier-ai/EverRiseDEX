@@ -69,8 +69,8 @@ pub mod everrise_dex {
         let estimated_tokens = calculate_buy_amount(bonding_curve, usdc_amount)?;
         require!(estimated_tokens > 0, ErrorCode::InvalidAmount);
 
-        // Get the current queue position before incrementing
-        let queue_position = bonding_curve.buy_queue_tail;
+        // Get the current queue position (this will be the position after incrementing)
+        let queue_position = bonding_curve.buy_queue_tail + 1;
 
         // Add to buy queue
         let buy_order = &mut ctx.accounts.buy_order;
@@ -407,7 +407,18 @@ pub mod everrise_dex {
 
     /// Get smart contract version for debugging
     pub fn get_version(ctx: Context<GetVersion>) -> Result<u32> {
-        Ok(12) // Version 12 - Fixed account allocation conflict in buy function
+        Ok(13) // Version 13 - Fixed PDA seed derivation to use next tail value
+    }
+
+    /// Skip orphaned buy order accounts (emergency function)
+    pub fn skip_orphaned_buy_orders(ctx: Context<SkipOrphanedBuyOrders>, count: u32) -> Result<()> {
+        let bonding_curve = &mut ctx.accounts.bonding_curve;
+        
+        // Increment buy queue tail to skip orphaned accounts
+        bonding_curve.buy_queue_tail = bonding_curve.buy_queue_tail.checked_add(count as u64).unwrap();
+        
+        msg!("Skipped {} orphaned buy order accounts", count);
+        Ok(())
     }
 
 
@@ -824,7 +835,7 @@ pub struct Buy<'info> {
         init,
         payer = user,
         space = 8 + BuyOrder::INIT_SPACE,
-        seeds = [b"buy_order", bonding_curve.buy_queue_tail.to_le_bytes().as_ref()],
+        seeds = [b"buy_order", (bonding_curve.buy_queue_tail + 1).to_le_bytes().as_ref()],
         bump
     )]
     pub buy_order: Account<'info, BuyOrder>,
@@ -967,6 +978,19 @@ pub struct ApplyDailyBoost<'info> {
 #[derive(Accounts)]
 pub struct GetVersion {
     // No accounts needed for version check
+}
+
+#[derive(Accounts)]
+pub struct SkipOrphanedBuyOrders<'info> {
+    #[account(
+        mut,
+        seeds = [b"bonding_curve"],
+        bump
+    )]
+    pub bonding_curve: Account<'info, BondingCurve>,
+    
+    /// Anyone can call this function to skip orphaned accounts
+    pub user: Signer<'info>,
 }
 
 #[derive(Accounts)]
