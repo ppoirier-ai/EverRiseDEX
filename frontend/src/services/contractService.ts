@@ -272,7 +272,8 @@ export class ContractService {
         throw new Error('Failed to fetch bonding curve data');
       }
       
-      const buyOrderPDA = this.getBuyOrderPDA(bondingCurvePDA, bondingCurveData.buyQueueTail);
+      // Program derives the buy_order PDA with (buy_queue_tail + 1)
+      const buyOrderPDA = this.getBuyOrderPDA(bondingCurvePDA, bondingCurveData.buyQueueTail + 1);
 
       // Get all required token accounts
       const userUsdcAccount = await this.getUserUsdcAccount();
