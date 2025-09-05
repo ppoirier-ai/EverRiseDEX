@@ -69,6 +69,9 @@ pub mod everrise_dex {
         let estimated_tokens = calculate_buy_amount(bonding_curve, usdc_amount)?;
         require!(estimated_tokens > 0, ErrorCode::InvalidAmount);
 
+        // Get the current queue position before incrementing
+        let queue_position = bonding_curve.buy_queue_tail;
+
         // Add to buy queue
         let buy_order = &mut ctx.accounts.buy_order;
         buy_order.buyer = ctx.accounts.user.key();
@@ -78,7 +81,7 @@ pub mod everrise_dex {
         buy_order.processed = false;
         buy_order.bump = ctx.bumps.buy_order;
 
-        // Update buy queue tail
+        // Update buy queue tail AFTER setting up the order
         bonding_curve.buy_queue_tail = bonding_curve.buy_queue_tail.checked_add(1).unwrap();
 
         // Transfer USDC from user to program (will be used for actual purchases)
@@ -96,12 +99,12 @@ pub mod everrise_dex {
             buyer: ctx.accounts.user.key(),
             usdc_amount,
             estimated_tokens,
-            queue_position: bonding_curve.buy_queue_tail - 1,
+            queue_position,
             timestamp: clock.unix_timestamp,
         });
 
         msg!("Buy queued: {} USDC -> ~{} EVER tokens (position: {})", 
-             usdc_amount, estimated_tokens, bonding_curve.buy_queue_tail - 1);
+             usdc_amount, estimated_tokens, queue_position);
 
         Ok(())
     }
@@ -404,7 +407,7 @@ pub mod everrise_dex {
 
     /// Get smart contract version for debugging
     pub fn get_version(ctx: Context<GetVersion>) -> Result<u32> {
-        Ok(11) // Version 11 - Clean deployment with correct initial values
+        Ok(12) // Version 12 - Fixed account allocation conflict in buy function
     }
 
 
