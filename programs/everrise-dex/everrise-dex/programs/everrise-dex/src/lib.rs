@@ -407,7 +407,13 @@ pub mod everrise_dex {
 
     /// Get smart contract version for debugging
     pub fn get_version(ctx: Context<GetVersion>) -> Result<u32> {
-        Ok(13) // Version 13 - Fixed PDA seed derivation to use next tail value
+        Ok(14) // Version 14 - add bump_buy_tail to skip occupied PDAs
+    }
+    /// Bump buy_queue_tail by 1 to skip an occupied PDA
+    pub fn bump_buy_tail(ctx: Context<BumpBuyTail>) -> Result<()> {
+        let bonding_curve = &mut ctx.accounts.bonding_curve;
+        bonding_curve.buy_queue_tail = bonding_curve.buy_queue_tail.checked_add(1).unwrap();
+        Ok(())
     }
 
     /// Skip orphaned buy order accounts (emergency function)
@@ -978,6 +984,17 @@ pub struct ApplyDailyBoost<'info> {
 #[derive(Accounts)]
 pub struct GetVersion {
     // No accounts needed for version check
+}
+
+#[derive(Accounts)]
+pub struct BumpBuyTail<'info> {
+    #[account(
+        mut,
+        seeds = [b"bonding_curve"],
+        bump
+    )]
+    pub bonding_curve: Account<'info, BondingCurve>,
+    pub user: Signer<'info>,
 }
 
 #[derive(Accounts)]

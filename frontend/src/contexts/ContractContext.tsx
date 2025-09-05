@@ -56,6 +56,8 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
       try {
         const service = new ContractService(connection, wallet);
         setContractService(service);
+        // Expose for console debugging
+        try { (window as any).contractService = service; } catch {}
         setError(null);
       } catch (err) {
         console.error('Error initializing contract service:', err);
