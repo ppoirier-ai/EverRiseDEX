@@ -404,28 +404,9 @@ pub mod everrise_dex {
 
     /// Get smart contract version for debugging
     pub fn get_version(ctx: Context<GetVersion>) -> Result<u32> {
-        Ok(10) // Version 10 - Added atomic buy function and queue reinitialization
+        Ok(11) // Version 11 - Clean deployment with correct initial values
     }
 
-    /// Reset all queues to zero (can be called by anyone)
-    pub fn reset_queues(ctx: Context<ResetQueues>) -> Result<()> {
-        let bonding_curve = &mut ctx.accounts.bonding_curve;
-        let clock = Clock::get()?;
-        
-        // Reset all queue pointers to empty state
-        bonding_curve.sell_queue_head = 0;
-        bonding_curve.sell_queue_tail = 0;
-        bonding_curve.buy_queue_head = 0;
-        bonding_curve.buy_queue_tail = 0;
-        
-        // Reset other counters
-        bonding_curve.total_volume_24h = 0;
-        bonding_curve.cumulative_bonus = 0;
-        bonding_curve.last_daily_boost = clock.unix_timestamp;
-        
-        msg!("All queues reset to zero - DEX is now clean");
-        Ok(())
-    }
 
     /// Atomic buy function - USDC + EVER transfer in one transaction (no queue)
     pub fn buy_atomic(ctx: Context<BuyAtomic>, usdc_amount: u64) -> Result<()> {
@@ -826,19 +807,6 @@ pub struct Initialize<'info> {
     pub system_program: Program<'info, System>,
 }
 
-#[derive(Accounts)]
-pub struct ResetQueues<'info> {
-    #[account(
-        mut,
-        seeds = [b"bonding_curve"],
-        bump
-    )]
-    pub bonding_curve: Account<'info, BondingCurve>,
-    
-    /// Anyone can call this function to reset queues (it's just resetting counters)
-    /// This is safe because it only resets queue pointers, not actual funds
-    pub user: Signer<'info>,
-}
 
 #[derive(Accounts)]
 pub struct Buy<'info> {

@@ -14,6 +14,9 @@
   - Used for bonding curve mechanics (X variable in the formula)
   - **IMPORTANT**: All reserve buy transactions should send USDC to this address
   - **NOTE**: This is the TREASURY, not the reserve. The reserve refers to unsold EVER tokens.
+  - **CRITICAL**: Treasury wallet has NO signing authority over the DEX
+  - **CRITICAL**: Treasury wallet only receives USDC and optionally sets treasury values once a week
+  - **CRITICAL**: Treasury wallet should be kept secure and separate from DEX operations
 
 ### Smart Contract Program ID
 - **Program ID**: `9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy`
@@ -55,6 +58,9 @@
 - **Program USDC Account**: `CcpCLzvrwcY9Ufupvp69BDKuYZieE2ExQLoHdPKa3Aus` (✅ Created)
 - **Program EVER Account**: `8t4CT8pfMjvVTGmvdtKUkVfaqrLZuEW8WaVKLPqaogpN` (100M EVER tokens available for distribution) (✅ Created)
 - **Note**: These accounts are owned by the bonding curve PDA and used for program-controlled token transfers
+- **CRITICAL**: The Bonding Curve PDA has FULL CONTROL over the DEX operations
+- **CRITICAL**: The Bonding Curve PDA can sign transactions using its authority
+- **CRITICAL**: No human wallet should have control over DEX operations - only the PDA
 
 ## Development Guidelines
 
