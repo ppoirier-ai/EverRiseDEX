@@ -58,6 +58,55 @@
       "args": []
     },
     {
+      "name": "bump_buy_tail",
+      "docs": [
+        "Bump buy_queue_tail by 1 to skip an occupied PDA"
+      ],
+      "discriminator": [
+        182,
+        96,
+        197,
+        80,
+        212,
+        144,
+        53,
+        86
+      ],
+      "accounts": [
+        {
+          "name": "bonding_curve",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "buy",
       "docs": [
         "Buy EVER tokens using USDC from the bonding curve with transaction safety"
