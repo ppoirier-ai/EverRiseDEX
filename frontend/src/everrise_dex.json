@@ -619,59 +619,6 @@
       "args": []
     },
     {
-      "name": "reset_queues",
-      "docs": [
-        "Reset all queues to zero (can be called by anyone)"
-      ],
-      "discriminator": [
-        130,
-        39,
-        75,
-        233,
-        193,
-        125,
-        25,
-        93
-      ],
-      "accounts": [
-        {
-          "name": "bonding_curve",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  98,
-                  111,
-                  110,
-                  100,
-                  105,
-                  110,
-                  103,
-                  95,
-                  99,
-                  117,
-                  114,
-                  118,
-                  101
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "user",
-          "docs": [
-            "Anyone can call this function to reset queues (it's just resetting counters)",
-            "This is safe because it only resets queue pointers, not actual funds"
-          ],
-          "signer": true
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "sell",
       "docs": [
         "Sell EVER tokens to the queue system with enhanced transaction safety"
