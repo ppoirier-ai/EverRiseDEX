@@ -9,9 +9,10 @@ interface PriceDisplayProps {
   volume24h: number;
   marketCap: number;
   circulatingSupply: number;
-  treasuryBitcoin?: number;
-  treasuryValueUSDC?: number;
-  lastUpdated?: string;
+  reserveSupply: number;
+  treasuryBitcoin: number;
+  treasuryValueUSDC: number;
+  lastUpdated: string;
 }
 
 export const PriceDisplay: React.FC<PriceDisplayProps> = ({
@@ -20,9 +21,10 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   volume24h,
   marketCap,
   circulatingSupply,
-  treasuryBitcoin = 0,
-  treasuryValueUSDC = 0,
-  lastUpdated = 'Never',
+  reserveSupply,
+  treasuryBitcoin,
+  treasuryValueUSDC,
+  lastUpdated,
 }) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -111,7 +113,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
             <span className="text-sm text-gray-600">Reserve Supply</span>
           </div>
           <div className="text-lg font-semibold text-gray-900">
-            {formatNumber(1000000000 - circulatingSupply)}
+            {formatNumber(reserveSupply)}
           </div>
         </div>
 

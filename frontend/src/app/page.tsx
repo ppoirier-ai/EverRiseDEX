@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { PriceDisplay } from '@/components/PriceDisplay';
 import { TradingInterface } from '@/components/TradingInterface';
 import { PriceChart } from '@/components/PriceChart';
-import { QueueStatus } from '@/components/QueueStatus';
 import { useContract } from '@/contexts/ContractContext';
 
 // Mock data - in real implementation, this would come from the smart contract
@@ -115,62 +114,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Debug Section */}
-        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-medium text-blue-800">Debug Tools</h3>
-              <p className="text-sm text-blue-700">Check console for bonding curve data debugging</p>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={async () => {
-                  if (contractService) {
-                    await contractService.debugBondingCurveData();
-                  }
-                }}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Debug Data
-              </button>
-              <button
-                onClick={async () => {
-                  if (contractService) {
-                    try {
-                      const tx = await contractService.initializeSellQueue();
-                      console.log('Initialize sell queue successful:', tx);
-                      // Refresh data after processing
-                      window.location.reload();
-                    } catch (error) {
-                      console.error('Initialize sell queue failed:', error);
-                    }
-                  }
-                }}
-                className="px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              >
-                Init Sell Queue
-              </button>
-              <button
-                onClick={async () => {
-                  if (contractService) {
-                    try {
-                      const tx = await contractService.processBuyQueue();
-                      console.log('Process buy queue successful:', tx);
-                      // Refresh data after processing
-                      window.location.reload();
-                    } catch (error) {
-                      console.error('Process buy queue failed:', error);
-                    }
-                  }
-                }}
-                className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                Process Queue
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Header */}
         <div className="text-center mb-8">
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -186,6 +129,7 @@ export default function Home() {
             volume24h={volume24h}
             marketCap={marketCap}
             circulatingSupply={circulatingSupply}
+            reserveSupply={bondingCurveData ? bondingCurveData.y / 1e9 : 1000000000}
             treasuryBitcoin={treasuryBitcoin}
             treasuryValueUSDC={treasuryValueUSDC}
             lastUpdated={treasuryLastUpdated}
@@ -206,24 +150,14 @@ export default function Home() {
             />
           </div>
 
-          {/* Queue Status */}
-          <div>
-            <QueueStatus
-              sellQueueLength={sellQueueLength}
-              averageWaitTime={averageWaitTime}
-              lastProcessedTime={lastProcessedTime}
-              queueVolume={queueVolume}
+          {/* Price Chart */}
+          <div className="mb-8">
+            <PriceChart
+              data={chartData}
+              timeRange={timeRange}
+              onTimeRangeChange={handleTimeRangeChange}
             />
           </div>
-        </div>
-
-        {/* Price Chart */}
-        <div className="mb-8">
-          <PriceChart
-            data={chartData}
-            timeRange={timeRange}
-            onTimeRangeChange={handleTimeRangeChange}
-          />
         </div>
 
         {/* Features Section */}
