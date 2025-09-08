@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { ContractService } from '../services/contractService';
 
 interface SaleOrder {
@@ -18,6 +18,7 @@ interface QueueStatusProps {
   lastProcessedTime: number;
   queueVolume: number;
   contractService: ContractService | null;
+  refreshTrigger?: number; // Optional trigger to force refresh
 }
 
 export const QueueStatus: React.FC<QueueStatusProps> = ({
@@ -26,42 +27,45 @@ export const QueueStatus: React.FC<QueueStatusProps> = ({
   lastProcessedTime,
   queueVolume,
   contractService,
+  refreshTrigger,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sellOrders, setSellOrders] = useState<SaleOrder[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const itemsPerPage = 10;
 
+  // Function to fetch sell order data
+  const fetchSellOrders = useCallback(async () => {
+    if (!contractService || sellQueueLength === 0) {
+      setSellOrders([]);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const orders = await contractService.getAllSellOrders();
+      const formattedOrders: SaleOrder[] = orders.map((order, index) => ({
+        orderNumber: index + 1,
+        seller: order.seller.toString(),
+        quantity: parseInt(order.remaining_amount?.toString() || order.remainingAmount?.toString() || '0') / 1_000_000_000, // Convert from 9 decimals - use remaining amount, not original
+        price: parseInt(order.locked_price?.toString() || order.lockedPrice?.toString() || '0') / 1_000_000, // Convert from 6 decimals
+        timestamp: parseInt(order.timestamp?.toString() || '0'),
+        processed: order.processed || false,
+      }));
+      setSellOrders(formattedOrders);
+      console.log('🔄 QueueStatus: Refreshed sell orders data');
+    } catch (error) {
+      console.error('Error fetching sell orders:', error);
+      setSellOrders([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [contractService, sellQueueLength]);
+
   // Fetch real sell order data
   useEffect(() => {
-    const fetchSellOrders = async () => {
-      if (!contractService || sellQueueLength === 0) {
-        setSellOrders([]);
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        const orders = await contractService.getAllSellOrders();
-        const formattedOrders: SaleOrder[] = orders.map((order, index) => ({
-          orderNumber: index + 1,
-          seller: order.seller.toString(),
-          quantity: parseInt(order.ever_amount?.toString() || order.everAmount?.toString() || '0') / 1_000_000_000, // Convert from 9 decimals
-          price: parseInt(order.locked_price?.toString() || order.lockedPrice?.toString() || '0') / 1_000_000, // Convert from 6 decimals
-          timestamp: parseInt(order.timestamp?.toString() || '0'),
-          processed: order.processed || false,
-        }));
-        setSellOrders(formattedOrders);
-      } catch (error) {
-        console.error('Error fetching sell orders:', error);
-        setSellOrders([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchSellOrders();
-  }, [contractService, sellQueueLength]);
+  }, [fetchSellOrders, refreshTrigger]);
 
   // Helper function to truncate wallet address
   const truncateAddress = (address: string): string => {

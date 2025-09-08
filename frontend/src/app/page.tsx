@@ -31,6 +31,7 @@ export default function Home() {
   } = useContract();
   
   const [isLoading, setIsLoading] = useState(false);
+  const [queueRefreshTrigger, setQueueRefreshTrigger] = useState(Date.now());
   
   // Queue data from contract
   const sellQueueLength = dexData ? dexData.sellQueueTail - dexData.sellQueueHead : 0;
@@ -65,6 +66,8 @@ export default function Home() {
       const tx = await buyTokens(amount);
       console.log('Buy transaction successful:', tx);
       // Contract data will be automatically refreshed by the context
+      // Also trigger queue refresh to update sell order details
+      setQueueRefreshTrigger(Date.now());
     } catch (error) {
       console.error('Buy transaction failed:', error);
       // Error is handled by the contract context
@@ -153,6 +156,7 @@ export default function Home() {
               lastProcessedTime={lastProcessedTime}
               queueVolume={queueVolume}
               contractService={contractService}
+              refreshTrigger={queueRefreshTrigger}
             />
           </div>
         </div>

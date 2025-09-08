@@ -294,10 +294,12 @@
           "writable": true
         },
         {
-          "name": "sell_order"
+          "name": "sell_order",
+          "writable": true
         },
         {
-          "name": "seller_usdc_account"
+          "name": "seller_usdc_account",
+          "writable": true
         },
         {
           "name": "token_program",
