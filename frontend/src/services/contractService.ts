@@ -262,170 +262,95 @@ export class ContractService {
   // Buy EVER tokens (queues the order)
   async buyTokens(usdcAmount: number): Promise<string> {
     try {
-      const bondingCurvePDA = this.getBondingCurvePDA();
-      const userPubkey = this.wallet.publicKey!;
-      const usdcAmountBN = new BN(Math.floor(usdcAmount * 1_000_000)); // Convert to 6 decimals using BN
-
-      // Get bonding curve data to get current queue tail
-      const bondingCurveData = await this.getBondingCurveData();
-      if (!bondingCurveData) {
-        throw new Error('Failed to fetch bonding curve data');
-      }
-      
-      // Program derives the buy_order PDA with (buy_queue_tail + 1)
-      const buyOrderPDA = this.getBuyOrderPDA(bondingCurvePDA, bondingCurveData.buyQueueTail + 1);
-
-      // Get all required token accounts
-      const userUsdcAccount = await this.getUserUsdcAccount();
-      const userEverAccount = await this.getUserEverAccount();
-      const programUsdcAccount = await this.getProgramUsdcAccount();
-
-      // Token mint addresses
-      const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
-
-      // Try using instruction method with manual transaction building
-      const instruction = await this.program.methods
-        .buy(usdcAmountBN)
-        .accounts({
-          bondingCurve: bondingCurvePDA,
-          buyOrder: buyOrderPDA,
-          user: userPubkey,
-          userUsdcAccount: userUsdcAccount,
-          userEverAccount: userEverAccount,
-          programUsdcAccount: programUsdcAccount,
-          everMint: EVER_MINT,
-          tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
-          systemProgram: PublicKey.default,
-        })
-        .instruction();
-
-      const { Transaction, sendAndConfirmTransaction } = await import('@solana/web3.js');
-      const transaction = new Transaction().add(instruction);
-      
-      // Get recent blockhash
-      const { blockhash } = await this.connection.getLatestBlockhash();
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = userPubkey;
-      
-      // Sign and send transaction
-      const signedTransaction = await this.wallet.signTransaction!(transaction);
-      const tx = await this.connection.sendRawTransaction(signedTransaction.serialize());
-      
-      // Wait for confirmation
-      await this.connection.confirmTransaction(tx);
-
-      return tx;
+      const amount = new BN(usdcAmount * 1_000_000); // Convert to 6 decimals
+      return await this.buyAtomic(amount);
     } catch (error) {
-      console.error('Error buying tokens:', error);
+      console.error('Error in buyTokens:', error);
       throw error;
     }
   }
 
 
-  // Process buy queue (actually executes the purchase)
-  async processBuyQueue(): Promise<string> {
-    try {
-      const bondingCurvePDA = this.getBondingCurvePDA();
-      
-      // Get bonding curve data to get current queue head
-      const bondingCurveData = await this.getBondingCurveData();
-      if (!bondingCurveData) {
-        throw new Error('Failed to fetch bonding curve data');
-      }
-      
-      // Check if there are orders to process
-      if (bondingCurveData.buyQueueHead >= bondingCurveData.buyQueueTail) {
-        throw new Error('No buy orders to process');
-      }
-      
-      const buyOrderPDA = this.getBuyOrderPDA(bondingCurvePDA, bondingCurveData.buyQueueHead);
-      
-      // Get required accounts for processing
-      const userEverAccount = await this.getUserEverAccount();
-      const programUsdcAccount = await this.getProgramUsdcAccount();
-      const programEverAccount = await this.getProgramEverAccount();
-      
-      // Token mint addresses
-      const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb'); // EVER Test Token
-      
-      // Get treasury accounts
-      const treasuryUsdcAccount = new PublicKey('9ib4KLusxgGmqQ5qvwPSwD7y4BJRiyyNyeZSQt8S6e61');
-      
-      // Check if there's a sell order to process
-      const hasSellOrder = bondingCurveData.sellQueueHead < bondingCurveData.sellQueueTail;
-      let sellOrderPDA: PublicKey;
-      let sellerUsdcAccount: PublicKey;
-      
-      if (hasSellOrder) {
-        // There's a sell order, use the actual PDAs
-        sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, bondingCurveData.sellQueueHead);
-        // For now, use a dummy account for seller USDC (in real scenario, you'd get this from the sell order)
-        sellerUsdcAccount = await this.getUserUsdcAccount();
-      } else {
-        // No sell order, use dummy accounts that won't be accessed
-        sellOrderPDA = SystemProgram.programId; // Use system program as dummy
-        sellerUsdcAccount = SystemProgram.programId; // Use system program as dummy
-      }
-      
-      // Create instruction for processing buy queue
-      const instruction = await this.program.methods
-        .processBuyQueue()
-        .accounts({
-          bondingCurve: bondingCurvePDA,
-          buyOrder: buyOrderPDA,
-          sellOrder: sellOrderPDA,
-          programUsdcAccount: programUsdcAccount,
-          programEverAccount: programEverAccount,
-          buyerEverAccount: userEverAccount,
-          sellerUsdcAccount: sellerUsdcAccount,
-          treasuryUsdcAccount: treasuryUsdcAccount,
-          tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
-        })
-        .instruction();
-
-      const { Transaction } = await import('@solana/web3.js');
-      const transaction = new Transaction().add(instruction);
-      
-      // Get recent blockhash
-      const { blockhash } = await this.connection.getLatestBlockhash();
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = this.wallet.publicKey!;
-      
-      // Debug: Try to simulate the transaction first to see detailed error
-      try {
-        console.log('🔍 Simulating transaction before sending...');
-        const simulation = await this.connection.simulateTransaction(transaction);
-        console.log('🔍 Simulation result:', simulation);
-        
-        if (simulation.value.err) {
-          console.error('🔍 Simulation failed with error:', simulation.value.err);
-          console.error('🔍 Simulation logs:', simulation.value.logs);
-          throw new Error(`Simulation failed: ${JSON.stringify(simulation.value.err)}`);
-        }
-        
-        console.log('✅ Simulation successful, proceeding with transaction...');
-      } catch (simError) {
-        console.error('🔍 Simulation error details:', simError);
-        throw simError;
-      }
-      
-      // Sign and send transaction
-      const signedTransaction = await this.wallet.signTransaction!(transaction);
-      const tx = await this.connection.sendRawTransaction(signedTransaction.serialize());
-      
-      // Wait for confirmation
-      await this.connection.confirmTransaction(tx);
-
-      console.log('Buy queue processed successfully:', tx);
-      return tx;
-    } catch (error) {
-      console.error('Error processing buy queue:', error);
-      throw error;
-    }
-  }
+  // This function is no longer needed as buys are now atomic.
+  // async processBuyQueue(): Promise<string> {
+  //   try {
+  //     const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+  //     const bondingCurvePDA = this.getBondingCurvePDA();
+  //     const bondingCurveData = await this.getBondingCurveData();
+  //     if (!bondingCurveData) {
+  //       throw new Error('Could not fetch bonding curve data');
+  //     }
+  //
+  //     // Check if there are orders to process
+  //     if (bondingCurveData.buyQueueHead >= bondingCurveData.buyQueueTail) {
+  //       throw new Error('No buy orders to process');
+  //     }
+  //     
+  //     const buyOrderPDA = this.getBuyOrderPDA(bondingCurvePDA, bondingCurveData.buyQueueHead);
+  //     
+  //     // Fetch the buy order to get the actual buyer's public key
+  //     const buyOrderAccount = await this.program.account.buyOrder.fetch(buyOrderPDA);
+  //     const buyerPublicKey = buyOrderAccount.buyer;
+  //
+  //     // Define mints
+  //     const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb');
+  //     const USDC_MINT = new PublicKey('4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDQRjg'); // Devnet USDC
+  //
+  //     // Derive the buyer's EVER ATA
+  //     const buyerEverAccount = await getAssociatedTokenAddress(EVER_MINT, buyerPublicKey);
+  //     
+  //     const programUsdcAccount = await this.getProgramUsdcAccount();
+  //     const programEverAccount = await this.getProgramEverAccount();
+  //     const treasuryUsdcAccount = new PublicKey('9ib4KLusxgGmqQ5qvwPSwD7y4BJRiyyNyeZSQt8S6e61');
+  //     
+  //     // Check if there's a sell order to process
+  //     const hasSellOrder = bondingCurveData.sellQueueHead < bondingCurveData.sellQueueTail;
+  //     let sellOrderPDA: PublicKey;
+  //     let sellerUsdcAccount: PublicKey;
+  //     
+  //     if (hasSellOrder) {
+  //       // There's a sell order, find the seller's USDC ATA
+  //       sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, bondingCurveData.sellQueueHead);
+  //       const sellOrderAccount = await this.program.account.sellOrder.fetch(sellOrderPDA);
+  //       const sellerPublicKey = sellOrderAccount.seller;
+  //       sellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, sellerPublicKey);
+  //     } else {
+  //       // No sell order, use dummy accounts that won't be accessed by program logic
+  //       sellOrderPDA = SystemProgram.programId;
+  //       sellerUsdcAccount = SystemProgram.programId;
+  //     }
+  //     
+  //     // Create instruction for processing buy queue
+  //     const instruction = await this.program.methods
+  //       .processBuyQueue()
+  //       .accounts({
+  //         bondingCurve: bondingCurvePDA,
+  //         buyOrder: buyOrderPDA,
+  //         sellOrder: sellOrderPDA,
+  //         programUsdcAccount,
+  //         programEverAccount,
+  //         buyerEverAccount,
+  //         sellerUsdcAccount,
+  //         treasuryUsdcAccount,
+  //         tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
+  //       })
+  //       .instruction();
+  //
+  //     const { Transaction } = await import('@solana/web3.js');
+  //     const transaction = new Transaction().add(instruction);
+  //     
+  //     const signature = await this.sendTransaction(transaction);
+  //     
+  //     console.log('Buy queue processed successfully:', signature);
+  //     return signature;
+  //   } catch (error) {
+  //     console.error('Error processing buy queue:', error);
+  //     throw error;
+  //   }
+  // }
 
   // Atomic buy function - USDC + EVER transfer in one transaction (no queue)
-  async buyAtomic(usdcAmount: number): Promise<string> {
+  async buyAtomic(usdcAmount: BN): Promise<string> {
     try {
       console.log('🚀 Starting atomic buy transaction...');
       console.log('💰 USDC Amount:', usdcAmount);
@@ -446,7 +371,7 @@ export class ContractService {
 
       // Create atomic buy instruction
       const instruction = await this.program.methods
-        .buyAtomic(new anchor.BN(usdcAmount))
+        .buyAtomic(new BN(usdcAmount))
         .accounts({
           bondingCurve: this.getBondingCurvePDA(),
           user: this.wallet.publicKey!,
