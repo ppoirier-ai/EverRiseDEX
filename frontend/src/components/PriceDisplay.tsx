@@ -6,7 +6,6 @@ import { TrendingUp, DollarSign, Activity, Coins, Clock } from 'lucide-react';
 interface PriceDisplayProps {
   currentPrice: number;
   priceChange24h: number;
-  volume24h: number;
   marketCap: number;
   circulatingSupply: number;
   reserveSupply: number;
@@ -18,7 +17,6 @@ interface PriceDisplayProps {
 export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   currentPrice,
   priceChange24h,
-  volume24h,
   marketCap,
   circulatingSupply,
   reserveSupply,
@@ -31,7 +29,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 6,
-      maximumFractionDigits: 8,
+      maximumFractionDigits: 6,
     }).format(price);
   };
 
@@ -78,7 +76,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-gray-50 rounded-lg p-4">
           <div className="flex items-center space-x-2 mb-2">
             <DollarSign className="w-4 h-4 text-gray-500" />
@@ -86,16 +84,6 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
           </div>
           <div className="text-lg font-semibold text-gray-900">
             ${formatNumber(marketCap)}
-          </div>
-        </div>
-
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <Activity className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-600">24h Volume</span>
-          </div>
-          <div className="text-lg font-semibold text-gray-900">
-            ${formatNumber(volume24h)}
           </div>
         </div>
 

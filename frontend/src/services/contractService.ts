@@ -2,6 +2,7 @@ import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
 import { PublicKey, Connection, SystemProgram } from '@solana/web3.js';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import IDL from '../everrise_dex.json';
+import { SolanaTransaction } from '@solana/web3.js';
 
 // Contract configuration
 export const PROGRAM_ID = new PublicKey('9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy');
@@ -270,7 +271,23 @@ export class ContractService {
   async buyTokens(usdcAmount: number): Promise<string> {
     try {
       const amount = new BN(usdcAmount * 1_000_000); // Convert to 6 decimals
-      return await this.buyAtomic(amount);
+      const instruction = await this.program.methods
+        .buy(amount)
+        .accounts({
+          bondingCurve: this.getBondingCurvePDA(),
+          user: this.wallet.publicKey!,
+          userUsdcAccount: await this.getUserUsdcAccount(),
+          userEverAccount: await this.getUserEverAccount(),
+          treasuryUsdcAccount: await this.getTreasuryUsdcAccount(),
+          programEverAccount: await this.getProgramEverAccount(),
+          tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
+        })
+        .instruction();
+
+      const { Transaction } = await import('@solana/web3.js');
+      const transaction = new Transaction().add(instruction);
+      
+      return await this.sendTransaction(transaction);
     } catch (error) {
       console.error('Error in buyTokens:', error);
       throw error;
@@ -413,11 +430,12 @@ export class ContractService {
     }
   }
 
-  // Get sell order PDA (uses bonding curve's sell_queue_tail)
+  // Get sell order PDA (uses bonding curve's sell_queue_tail + 1)
   getSellOrderPDA(bondingCurvePDA: PublicKey, queueTail: number): PublicKey {
     // Convert number to little-endian bytes (8 bytes for u64) to match to_le_bytes()
+    // Use queueTail + 1 to match smart contract PDA derivation
     const buffer = Buffer.alloc(8);
-    buffer.writeUInt32LE(queueTail, 0);
+    buffer.writeUInt32LE(queueTail + 1, 0);
     buffer.writeUInt32LE(0, 4); // High 32 bits are 0 for small numbers
     
     const [pda] = PublicKey.findProgramAddressSync(
@@ -513,6 +531,19 @@ export class ContractService {
       console.error('Error getting user USDC balance:', error);
       return 0;
     }
+  }
+
+  // A helper function to send transactions
+  private async sendTransaction(transaction: SolanaTransaction): Promise<string> {
+    const { blockhash } = await this.connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = this.wallet.publicKey!;
+
+    const signedTransaction = await this.wallet.signTransaction!(transaction);
+    const signature = await this.connection.sendRawTransaction(signedTransaction.serialize());
+    await this.connection.confirmTransaction(signature);
+
+    return signature;
   }
 
   // Debug function to manually check bonding curve data

@@ -158,7 +158,7 @@
     {
       "name": "buy",
       "docs": [
-        "Buy EVER tokens using USDC from the bonding curve with transaction safety"
+        "Buy EVER tokens using USDC from the bonding curve. This is now an atomic operation."
       ],
       "discriminator": [
         102,
@@ -169,89 +169,6 @@
         218,
         235,
         234
-      ],
-      "accounts": [
-        {
-          "name": "bonding_curve",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  98,
-                  111,
-                  110,
-                  100,
-                  105,
-                  110,
-                  103,
-                  95,
-                  99,
-                  117,
-                  114,
-                  118,
-                  101
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "buy_order",
-          "writable": true
-        },
-        {
-          "name": "user",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "user_usdc_account",
-          "writable": true
-        },
-        {
-          "name": "user_ever_account",
-          "writable": true
-        },
-        {
-          "name": "program_usdc_account",
-          "writable": true
-        },
-        {
-          "name": "ever_mint",
-          "writable": true
-        },
-        {
-          "name": "token_program",
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "usdc_amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "buy_atomic",
-      "docs": [
-        "Atomic buy function - USDC + EVER transfer in one transaction (no queue)"
-      ],
-      "discriminator": [
-        102,
-        203,
-        162,
-        82,
-        191,
-        227,
-        90,
-        151
       ],
       "accounts": [
         {
@@ -711,31 +628,7 @@
         },
         {
           "name": "sell_order",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  101,
-                  108,
-                  108,
-                  95,
-                  111,
-                  114,
-                  100,
-                  101,
-                  114
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "bonding_curve.sell_queue_tail",
-                "account": "BondingCurve"
-              }
-            ]
-          }
+          "writable": true
         },
         {
           "name": "user",

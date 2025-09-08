@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { PriceDisplay } from '@/components/PriceDisplay';
 import { TradingInterface } from '@/components/TradingInterface';
+import { QueueStatus } from '@/components/QueueStatus';
 import { PriceChart } from '@/components/PriceChart';
 import { useContract } from '@/contexts/ContractContext';
 
@@ -18,28 +19,27 @@ const mockPriceData = [
 ];
 
 export default function Home() {
-  const { bondingCurveData, userUsdcBalance, userEverBalance, isLoading: contractLoading, error, buyTokens, sellTokens, contractService } = useContract();
+  const { 
+    userUsdcBalance, 
+    userEverBalance, 
+    isLoading: contractLoading, 
+    error, 
+    buyTokens, 
+    sellTokens,
+    dexData 
+  } = useContract();
   
-  // Calculate derived values from contract data
-  const currentPrice = bondingCurveData ? bondingCurveData.currentPrice / 1_000_000 : 0.0001;
-  const volume24h = bondingCurveData ? bondingCurveData.totalVolume24h / 1_000_000 : 0;
-  const marketCap = bondingCurveData ? (bondingCurveData.circulatingSupply / 1_000_000_000) * currentPrice : 0;
-  const circulatingSupply = bondingCurveData ? bondingCurveData.circulatingSupply / 1_000_000_000 : 0;
-  
-  const [priceChange24h, setPriceChange24h] = useState(0.02);
-  const [chartData, setChartData] = useState(mockPriceData);
-  const [timeRange, setTimeRange] = useState<'1h' | '24h' | '7d' | '30d'>('24h');
   const [isLoading, setIsLoading] = useState(false);
   
   // Queue data from contract
-  const sellQueueLength = bondingCurveData ? bondingCurveData.sellQueueTail - bondingCurveData.sellQueueHead : 0;
-  const buyQueueLength = bondingCurveData ? bondingCurveData.buyQueueTail - bondingCurveData.buyQueueHead : 0;
+  const sellQueueLength = dexData ? dexData.sellQueueTail - dexData.sellQueueHead : 0;
+  const buyQueueLength = dexData ? dexData.buyQueueTail - dexData.buyQueueHead : 0;
   const [averageWaitTime, setAverageWaitTime] = useState(0);
   const [lastProcessedTime, setLastProcessedTime] = useState(0);
   const [queueVolume, setQueueVolume] = useState(0);
   
   // Treasury data from contract
-  const treasuryValueUSDC = bondingCurveData ? bondingCurveData.x / 1_000_000 : 0;
+  const treasuryValueUSDC = dexData ? dexData.x / 1_000_000 : 0;
   const [treasuryBitcoin, setTreasuryBitcoin] = useState(0.5);
   const [treasuryLastUpdated, setTreasuryLastUpdated] = useState('Never');
 
@@ -87,11 +87,6 @@ export default function Home() {
     }
   };
 
-  const handleTimeRangeChange = (range: '1h' | '24h' | '7d' | '30d') => {
-    setTimeRange(range);
-    // In real implementation, fetch new data based on time range
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -117,31 +112,30 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-8">
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Bitcoin pioneered unprintable money. EverRise improved with price you cannot haggle.
+            Bitcoin pioneered money that cannot be printed. EverRise improved with price you cannot haggle.
           </p>
         </div>
 
         {/* Price Display */}
         <div className="mb-8">
           <PriceDisplay
-            currentPrice={currentPrice}
-            priceChange24h={priceChange24h}
-            volume24h={volume24h}
-            marketCap={marketCap}
-            circulatingSupply={circulatingSupply}
-            reserveSupply={bondingCurveData ? bondingCurveData.y / 1e9 : 1000000000}
+            currentPrice={dexData.currentPrice}
+            priceChange24h={0.02}
+            marketCap={dexData.marketCap}
+            circulatingSupply={dexData.circulatingSupply}
+            reserveSupply={dexData.reserveSupply}
             treasuryBitcoin={treasuryBitcoin}
             treasuryValueUSDC={treasuryValueUSDC}
             lastUpdated={treasuryLastUpdated}
           />
         </div>
 
-        {/* Main Content Grid */}
+        {/* Trading Interface */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Trading Interface */}
           <div>
             <TradingInterface
-              currentPrice={currentPrice}
+              currentPrice={dexData.currentPrice}
               userUsdcBalance={userUsdcBalance}
               userEverBalance={userEverBalance}
               onBuy={handleBuy}
@@ -150,12 +144,13 @@ export default function Home() {
             />
           </div>
 
-          {/* Price Chart */}
-          <div className="mb-8">
-            <PriceChart
-              data={chartData}
-              timeRange={timeRange}
-              onTimeRangeChange={handleTimeRangeChange}
+          {/* Queue Status */}
+          <div>
+            <QueueStatus
+              sellQueueLength={sellQueueLength}
+              averageWaitTime={averageWaitTime}
+              lastProcessedTime={lastProcessedTime}
+              queueVolume={queueVolume}
             />
           </div>
         </div>

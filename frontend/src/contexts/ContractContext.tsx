@@ -14,6 +14,12 @@ interface ContractContextType {
   refreshData: () => Promise<void>;
   buyTokens: (usdcAmount: number) => Promise<string>;
   sellTokens: (everAmount: number) => Promise<string>;
+  dexData: {
+    currentPrice: number;
+    marketCap: number;
+    circulatingSupply: number;
+    reserveSupply: number;
+  };
 }
 
 const ContractContext = createContext<ContractContextType>({
@@ -26,6 +32,12 @@ const ContractContext = createContext<ContractContextType>({
   refreshData: async () => {},
   buyTokens: async () => '',
   sellTokens: async () => '',
+  dexData: {
+    currentPrice: 0,
+    marketCap: 0,
+    circulatingSupply: 0,
+    reserveSupply: 0,
+  },
 });
 
 export const useContract = () => {
@@ -49,6 +61,12 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
   const [userEverBalance, setUserEverBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dexData, setDexData] = useState({
+    currentPrice: 0,
+    marketCap: 0,
+    circulatingSupply: 0,
+    reserveSupply: 0,
+  });
 
   // Initialize contract service when wallet connects
   useEffect(() => {
@@ -88,6 +106,19 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
       setBondingCurveData(data);
       setUserUsdcBalance(usdcBalance);
       setUserEverBalance(everBalance);
+
+      if (data) {
+        const currentPrice = data.currentPrice / 1_000_000;
+        const circulatingSupply = data.circulatingSupply / 1e9;
+        const newDexData = {
+          currentPrice,
+          marketCap: circulatingSupply * currentPrice,
+          circulatingSupply,
+          reserveSupply: data.y / 1e9,
+        };
+        setDexData(newDexData);
+        console.log('📊 Updated dexData in context:', newDexData);
+      }
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to fetch contract data');
@@ -119,6 +150,20 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
       const tx = await contractService.buyTokens(usdcAmount);
       // Refresh data after successful transaction
       await refreshData();
+      
+      // Log the trade to our new backend
+      if (dexData.currentPrice > 0) {
+        fetch('http://localhost:3001/log_trade', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            usdcAmount: usdcAmount,
+            everAmount: usdcAmount / dexData.currentPrice,
+            price: dexData.currentPrice
+          })
+        });
+      }
+
       return tx;
     } catch (err) {
       console.error('Error buying tokens:', err);
@@ -162,6 +207,7 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
     refreshData,
     buyTokens,
     sellTokens,
+    dexData,
   };
 
   return (
