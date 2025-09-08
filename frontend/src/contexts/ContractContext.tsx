@@ -19,6 +19,10 @@ interface ContractContextType {
     marketCap: number;
     circulatingSupply: number;
     reserveSupply: number;
+    sellQueueHead: number;
+    sellQueueTail: number;
+    buyQueueHead: number;
+    buyQueueTail: number;
   };
 }
 
@@ -37,6 +41,10 @@ const ContractContext = createContext<ContractContextType>({
     marketCap: 0,
     circulatingSupply: 0,
     reserveSupply: 0,
+    sellQueueHead: 0,
+    sellQueueTail: 0,
+    buyQueueHead: 0,
+    buyQueueTail: 0,
   },
 });
 
@@ -75,7 +83,10 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
         const service = new ContractService(connection, wallet);
         setContractService(service);
         // Expose for console debugging
-        try { (window as any).contractService = service; } catch {}
+        try { 
+          (window as any).contractService = service;
+          (window as any).debugSellOrders = () => service.debugSellOrders();
+        } catch {}
         setError(null);
       } catch (err) {
         console.error('Error initializing contract service:', err);
@@ -115,6 +126,10 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
           marketCap: circulatingSupply * currentPrice,
           circulatingSupply,
           reserveSupply: data.y / 1e9,
+          sellQueueHead: data.sellQueueHead,
+          sellQueueTail: data.sellQueueTail,
+          buyQueueHead: data.buyQueueHead,
+          buyQueueTail: data.buyQueueTail,
         };
         setDexData(newDexData);
         console.log('📊 Updated dexData in context:', newDexData);

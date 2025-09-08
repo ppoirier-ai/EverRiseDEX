@@ -267,19 +267,51 @@ export class ContractService {
     }
   }
 
-  // Buy EVER tokens (queues the order)
+  // Buy EVER tokens (smart buy that processes sell orders first)
   async buyTokens(usdcAmount: number): Promise<string> {
     try {
       const amount = new BN(usdcAmount * 1_000_000); // Convert to 6 decimals
+      const bondingCurvePDA = this.getBondingCurvePDA();
+      
+      // Get bonding curve data to check if there are sell orders
+      const bondingCurveData = await this.getBondingCurveData();
+      if (!bondingCurveData) {
+        throw new Error('Failed to fetch bonding curve data');
+      }
+
+      let sellOrderPDA = new PublicKey('11111111111111111111111111111111'); // SystemProgram.programId
+      let sellerUsdcAccount = new PublicKey('11111111111111111111111111111111'); // SystemProgram.programId
+
+      // If there are sell orders, get the first one
+      if (bondingCurveData.sellQueueHead < bondingCurveData.sellQueueTail) {
+        const firstSellOrderPosition = bondingCurveData.sellQueueHead;
+        const pdaSeed = firstSellOrderPosition + 1; // PDA was created with (position + 1)
+        sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, pdaSeed);
+        
+        // Fetch the sell order data to get the seller's address
+        try {
+          const sellOrderData = await this.getSellOrderData(pdaSeed);
+          if (sellOrderData) {
+            const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+            const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
+            sellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, new PublicKey(sellOrderData.seller));
+          }
+        } catch (error) {
+          console.warn('Could not fetch sell order data, using dummy account:', error);
+        }
+      }
+
       const instruction = await this.program.methods
-        .buy(amount)
+        .buySmart(amount)
         .accounts({
-          bondingCurve: this.getBondingCurvePDA(),
+          bondingCurve: bondingCurvePDA,
           user: this.wallet.publicKey!,
           userUsdcAccount: await this.getUserUsdcAccount(),
           userEverAccount: await this.getUserEverAccount(),
           treasuryUsdcAccount: await this.getTreasuryUsdcAccount(),
           programEverAccount: await this.getProgramEverAccount(),
+          sellOrder: sellOrderPDA,
+          sellerUsdcAccount: sellerUsdcAccount,
           tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
         })
         .instruction();
@@ -430,13 +462,14 @@ export class ContractService {
     }
   }
 
-  // Get sell order PDA (uses bonding curve's sell_queue_tail + 1)
-  getSellOrderPDA(bondingCurvePDA: PublicKey, queueTail: number): PublicKey {
+  // Get sell order PDA (uses the provided seed directly)
+  getSellOrderPDA(bondingCurvePDA: PublicKey, pdaSeed: number): PublicKey {
     // Convert number to little-endian bytes (8 bytes for u64) to match to_le_bytes()
-    // Use queueTail + 1 to match smart contract PDA derivation
     const buffer = Buffer.alloc(8);
-    buffer.writeUInt32LE(queueTail + 1, 0);
+    buffer.writeUInt32LE(pdaSeed, 0);
     buffer.writeUInt32LE(0, 4); // High 32 bits are 0 for small numbers
+    
+    console.log(`Generating sell order PDA with seed: ${pdaSeed}, buffer: ${Array.from(buffer).map(b => b.toString(16).padStart(2, '0')).join('')}`);
     
     const [pda] = PublicKey.findProgramAddressSync(
       [Buffer.from('sell_order'), buffer],
@@ -458,7 +491,7 @@ export class ContractService {
         throw new Error('Failed to fetch bonding curve data');
       }
       
-      const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, bondingCurveData.sellQueueTail);
+      const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, bondingCurveData.sellQueueTail + 1);
 
       // Get required token accounts (sell only needs EVER accounts)
       const userEverAccount = await this.getUserEverAccount();
@@ -544,6 +577,86 @@ export class ContractService {
     await this.connection.confirmTransaction(signature);
 
     return signature;
+  }
+
+  // Get sell order data by position
+  async getSellOrderData(queuePosition: number): Promise<any | null> {
+    try {
+      const bondingCurvePDA = this.getBondingCurvePDA();
+      const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, queuePosition);
+      
+      console.log(`Fetching sell order at position ${queuePosition}:`, sellOrderPDA.toString());
+      
+      const sellOrderData = await this.program.account.sellOrder.fetch(sellOrderPDA);
+      return sellOrderData;
+    } catch (error) {
+      console.error(`Error fetching sell order at position ${queuePosition}:`, error);
+      return null;
+    }
+  }
+
+  // Get all active sell orders
+  async getAllSellOrders(): Promise<any[]> {
+    try {
+      const bondingCurveData = await this.getBondingCurveData();
+      if (!bondingCurveData) return [];
+
+      const sellOrders = [];
+      // The sell orders are created with PDA seed (i + 1), where i is the queue position
+      // So for queue positions 0, 1, 2... the PDAs use seeds 1, 2, 3...
+      for (let i = bondingCurveData.sellQueueHead; i < bondingCurveData.sellQueueTail; i++) {
+        const pdaSeed = i + 1; // PDA was created with (queue_position + 1)
+        const orderData = await this.getSellOrderData(pdaSeed);
+        if (orderData) {
+          sellOrders.push({
+            position: i,
+            ...orderData,
+          });
+        }
+      }
+      
+      console.log('Fetched sell orders:', sellOrders);
+      return sellOrders;
+    } catch (error) {
+      console.error('Error fetching all sell orders:', error);
+      return [];
+    }
+  }
+
+  // Debug function to check sell orders
+  async debugSellOrders(): Promise<void> {
+    try {
+      console.log('🔍 Debugging sell orders...');
+      const bondingCurveData = await this.getBondingCurveData();
+      if (!bondingCurveData) {
+        console.log('❌ No bonding curve data');
+        return;
+      }
+      
+      console.log(`📊 Sell Queue: Head=${bondingCurveData.sellQueueHead}, Tail=${bondingCurveData.sellQueueTail}`);
+      console.log(`📊 Queue Length: ${bondingCurveData.sellQueueTail - bondingCurveData.sellQueueHead}`);
+      
+      // Try to fetch the sell order at position 1 (your sell order)
+      if (bondingCurveData.sellQueueTail > bondingCurveData.sellQueueHead) {
+        // The first sell order should be at queue position 0, but PDA seed is 1
+        const queuePosition = bondingCurveData.sellQueueHead;
+        const pdaSeed = queuePosition + 1;
+        console.log(`Trying to fetch sell order at queue position ${queuePosition} with PDA seed ${pdaSeed}`);
+        const sellOrderData = await this.getSellOrderData(pdaSeed);
+        if (sellOrderData) {
+          console.log('✅ Found sell order:', sellOrderData);
+        } else {
+          console.log('❌ Could not fetch sell order');
+        }
+      }
+      
+      // Get all sell orders
+      const allOrders = await this.getAllSellOrders();
+      console.log(`📋 Total sell orders found: ${allOrders.length}`);
+      
+    } catch (error) {
+      console.error('❌ Error debugging sell orders:', error);
+    }
   }
 
   // Debug function to manually check bonding curve data

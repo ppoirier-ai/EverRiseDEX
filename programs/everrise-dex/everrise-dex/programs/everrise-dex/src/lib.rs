@@ -57,7 +57,7 @@ pub mod everrise_dex {
     pub fn buy(ctx: Context<Buy>, usdc_amount: u64) -> Result<()> {
         // Validate input parameters
         require!(usdc_amount > 0, ErrorCode::InvalidAmount);
-        require!(usdc_amount <= 1_000_000_000_000, ErrorCode::AmountTooLarge);
+        require!(usdc_amount <= 10_000_000_000_000, ErrorCode::AmountTooLarge); // Max 10M USDC per transaction
 
         let bonding_curve = &mut ctx.accounts.bonding_curve;
         let clock = Clock::get()?;
@@ -114,11 +114,134 @@ pub mod everrise_dex {
         Ok(())
     }
 
+    /// Smart buy that processes sell orders first, then buys from reserves if needed
+    pub fn buy_smart(ctx: Context<BuyWithSellProcessing>, usdc_amount: u64) -> Result<()> {
+        // Validate input parameters
+        require!(usdc_amount > 0, ErrorCode::InvalidAmount);
+        require!(usdc_amount <= 10_000_000_000_000, ErrorCode::AmountTooLarge); // Max 10M USDC per transaction
+
+        let bonding_curve = &mut ctx.accounts.bonding_curve;
+        let clock = Clock::get()?;
+
+        // Apply daily boost if needed
+        apply_daily_boost(bonding_curve, clock.unix_timestamp)?;
+
+        let mut remaining_usdc = usdc_amount;
+        let mut total_ever_received = 0u64;
+
+        // First, try to fulfill from sell orders if any exist
+        if bonding_curve.sell_queue_head < bonding_curve.sell_queue_tail {
+            // Process sell orders (similar logic to process_buy_queue)
+            let sell_order_info = ctx.accounts.sell_order.to_account_info();
+            if sell_order_info.data_len() > 0 {
+                let sell_order_data = sell_order_info.try_borrow_data()?;
+                if let Ok(mut sell_order) = SellOrder::try_deserialize(&mut sell_order_data.as_ref()) {
+                    if !sell_order.processed && sell_order.remaining_amount > 0 {
+                        // Calculate how much USDC we can spend on this sell order
+                        let usdc_for_this_sell = sell_order.remaining_amount
+                            .checked_mul(sell_order.locked_price)
+                            .unwrap_or(0)
+                            .checked_div(1_000_000_000) // Convert from 9 decimals to 6
+                            .unwrap_or(0);
+
+                        if usdc_for_this_sell > 0 && usdc_for_this_sell <= remaining_usdc {
+                            // Full fill of this sell order
+                            let ever_from_sell = sell_order.remaining_amount;
+                            
+                            // Transfer USDC from buyer to seller
+                            let cpi_accounts_usdc = token::Transfer {
+                                from: ctx.accounts.user_usdc_account.to_account_info(),
+                                to: ctx.accounts.seller_usdc_account.to_account_info(),
+                                authority: ctx.accounts.user.to_account_info(),
+                            };
+                            let cpi_program_usdc = ctx.accounts.token_program.to_account_info();
+                            let cpi_ctx_usdc = CpiContext::new(cpi_program_usdc, cpi_accounts_usdc);
+                            token::transfer(cpi_ctx_usdc, usdc_for_this_sell)?;
+
+                            // Transfer EVER tokens from program to buyer
+                            let seeds = &[&b"bonding_curve"[..], &[bonding_curve.bump]];
+                            let signer_seeds = &[&seeds[..]];
+                            let cpi_accounts_ever = token::Transfer {
+                                from: ctx.accounts.program_ever_account.to_account_info(),
+                                to: ctx.accounts.user_ever_account.to_account_info(),
+                                authority: bonding_curve.to_account_info(),
+                            };
+                            let cpi_program_ever = ctx.accounts.token_program.to_account_info();
+                            let cpi_ctx_ever = CpiContext::new_with_signer(cpi_program_ever, cpi_accounts_ever, signer_seeds);
+                            token::transfer(cpi_ctx_ever, ever_from_sell)?;
+
+                            // Update tracking
+                            remaining_usdc = remaining_usdc.checked_sub(usdc_for_this_sell).unwrap();
+                            total_ever_received = total_ever_received.checked_add(ever_from_sell).unwrap();
+
+                            // Mark sell order as processed and advance queue
+                            sell_order.processed = true;
+                            sell_order.remaining_amount = 0;
+                            bonding_curve.sell_queue_head = bonding_curve.sell_queue_head.checked_add(1).unwrap();
+                        }
+                    }
+                }
+            }
+        }
+
+        // If there's still USDC remaining, buy from reserves using bonding curve
+        if remaining_usdc > 0 {
+            let tokens_from_reserves = calculate_buy_amount(bonding_curve, remaining_usdc)?;
+            require!(tokens_from_reserves > 0, ErrorCode::InvalidAmount);
+            require!(ctx.accounts.program_ever_account.amount >= tokens_from_reserves, ErrorCode::InsufficientFunds);
+
+            // Transfer remaining USDC to treasury
+            let cpi_accounts_usdc = token::Transfer {
+                from: ctx.accounts.user_usdc_account.to_account_info(),
+                to: ctx.accounts.treasury_usdc_account.to_account_info(),
+                authority: ctx.accounts.user.to_account_info(),
+            };
+            let cpi_program_usdc = ctx.accounts.token_program.to_account_info();
+            let cpi_ctx_usdc = CpiContext::new(cpi_program_usdc, cpi_accounts_usdc);
+            token::transfer(cpi_ctx_usdc, remaining_usdc)?;
+
+            // Transfer EVER tokens from reserves to buyer
+            let seeds = &[&b"bonding_curve"[..], &[bonding_curve.bump]];
+            let signer_seeds = &[&seeds[..]];
+            let cpi_accounts_ever = token::Transfer {
+                from: ctx.accounts.program_ever_account.to_account_info(),
+                to: ctx.accounts.user_ever_account.to_account_info(),
+                authority: bonding_curve.to_account_info(),
+            };
+            let cpi_program_ever = ctx.accounts.token_program.to_account_info();
+            let cpi_ctx_ever = CpiContext::new_with_signer(cpi_program_ever, cpi_accounts_ever, signer_seeds);
+            token::transfer(cpi_ctx_ever, tokens_from_reserves)?;
+
+            // Update bonding curve state for reserve purchase
+            bonding_curve.x = bonding_curve.x.checked_add(remaining_usdc).ok_or(ErrorCode::MathOverflow)?;
+            bonding_curve.y = bonding_curve.y.checked_sub(tokens_from_reserves).ok_or(ErrorCode::MathOverflow)?;
+            bonding_curve.k = u128::from(bonding_curve.x).checked_mul(u128::from(bonding_curve.y)).ok_or(ErrorCode::MathOverflow)?;
+            bonding_curve.circulating_supply = bonding_curve.circulating_supply.checked_add(tokens_from_reserves).ok_or(ErrorCode::MathOverflow)?;
+            
+            total_ever_received = total_ever_received.checked_add(tokens_from_reserves).unwrap();
+        }
+
+        // Update global state
+        bonding_curve.total_volume_24h = bonding_curve.total_volume_24h.checked_add(usdc_amount).ok_or(ErrorCode::MathOverflow)?;
+        bonding_curve.current_price = calculate_effective_price(bonding_curve);
+        bonding_curve.last_price_update = clock.unix_timestamp;
+        
+        emit!(AtomicBuyEvent {
+            buyer: ctx.accounts.user.key(),
+            usdc_amount,
+            ever_received: total_ever_received,
+            new_price: bonding_curve.current_price,
+            timestamp: clock.unix_timestamp,
+        });
+
+        Ok(())
+    }
+
     /// Sell EVER tokens to the queue system with enhanced transaction safety
     pub fn sell(ctx: Context<Sell>, ever_amount: u64) -> Result<()> {
         // Validate input parameters for transaction safety
         require!(ever_amount > 0, ErrorCode::InvalidAmount);
-        require!(ever_amount <= 1_000_000_000_000, ErrorCode::AmountTooLarge); // Max 1B EVER per transaction
+        require!(ever_amount <= 10_000_000_000_000_000, ErrorCode::AmountTooLarge); // Max 10M EVER per transaction
 
         let bonding_curve = &mut ctx.accounts.bonding_curve;
         let clock = Clock::get()?;
@@ -139,7 +262,7 @@ pub mod everrise_dex {
 
         // Validate that the sell order has reasonable value
         require!(usdc_value > 0, ErrorCode::InvalidAmount);
-        require!(usdc_value <= 1_000_000_000_000, ErrorCode::AmountTooLarge); // Max 1M USDC value
+        require!(usdc_value <= 10_000_000_000_000, ErrorCode::AmountTooLarge); // Max 10M USDC value
 
         // Check if there's sufficient liquidity in the bonding curve
         let organic_price = calculate_organic_price(bonding_curve);
@@ -832,6 +955,61 @@ pub struct Buy<'info> {
         constraint = program_ever_account.mint == EVER_MINT
     )]
     pub program_ever_account: Account<'info, TokenAccount>,
+    
+    pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+pub struct BuyWithSellProcessing<'info> {
+    #[account(
+        mut,
+        seeds = [b"bonding_curve"],
+        bump = bonding_curve.bump
+    )]
+    pub bonding_curve: Account<'info, BondingCurve>,
+    
+    #[account(mut)]
+    pub user: Signer<'info>,
+    
+    // User's USDC account
+    #[account(
+        mut,
+        constraint = user_usdc_account.owner == user.key(),
+        constraint = user_usdc_account.mint == USDC_MINT
+    )]
+    pub user_usdc_account: Account<'info, TokenAccount>,
+    
+    // User's EVER account
+    #[account(
+        mut,
+        constraint = user_ever_account.owner == user.key(),
+        constraint = user_ever_account.mint == EVER_MINT
+    )]
+    pub user_ever_account: Account<'info, TokenAccount>,
+    
+    // Treasury USDC account
+    #[account(
+        mut,
+        constraint = treasury_usdc_account.owner == bonding_curve.treasury_wallet,
+        constraint = treasury_usdc_account.mint == USDC_MINT
+    )]
+    pub treasury_usdc_account: Account<'info, TokenAccount>,
+    
+    // Program EVER account (holds EVER tokens for distribution)
+    #[account(
+        mut,
+        constraint = program_ever_account.owner == bonding_curve.key(),
+        constraint = program_ever_account.mint == EVER_MINT
+    )]
+    pub program_ever_account: Account<'info, TokenAccount>,
+    
+    // Sell order account - optional, only used when sell queue is not empty
+    /// CHECK: This account is only validated/used when sell queue is not empty
+    pub sell_order: UncheckedAccount<'info>,
+    
+    // Seller's USDC account - optional, only used when processing sell orders
+    /// CHECK: This account is only validated/used when processing a sell order
+    pub seller_usdc_account: UncheckedAccount<'info>,
     
     pub token_program: Program<'info, Token>,
 }

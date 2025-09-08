@@ -231,6 +231,87 @@
       ]
     },
     {
+      "name": "buy_smart",
+      "docs": [
+        "Smart buy that processes sell orders first, then buys from reserves if needed"
+      ],
+      "discriminator": [
+        85,
+        223,
+        169,
+        197,
+        95,
+        143,
+        27,
+        132
+      ],
+      "accounts": [
+        {
+          "name": "bonding_curve",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user_usdc_account",
+          "writable": true
+        },
+        {
+          "name": "user_ever_account",
+          "writable": true
+        },
+        {
+          "name": "treasury_usdc_account",
+          "writable": true
+        },
+        {
+          "name": "program_ever_account",
+          "writable": true
+        },
+        {
+          "name": "sell_order"
+        },
+        {
+          "name": "seller_usdc_account"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "usdc_amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "emergency_refund",
       "docs": [
         "Emergency refund function - refunds USDC to buyer if transaction fails",

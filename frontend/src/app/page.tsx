@@ -20,6 +20,7 @@ const mockPriceData = [
 
 export default function Home() {
   const { 
+    contractService,
     userUsdcBalance, 
     userEverBalance, 
     isLoading: contractLoading, 
@@ -151,6 +152,7 @@ export default function Home() {
               averageWaitTime={averageWaitTime}
               lastProcessedTime={lastProcessedTime}
               queueVolume={queueVolume}
+              contractService={contractService}
             />
           </div>
         </div>
