@@ -198,6 +198,13 @@ export class ContractService {
     return new PublicKey('8t4CT8pfMjvVTGmvdtKUkVfaqrLZuEW8WaVKLPqaogpN');
   }
 
+  // Get treasury's USDC token account
+  async getTreasuryUsdcAccount(): Promise<PublicKey> {
+    const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+    const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'); // DevNet USDC
+    return await getAssociatedTokenAddress(USDC_MINT, TREASURY_WALLET);
+  }
+
   // Debug function to verify smart contract connection
   async debugConnection(): Promise<void> {
     try {
