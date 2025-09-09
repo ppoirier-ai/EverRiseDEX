@@ -659,6 +659,88 @@ export class ContractService {
     }
   }
 
+  // Get transaction history from blockchain events
+  async getTransactionHistory(): Promise<any[]> {
+    try {
+      console.log('🔍 Fetching transaction history from blockchain events...');
+      
+      // Fetch program transaction signatures
+      const signatures = await this.connection.getSignaturesForAddress(
+        PROGRAM_ID,
+        { limit: 100 }, // Get last 100 transactions
+        'confirmed'
+      );
+      
+      console.log(`📊 Found ${signatures.length} program transactions`);
+      
+      const transactions = [];
+      
+      // Process each transaction to extract buy/sell events
+      for (const sigInfo of signatures) {
+        try {
+          const tx = await this.connection.getTransaction(sigInfo.signature, {
+            commitment: 'confirmed',
+            maxSupportedTransactionVersion: 0
+          });
+          
+          if (tx && tx.meta && !tx.meta.err) {
+            // Parse transaction logs for events
+            const logs = tx.meta.logMessages || [];
+            
+            // Look for buy/sell events in logs
+            for (const log of logs) {
+              if (log.includes('Instruction: Buy') || log.includes('Instruction: BuySmart')) {
+                // Extract buy transaction details
+                const accounts = tx.transaction.message.accountKeys;
+                const buyer = accounts[1]?.toString(); // Usually the user account
+                
+                transactions.push({
+                  id: sigInfo.signature,
+                  type: 'buy',
+                  wallet: buyer || 'Unknown',
+                  signature: sigInfo.signature,
+                  timestamp: (sigInfo.blockTime || 0) * 1000,
+                  status: 'completed',
+                  blockTime: sigInfo.blockTime,
+                  slot: sigInfo.slot
+                });
+                break;
+              } else if (log.includes('Instruction: Sell')) {
+                // Extract sell transaction details
+                const accounts = tx.transaction.message.accountKeys;
+                const seller = accounts[1]?.toString(); // Usually the user account
+                
+                transactions.push({
+                  id: sigInfo.signature,
+                  type: 'sell',
+                  wallet: seller || 'Unknown',
+                  signature: sigInfo.signature,
+                  timestamp: (sigInfo.blockTime || 0) * 1000,
+                  status: 'completed',
+                  blockTime: sigInfo.blockTime,
+                  slot: sigInfo.slot
+                });
+                break;
+              }
+            }
+          }
+        } catch (error) {
+          console.warn(`Failed to process transaction ${sigInfo.signature}:`, error);
+        }
+      }
+      
+      // Sort by timestamp (newest first)
+      transactions.sort((a, b) => b.timestamp - a.timestamp);
+      
+      console.log(`📋 Processed ${transactions.length} transactions`);
+      return transactions;
+      
+    } catch (error) {
+      console.error('Error fetching transaction history:', error);
+      return [];
+    }
+  }
+
   // Debug function to manually check bonding curve data
   async debugBondingCurveData(): Promise<void> {
     try {

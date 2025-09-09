@@ -2,6 +2,8 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { ContractService } from '../services/contractService';
+import { useRouter } from 'next/navigation';
+import { History } from 'lucide-react';
 
 interface SaleOrder {
   orderNumber: number;
@@ -29,6 +31,7 @@ export const QueueStatus: React.FC<QueueStatusProps> = ({
   contractService,
   refreshTrigger,
 }) => {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [sellOrders, setSellOrders] = useState<SaleOrder[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -93,7 +96,16 @@ export const QueueStatus: React.FC<QueueStatusProps> = ({
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200">
       <div className="p-6 border-b border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-900">Sell Queue ({displayQueueLength})</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900">Sell Queue ({displayQueueLength})</h2>
+          <button
+            onClick={() => router.push('/history')}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <History className="w-4 h-4" />
+            <span>Transaction History</span>
+          </button>
+        </div>
       </div>
       <div className="p-6">
         {isLoading ? (
