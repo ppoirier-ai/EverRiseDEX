@@ -116,7 +116,7 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-8">
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Bitcoin pioneered money that cannot be printed. EverRise improved with price you cannot haggle.
+            Bitcoin pioneered money that cannot be printed. EverRise improved with prices that cannot be haggled.
           </p>
         </div>
 
