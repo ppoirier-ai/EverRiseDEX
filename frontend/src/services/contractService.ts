@@ -279,28 +279,6 @@ export class ContractService {
         throw new Error('Failed to fetch bonding curve data');
       }
 
-      let sellOrderPDA = new PublicKey('11111111111111111111111111111111'); // SystemProgram.programId
-      let sellerUsdcAccount = new PublicKey('11111111111111111111111111111111'); // SystemProgram.programId
-
-      // If there are sell orders, get the first one
-      if (bondingCurveData.sellQueueHead < bondingCurveData.sellQueueTail) {
-        const firstSellOrderPosition = bondingCurveData.sellQueueHead;
-        const pdaSeed = firstSellOrderPosition + 1; // PDA was created with (position + 1)
-        sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, pdaSeed);
-        
-        // Fetch the sell order data to get the seller's address
-        try {
-          const sellOrderData = await this.getSellOrderData(pdaSeed);
-          if (sellOrderData) {
-            const { getAssociatedTokenAddress } = await import('@solana/spl-token');
-            const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
-            sellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, new PublicKey(sellOrderData.seller));
-          }
-        } catch (error) {
-          console.warn('Could not fetch sell order data, using dummy account:', error);
-        }
-      }
-
       const accounts: any = {
         bondingCurve: bondingCurvePDA,
         user: this.wallet.publicKey!,
@@ -308,10 +286,30 @@ export class ContractService {
         userEverAccount: await this.getUserEverAccount(),
         treasuryUsdcAccount: await this.getTreasuryUsdcAccount(),
         programEverAccount: await this.getProgramEverAccount(),
-        sellOrder: sellOrderPDA,
-        sellerUsdcAccount: sellerUsdcAccount,
         tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
       };
+
+      // If there are sell orders, get the first one
+      if (bondingCurveData.sellQueueHead < bondingCurveData.sellQueueTail) {
+        const firstSellOrderPosition = bondingCurveData.sellQueueHead;
+        const pdaSeed = firstSellOrderPosition + 1; // PDA was created with (position + 1)
+        const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, pdaSeed);
+        
+        // Fetch the sell order data to get the seller's address
+        try {
+          const sellOrderData = await this.getSellOrderData(pdaSeed);
+          if (sellOrderData) {
+            const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+            const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
+            const sellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, new PublicKey(sellOrderData.seller));
+            
+            accounts.sellOrder = sellOrderPDA;
+            accounts.sellerUsdcAccount = sellerUsdcAccount;
+          }
+        } catch (error) {
+          console.warn('Could not fetch sell order data:', error);
+        }
+      }
 
       // Add referrer account if provided
       if (referrer) {
