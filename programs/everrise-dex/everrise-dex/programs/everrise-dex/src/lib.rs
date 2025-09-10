@@ -3,7 +3,7 @@ use anchor_spl::token::{self, Token, TokenAccount};
 use std::str::FromStr;
 
 // Affiliate program ID (will be set during deployment)
-pub const AFFILIATE_PROGRAM_ID: Pubkey = pubkey!("AffiliateProgram1111111111111111111111111111111");
+pub const AFFILIATE_PROGRAM_ID: Pubkey = pubkey!("11111111111111111111111111111111");
 
 // Mint addresses for validation
 const USDC_MINT: Pubkey = pubkey!("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
