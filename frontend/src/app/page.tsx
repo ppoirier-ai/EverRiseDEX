@@ -5,7 +5,7 @@ import { PriceDisplay } from '@/components/PriceDisplay';
 import { TradingInterface } from '@/components/TradingInterface';
 import { QueueStatus } from '@/components/QueueStatus';
 import { PriceChart } from '@/components/PriceChart';
-import { ReferralComponent } from '@/components/ReferralComponent';
+import ReferralComponent from '@/components/ReferralComponent';
 import { useContract } from '@/contexts/ContractContext';
 
 // Mock data - in real implementation, this would come from the smart contract
