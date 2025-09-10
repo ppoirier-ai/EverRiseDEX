@@ -296,10 +296,16 @@ pub mod everrise_dex {
             
             if commission_amount > 0 {
                 // Transfer commission to referrer (or treasury if no referrer)
-                let commission_recipient = if let Some(referrer_usdc_account) = &ctx.accounts.referrer_usdc_account {
-                    referrer_usdc_account.to_account_info()
+                let (commission_recipient, is_referrer) = if let Some(referrer_usdc_account) = &ctx.accounts.referrer_usdc_account {
+                    let account_info = referrer_usdc_account.to_account_info();
+                    // Check if this is a valid token account (not a system program or dummy account)
+                    if account_info.owner == &token::ID && account_info.key() != Pubkey::from_str("11111111111111111111111111111111").unwrap() {
+                        (account_info, true)
+                    } else {
+                        (ctx.accounts.treasury_usdc_account.to_account_info(), false)
+                    }
                 } else {
-                    ctx.accounts.treasury_usdc_account.to_account_info()
+                    (ctx.accounts.treasury_usdc_account.to_account_info(), false)
                 };
                 
                 let cpi_accounts_commission = token::Transfer {
@@ -311,8 +317,8 @@ pub mod everrise_dex {
                 let cpi_ctx_commission = CpiContext::new(cpi_program_commission, cpi_accounts_commission);
                 token::transfer(cpi_ctx_commission, commission_amount)?;
                 
-                if let Some(referrer) = &ctx.accounts.referrer {
-                    msg!("DEBUG: Affiliate commission paid to referrer {}: {} USDC", referrer.key(), commission_amount);
+                if is_referrer {
+                    msg!("DEBUG: Affiliate commission paid to referrer: {} USDC", commission_amount);
                 } else {
                     msg!("DEBUG: Affiliate commission paid to treasury: {} USDC", commission_amount);
                 }
