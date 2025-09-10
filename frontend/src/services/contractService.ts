@@ -311,13 +311,9 @@ export class ContractService {
         programEverAccount: await this.getProgramEverAccount(),
         sellOrder: sellOrderPDA,
         sellerUsdcAccount: sellerUsdcAccount,
+        referrer: referrer ? new PublicKey(referrer) : null,
         tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
       };
-
-      // Add referrer account if provided
-      if (referrer) {
-        accounts.referrer = new PublicKey(referrer);
-      }
 
       const instruction = await this.program.methods
         .buySmart(amount)
