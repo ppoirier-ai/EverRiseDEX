@@ -294,19 +294,17 @@ pub mod everrise_dex {
             let commission_amount = (remaining_usdc * 500) / 10000; // 5% = 500 basis points
             let reserve_usdc = remaining_usdc - commission_amount;
             
-            if commission_amount > 0 {
-                // Transfer commission to referrer (or treasury if no referrer)
-                let (commission_recipient, is_referrer) = if let Some(referrer_usdc_account) = &ctx.accounts.referrer_usdc_account {
-                    let account_info = referrer_usdc_account.to_account_info();
-                    // Check if this is a valid token account (not a system program or dummy account)
-                    if account_info.owner == &token::ID && account_info.key() != Pubkey::from_str("11111111111111111111111111111111").unwrap() {
-                        (account_info, true)
-                    } else {
-                        (ctx.accounts.treasury_usdc_account.to_account_info(), false)
-                    }
-                } else {
-                    (ctx.accounts.treasury_usdc_account.to_account_info(), false)
-                };
+                if commission_amount > 0 {
+                    // Transfer commission to referrer (or treasury if no referrer)
+                    let (commission_recipient, is_referrer) = {
+                        let account_info = ctx.accounts.referrer_usdc_account.to_account_info();
+                        // Check if this is a valid token account (not a system program or dummy account)
+                        if account_info.owner == &token::ID && account_info.key() != Pubkey::from_str("11111111111111111111111111111111").unwrap() {
+                            (account_info, true)
+                        } else {
+                            (ctx.accounts.treasury_usdc_account.to_account_info(), false)
+                        }
+                    };
                 
                 let cpi_accounts_commission = token::Transfer {
                     from: ctx.accounts.user_usdc_account.to_account_info(),
@@ -1153,9 +1151,9 @@ pub struct BuyWithSellProcessing<'info> {
     /// CHECK: This account is optional and only used for affiliate commissions
     pub referrer: Option<UncheckedAccount<'info>>,
     
-    // Referrer's USDC account - optional, for affiliate commissions
-    /// CHECK: This account is optional and only used for affiliate commissions
-    pub referrer_usdc_account: Option<UncheckedAccount<'info>>,
+    // Referrer's USDC account - always required but may be treasury if no referrer
+    /// CHECK: This account is validated in the instruction logic
+    pub referrer_usdc_account: UncheckedAccount<'info>,
     
     pub token_program: Program<'info, Token>,
 }
