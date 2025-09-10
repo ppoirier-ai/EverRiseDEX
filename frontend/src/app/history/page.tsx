@@ -23,8 +23,8 @@ export default function TransactionHistory() {
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [searchAddress, setSearchAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isUsingFallbackData, setIsUsingFallbackData] = useState(false);
   const itemsPerPage = 20;
 
   // Fetch transaction history
@@ -33,45 +33,20 @@ export default function TransactionHistory() {
       if (!contractService) return;
 
       setIsLoading(true);
+      setError(null);
       try {
-        // Try to fetch real transaction history from blockchain
-        let historyData = [];
-        try {
-          historyData = await contractService.getTransactionHistory();
-          setIsUsingFallbackData(false);
-        } catch (rpcError) {
-          console.warn('RPC rate limited, using fallback data:', rpcError);
-          setIsUsingFallbackData(true);
-          // Fallback to mock data if RPC is rate limited
-          historyData = [
-            {
-              id: 'mock-1',
-              type: 'buy',
-              wallet: 'h8riLT8mzDrjo1MUVNCwtmRcsd2SdV6DRPgyjkkCKCw',
-              signature: '3aHUSpxEspakVuZ4kF1AFRGRzES9Ez7w2TZxMnEzToqVND8wiHDQWr5tRgw2qR7gs9D3sZEg93vySsGacRV4sS3N',
-              timestamp: Date.now() - 3600000,
-              status: 'completed'
-            },
-            {
-              id: 'mock-2',
-              type: 'sell',
-              wallet: 'FEVyge83aMu6gP2uSXUFFH7ujVs2SQqfA425S7mJJGqA',
-              signature: '5oZkqAtzWw7PZrZZC7uu35YgncyBTiT2GmdLtFZuCzHHMs6SAiMpMhAew9mt2Cax99QYYWK9Z9s3ShSymC2LtNMB',
-              timestamp: Date.now() - 7200000,
-              status: 'completed'
-            }
-          ];
-        }
+        // Fetch real transaction history from blockchain
+        const historyData = await contractService.getTransactionHistory();
         
         // Convert to our transaction format
         const formattedTransactions: Transaction[] = historyData.map((tx, index) => ({
-          id: tx.signature || tx.id,
+          id: tx.signature,
           type: tx.type,
           wallet: tx.wallet,
-          amount: tx.amount || (tx.type === 'buy' ? 50000 : 100000), // Mock amounts
+          amount: tx.amount || 0,
           price: tx.price || 0.000104, // Default to current price if not available
           timestamp: tx.timestamp,
-          signature: tx.signature || tx.id,
+          signature: tx.signature,
           status: tx.status
         }));
         
@@ -79,6 +54,7 @@ export default function TransactionHistory() {
         setFilteredTransactions(formattedTransactions);
       } catch (error) {
         console.error('Error fetching transaction history:', error);
+        setError('Failed to load transaction history. The RPC endpoint may be rate limited. Please try again later.');
       } finally {
         setIsLoading(false);
       }
@@ -161,25 +137,6 @@ export default function TransactionHistory() {
           </div>
         </div>
 
-        {/* Fallback Data Notice */}
-        {isUsingFallbackData && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-yellow-800">
-                  <strong>Note:</strong> RPC rate limit reached. Showing sample transaction data. 
-                  Real transaction history will be available when RPC limits reset.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Search */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-8">
           <div className="flex items-center space-x-4">
@@ -222,6 +179,24 @@ export default function TransactionHistory() {
             {isLoading ? (
               <div className="text-center py-12">
                 <p className="text-gray-600">Loading transactions...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+                  <div className="flex items-center justify-center mb-4">
+                    <svg className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                  </div>
+                  <p className="text-lg font-semibold text-red-800 mb-2">Unable to Load Transactions</p>
+                  <p className="text-red-600 text-sm mb-4">{error}</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </div>
               </div>
             ) : filteredTransactions.length === 0 ? (
               <div className="text-center py-12">
