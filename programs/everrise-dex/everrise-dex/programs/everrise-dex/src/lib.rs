@@ -295,18 +295,27 @@ pub mod everrise_dex {
             let reserve_usdc = remaining_usdc - commission_amount;
             
             if commission_amount > 0 {
-                // For now, send affiliate commission to treasury
-                // TODO: Implement proper referrer USDC account handling
+                // Transfer commission to referrer (or treasury if no referrer)
+                let commission_recipient = if let Some(referrer_usdc_account) = &ctx.accounts.referrer_usdc_account {
+                    referrer_usdc_account.to_account_info()
+                } else {
+                    ctx.accounts.treasury_usdc_account.to_account_info()
+                };
+                
                 let cpi_accounts_commission = token::Transfer {
                     from: ctx.accounts.user_usdc_account.to_account_info(),
-                    to: ctx.accounts.treasury_usdc_account.to_account_info(),
+                    to: commission_recipient,
                     authority: ctx.accounts.user.to_account_info(),
                 };
                 let cpi_program_commission = ctx.accounts.token_program.to_account_info();
                 let cpi_ctx_commission = CpiContext::new(cpi_program_commission, cpi_accounts_commission);
                 token::transfer(cpi_ctx_commission, commission_amount)?;
                 
-                msg!("DEBUG: Affiliate commission paid to treasury: {} USDC", commission_amount);
+                if let Some(referrer) = &ctx.accounts.referrer {
+                    msg!("DEBUG: Affiliate commission paid to referrer {}: {} USDC", referrer.key(), commission_amount);
+                } else {
+                    msg!("DEBUG: Affiliate commission paid to treasury: {} USDC", commission_amount);
+                }
             }
             
             let tokens_from_reserves = calculate_buy_amount(bonding_curve, reserve_usdc)?;
@@ -1137,6 +1146,10 @@ pub struct BuyWithSellProcessing<'info> {
     // Referrer account - optional, for affiliate commissions
     /// CHECK: This account is optional and only used for affiliate commissions
     pub referrer: Option<UncheckedAccount<'info>>,
+    
+    // Referrer's USDC account - optional, for affiliate commissions
+    /// CHECK: This account is optional and only used for affiliate commissions
+    pub referrer_usdc_account: Option<UncheckedAccount<'info>>,
     
     pub token_program: Program<'info, Token>,
 }

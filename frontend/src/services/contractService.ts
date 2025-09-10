@@ -302,6 +302,18 @@ export class ContractService {
         }
       }
 
+      // Get referrer's USDC account if referrer is provided
+      let referrerUsdcAccount = null;
+      if (referrer) {
+        try {
+          const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+          const usdcMint = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
+          referrerUsdcAccount = await getAssociatedTokenAddress(usdcMint, new PublicKey(referrer));
+        } catch (error) {
+          console.warn('Could not get referrer USDC account:', error);
+        }
+      }
+
       const accounts: any = {
         bondingCurve: bondingCurvePDA,
         user: this.wallet.publicKey!,
@@ -312,6 +324,7 @@ export class ContractService {
         sellOrder: sellOrderPDA,
         sellerUsdcAccount: sellerUsdcAccount,
         referrer: referrer ? new PublicKey(referrer) : null,
+        referrerUsdcAccount: referrerUsdcAccount,
         tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
       };
 
