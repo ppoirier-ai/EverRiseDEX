@@ -35,8 +35,8 @@ export const WalletContextProvider: React.FC<WalletContextProviderProps> = ({ ch
 
   // You can also provide a custom RPC endpoint
   const endpoint = useMemo(() => {
-    // Use a more reliable RPC endpoint for devnet
-    return 'https://solana-devnet.g.alchemy.com/v2/demo';
+    // Use the original Solana devnet endpoint
+    return 'https://api.devnet.solana.com';
   }, [network]);
 
   const wallets = useMemo(

@@ -334,10 +334,14 @@ export class ContractService {
         programEverAccount: await this.getProgramEverAccount(),
         sellOrder: sellOrderPDA,
         sellerUsdcAccount: sellerUsdcAccount,
-        referrer: referrer ? new PublicKey(referrer) : null,
         referrerUsdcAccount: referrerUsdcAccount || new PublicKey('11111111111111111111111111111111'), // Use dummy account if null
         tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
       };
+
+      // Only add referrer if it exists
+      if (referrer) {
+        accounts.referrer = new PublicKey(referrer);
+      }
 
       const instruction = await this.program.methods
         .buySmart(amount)
