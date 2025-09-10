@@ -303,6 +303,7 @@ export class ContractService {
       }
 
       // Get referrer's USDC account if referrer is provided
+      console.log('🔍 buyTokens called with referrer:', referrer);
       let referrerUsdcAccount = null;
       if (referrer) {
         try {
@@ -334,14 +335,14 @@ export class ContractService {
         programEverAccount: await this.getProgramEverAccount(),
         sellOrder: sellOrderPDA,
         sellerUsdcAccount: sellerUsdcAccount,
+        referrer: referrer ? new PublicKey(referrer) : new PublicKey('11111111111111111111111111111111'), // Use dummy account if no referrer
         referrerUsdcAccount: referrerUsdcAccount || new PublicKey('11111111111111111111111111111111'), // Use dummy account if null
         tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
       };
 
-      // Only add referrer if it exists
-      if (referrer) {
-        accounts.referrer = new PublicKey(referrer);
-      }
+      console.log('🔍 Accounts being passed to instruction:', Object.keys(accounts));
+      console.log('🔍 referrerUsdcAccount:', referrerUsdcAccount?.toString() || 'null');
+      console.log('🔍 referrer:', referrer || 'null');
 
       const instruction = await this.program.methods
         .buySmart(amount)

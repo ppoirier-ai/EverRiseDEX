@@ -1147,9 +1147,9 @@ pub struct BuyWithSellProcessing<'info> {
     /// CHECK: This account is only validated/used when processing a sell order
     pub seller_usdc_account: UncheckedAccount<'info>,
     
-    // Referrer account - optional, for affiliate commissions
-    /// CHECK: This account is optional and only used for affiliate commissions
-    pub referrer: Option<UncheckedAccount<'info>>,
+    // Referrer account - always required but may be dummy if no referrer
+    /// CHECK: This account is validated in the instruction logic
+    pub referrer: UncheckedAccount<'info>,
     
     // Referrer's USDC account - always required but may be treasury if no referrer
     /// CHECK: This account is validated in the instruction logic
