@@ -138,11 +138,6 @@ pub mod everrise_dex {
             msg!("DEBUG: Found sell orders in queue, processing...");
             // Process sell orders (similar logic to process_buy_queue)
             let sell_order_info = ctx.accounts.sell_order.to_account_info();
-            
-            // Check if this is a dummy account (SystemProgram.programId)
-            if sell_order_info.key() == &anchor_lang::system_program::ID {
-                msg!("DEBUG: Dummy sell order account provided, skipping sell order processing");
-            } else {
             msg!("DEBUG: Sell order account: {}", sell_order_info.key());
             msg!("DEBUG: Sell order data length: {}", sell_order_info.data_len());
             if sell_order_info.data_len() > 0 {
@@ -289,7 +284,6 @@ pub mod everrise_dex {
             } else {
                 msg!("DEBUG: Sell order account has no data");
             }
-            } // Close the else block for dummy account check
         } else {
             msg!("DEBUG: No sell orders in queue");
         }
