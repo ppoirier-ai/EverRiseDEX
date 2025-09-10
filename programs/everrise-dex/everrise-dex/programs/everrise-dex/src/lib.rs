@@ -137,13 +137,7 @@ pub mod everrise_dex {
         if bonding_curve.sell_queue_head < bonding_curve.sell_queue_tail {
             msg!("DEBUG: Found sell orders in queue, processing...");
             // Process sell orders (similar logic to process_buy_queue)
-            let sell_order_info = match &ctx.accounts.sell_order {
-                Some(sell_order) => sell_order.to_account_info(),
-                None => {
-                    msg!("DEBUG: No sell order account provided");
-                    return Err(ErrorCode::InvalidAccount.into());
-                }
-            };
+            let sell_order_info = ctx.accounts.sell_order.to_account_info();
             msg!("DEBUG: Sell order account: {}", sell_order_info.key());
             msg!("DEBUG: Sell order data length: {}", sell_order_info.data_len());
             if sell_order_info.data_len() > 0 {
@@ -175,17 +169,9 @@ pub mod everrise_dex {
                             drop(sell_order_data);
                             
                             // Transfer USDC from buyer to seller
-                            let seller_usdc_account = match &ctx.accounts.seller_usdc_account {
-                                Some(account) => account.to_account_info(),
-                                None => {
-                                    msg!("DEBUG: No seller USDC account provided");
-                                    return Err(ErrorCode::InvalidAccount.into());
-                                }
-                            };
-                            
                             let cpi_accounts_usdc = token::Transfer {
                                 from: ctx.accounts.user_usdc_account.to_account_info(),
-                                to: seller_usdc_account,
+                                to: ctx.accounts.seller_usdc_account.to_account_info(),
                                 authority: ctx.accounts.user.to_account_info(),
                             };
                             let cpi_program_usdc = ctx.accounts.token_program.to_account_info();
@@ -230,17 +216,9 @@ pub mod everrise_dex {
                                 drop(sell_order_data);
                                 
                                 // Transfer USDC from buyer to seller
-                                let seller_usdc_account = match &ctx.accounts.seller_usdc_account {
-                                    Some(account) => account.to_account_info(),
-                                    None => {
-                                        msg!("DEBUG: No seller USDC account provided");
-                                        return Err(ErrorCode::InvalidAccount.into());
-                                    }
-                                };
-                                
                                 let cpi_accounts_usdc = token::Transfer {
                                     from: ctx.accounts.user_usdc_account.to_account_info(),
-                                    to: seller_usdc_account,
+                                    to: ctx.accounts.seller_usdc_account.to_account_info(),
                                     authority: ctx.accounts.user.to_account_info(),
                                 };
                                 let cpi_program_usdc = ctx.accounts.token_program.to_account_info();
@@ -1153,13 +1131,13 @@ pub struct BuyWithSellProcessing<'info> {
     )]
     pub program_ever_account: Account<'info, TokenAccount>,
     
-    // Sell order account - optional, only used when sell queue is not empty
+    // Sell order account - only used when sell queue is not empty
     /// CHECK: This account is only validated/used when sell queue is not empty
-    pub sell_order: Option<UncheckedAccount<'info>>,
+    pub sell_order: UncheckedAccount<'info>,
     
-    // Seller's USDC account - optional, only used when processing sell orders
+    // Seller's USDC account - only used when processing sell orders
     /// CHECK: This account is only validated/used when processing a sell order
-    pub seller_usdc_account: Option<UncheckedAccount<'info>>,
+    pub seller_usdc_account: UncheckedAccount<'info>,
     
     // Referrer account - optional, for affiliate commissions
     /// CHECK: This account is optional and only used for affiliate commissions
