@@ -295,23 +295,18 @@ pub mod everrise_dex {
             let reserve_usdc = remaining_usdc - commission_amount;
             
             if commission_amount > 0 {
-                // Transfer commission to referrer (or treasury if no referrer)
-                let referrer_usdc_account = if let Some(referrer) = &ctx.accounts.referrer {
-                    referrer.to_account_info()
-                } else {
-                    ctx.accounts.treasury_usdc_account.to_account_info()
-                };
-                
+                // For now, send affiliate commission to treasury
+                // TODO: Implement proper referrer USDC account handling
                 let cpi_accounts_commission = token::Transfer {
                     from: ctx.accounts.user_usdc_account.to_account_info(),
-                    to: referrer_usdc_account,
+                    to: ctx.accounts.treasury_usdc_account.to_account_info(),
                     authority: ctx.accounts.user.to_account_info(),
                 };
                 let cpi_program_commission = ctx.accounts.token_program.to_account_info();
                 let cpi_ctx_commission = CpiContext::new(cpi_program_commission, cpi_accounts_commission);
                 token::transfer(cpi_ctx_commission, commission_amount)?;
                 
-                msg!("DEBUG: Affiliate commission paid: {} USDC", commission_amount);
+                msg!("DEBUG: Affiliate commission paid to treasury: {} USDC", commission_amount);
             }
             
             let tokens_from_reserves = calculate_buy_amount(bonding_curve, reserve_usdc)?;
