@@ -153,7 +153,7 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
   }, [contractService, refreshData]);
 
   // Buy tokens function
-  const buyTokens = useCallback(async (usdcAmount: number): Promise<string> => {
+  const buyTokens = useCallback(async (usdcAmount: number, referrer?: string): Promise<string> => {
     if (!contractService) {
       throw new Error('Contract service not initialized');
     }
@@ -162,7 +162,7 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
     setError(null);
 
     try {
-      const tx = await contractService.buyTokens(usdcAmount);
+      const tx = await contractService.buyTokens(usdcAmount, referrer);
       // Refresh data after successful transaction
       await refreshData();
       

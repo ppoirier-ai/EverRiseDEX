@@ -75,7 +75,7 @@ export default function Home() {
     setIsLoading(true);
     
     try {
-      const tx = await buyTokens(amount);
+      const tx = await buyTokens(amount, referralCode || undefined);
       console.log('Buy transaction successful:', tx);
       // Contract data will be automatically refreshed by the context
       // Also trigger queue refresh to update sell order details

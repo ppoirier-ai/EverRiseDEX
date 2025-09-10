@@ -268,7 +268,7 @@ export class ContractService {
   }
 
   // Buy EVER tokens (smart buy that processes sell orders first)
-  async buyTokens(usdcAmount: number): Promise<string> {
+  async buyTokens(usdcAmount: number, referrer?: string): Promise<string> {
     try {
       const amount = new BN(usdcAmount * 1_000_000); // Convert to 6 decimals
       const bondingCurvePDA = this.getBondingCurvePDA();
@@ -301,19 +301,26 @@ export class ContractService {
         }
       }
 
+      const accounts: any = {
+        bondingCurve: bondingCurvePDA,
+        user: this.wallet.publicKey!,
+        userUsdcAccount: await this.getUserUsdcAccount(),
+        userEverAccount: await this.getUserEverAccount(),
+        treasuryUsdcAccount: await this.getTreasuryUsdcAccount(),
+        programEverAccount: await this.getProgramEverAccount(),
+        sellOrder: sellOrderPDA,
+        sellerUsdcAccount: sellerUsdcAccount,
+        tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
+      };
+
+      // Add referrer account if provided
+      if (referrer) {
+        accounts.referrer = new PublicKey(referrer);
+      }
+
       const instruction = await this.program.methods
         .buySmart(amount)
-        .accounts({
-          bondingCurve: bondingCurvePDA,
-          user: this.wallet.publicKey!,
-          userUsdcAccount: await this.getUserUsdcAccount(),
-          userEverAccount: await this.getUserEverAccount(),
-          treasuryUsdcAccount: await this.getTreasuryUsdcAccount(),
-          programEverAccount: await this.getProgramEverAccount(),
-          sellOrder: sellOrderPDA,
-          sellerUsdcAccount: sellerUsdcAccount,
-          tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
-        })
+        .accounts(accounts)
         .instruction();
 
       const { Transaction } = await import('@solana/web3.js');
