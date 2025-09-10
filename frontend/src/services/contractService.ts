@@ -335,7 +335,7 @@ export class ContractService {
         sellOrder: sellOrderPDA,
         sellerUsdcAccount: sellerUsdcAccount,
         referrer: referrer ? new PublicKey(referrer) : null,
-        referrerUsdcAccount: referrerUsdcAccount,
+        referrerUsdcAccount: referrerUsdcAccount || new PublicKey('11111111111111111111111111111111'), // Use dummy account if null
         tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
       };
 
