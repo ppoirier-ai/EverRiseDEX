@@ -308,9 +308,20 @@ export class ContractService {
         try {
           const { getAssociatedTokenAddress } = await import('@solana/spl-token');
           const usdcMint = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
-          referrerUsdcAccount = await getAssociatedTokenAddress(usdcMint, new PublicKey(referrer));
+          const referrerUsdcAddress = await getAssociatedTokenAddress(usdcMint, new PublicKey(referrer));
+          
+          // Check if the account exists
+          const accountInfo = await this.connection.getAccountInfo(referrerUsdcAddress);
+          if (accountInfo) {
+            referrerUsdcAccount = referrerUsdcAddress;
+            console.log('Referrer USDC account exists:', referrerUsdcAddress.toString());
+          } else {
+            console.warn('Referrer USDC account does not exist, using treasury instead');
+            referrerUsdcAccount = null;
+          }
         } catch (error) {
           console.warn('Could not get referrer USDC account:', error);
+          referrerUsdcAccount = null;
         }
       }
 
