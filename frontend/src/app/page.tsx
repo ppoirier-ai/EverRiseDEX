@@ -5,6 +5,7 @@ import { PriceDisplay } from '@/components/PriceDisplay';
 import { TradingInterface } from '@/components/TradingInterface';
 import { QueueStatus } from '@/components/QueueStatus';
 import { PriceChart } from '@/components/PriceChart';
+import { ReferralComponent } from '@/components/ReferralComponent';
 import { useContract } from '@/contexts/ContractContext';
 
 // Mock data - in real implementation, this would come from the smart contract
@@ -32,6 +33,17 @@ export default function Home() {
   
   const [isLoading, setIsLoading] = useState(false);
   const [queueRefreshTrigger, setQueueRefreshTrigger] = useState(Date.now());
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+
+  // Check for referral code in URL on page load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get('ref');
+    if (ref) {
+      setReferralCode(ref);
+      console.log('Referral code detected:', ref);
+    }
+  }, []);
   
   // Queue data from contract
   const sellQueueLength = dexData ? dexData.sellQueueTail - dexData.sellQueueHead : 0;
@@ -120,6 +132,26 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Referral Welcome Message */}
+        {referralCode && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-green-800">Welcome! You were referred by a friend</h3>
+                <p className="text-sm text-green-700 mt-1">
+                  You're here through a referral link. When you buy EVER tokens from reserves, 
+                  your referrer will earn a 5% commission!
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Price Display */}
         <div className="mb-8">
           <PriceDisplay
@@ -159,6 +191,11 @@ export default function Home() {
               refreshTrigger={queueRefreshTrigger}
             />
           </div>
+        </div>
+
+        {/* Referral Component */}
+        <div className="mb-8">
+          <ReferralComponent />
         </div>
 
         {/* Features Section */}

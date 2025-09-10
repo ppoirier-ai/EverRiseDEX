@@ -2,6 +2,9 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount};
 use std::str::FromStr;
 
+// Affiliate program ID (will be set during deployment)
+pub const AFFILIATE_PROGRAM_ID: Pubkey = pubkey!("AffiliateProgram1111111111111111111111111111111");
+
 // Mint addresses for validation
 const USDC_MINT: Pubkey = pubkey!("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
 const EVER_MINT: Pubkey = pubkey!("85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb");
@@ -287,11 +290,35 @@ pub mod everrise_dex {
 
         // If there's still USDC remaining, buy from reserves using bonding curve
         if remaining_usdc > 0 {
-            let tokens_from_reserves = calculate_buy_amount(bonding_curve, remaining_usdc)?;
+            // Process affiliate commission (5% of remaining USDC)
+            let commission_amount = (remaining_usdc * 500) / 10000; // 5% = 500 basis points
+            let reserve_usdc = remaining_usdc - commission_amount;
+            
+            if commission_amount > 0 {
+                // Transfer commission to referrer (or treasury if no referrer)
+                let referrer_usdc_account = if let Some(referrer) = &ctx.accounts.referrer {
+                    referrer.to_account_info()
+                } else {
+                    ctx.accounts.treasury_usdc_account.to_account_info()
+                };
+                
+                let cpi_accounts_commission = token::Transfer {
+                    from: ctx.accounts.user_usdc_account.to_account_info(),
+                    to: referrer_usdc_account,
+                    authority: ctx.accounts.user.to_account_info(),
+                };
+                let cpi_program_commission = ctx.accounts.token_program.to_account_info();
+                let cpi_ctx_commission = CpiContext::new(cpi_program_commission, cpi_accounts_commission);
+                token::transfer(cpi_ctx_commission, commission_amount)?;
+                
+                msg!("DEBUG: Affiliate commission paid: {} USDC", commission_amount);
+            }
+            
+            let tokens_from_reserves = calculate_buy_amount(bonding_curve, reserve_usdc)?;
             require!(tokens_from_reserves > 0, ErrorCode::InvalidAmount);
             require!(ctx.accounts.program_ever_account.amount >= tokens_from_reserves, ErrorCode::InsufficientFunds);
 
-            // Transfer remaining USDC to treasury
+            // Transfer remaining USDC to treasury (after commission)
             let cpi_accounts_usdc = token::Transfer {
                 from: ctx.accounts.user_usdc_account.to_account_info(),
                 to: ctx.accounts.treasury_usdc_account.to_account_info(),
@@ -299,7 +326,7 @@ pub mod everrise_dex {
             };
             let cpi_program_usdc = ctx.accounts.token_program.to_account_info();
             let cpi_ctx_usdc = CpiContext::new(cpi_program_usdc, cpi_accounts_usdc);
-            token::transfer(cpi_ctx_usdc, remaining_usdc)?;
+            token::transfer(cpi_ctx_usdc, reserve_usdc)?;
 
             // Transfer EVER tokens from reserves to buyer
             let seeds = &[&b"bonding_curve"[..], &[bonding_curve.bump]];
@@ -313,8 +340,8 @@ pub mod everrise_dex {
             let cpi_ctx_ever = CpiContext::new_with_signer(cpi_program_ever, cpi_accounts_ever, signer_seeds);
             token::transfer(cpi_ctx_ever, tokens_from_reserves)?;
 
-            // Update bonding curve state for reserve purchase
-            bonding_curve.x = bonding_curve.x.checked_add(remaining_usdc).ok_or(ErrorCode::MathOverflow)?;
+            // Update bonding curve state for reserve purchase (after commission)
+            bonding_curve.x = bonding_curve.x.checked_add(reserve_usdc).ok_or(ErrorCode::MathOverflow)?;
             bonding_curve.y = bonding_curve.y.checked_sub(tokens_from_reserves).ok_or(ErrorCode::MathOverflow)?;
             bonding_curve.k = u128::from(bonding_curve.x).checked_mul(u128::from(bonding_curve.y)).ok_or(ErrorCode::MathOverflow)?;
             bonding_curve.circulating_supply = bonding_curve.circulating_supply.checked_add(tokens_from_reserves).ok_or(ErrorCode::MathOverflow)?;
@@ -1113,6 +1140,10 @@ pub struct BuyWithSellProcessing<'info> {
     /// CHECK: This account is only validated/used when processing a sell order
     #[account(mut)]
     pub seller_usdc_account: UncheckedAccount<'info>,
+    
+    // Referrer account - optional, for affiliate commissions
+    /// CHECK: This account is optional and only used for affiliate commissions
+    pub referrer: Option<UncheckedAccount<'info>>,
     
     pub token_program: Program<'info, Token>,
 }
