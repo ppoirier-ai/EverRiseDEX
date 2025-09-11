@@ -5,6 +5,10 @@ import { useState } from 'react';
 export default function DocsPage() {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
 
+  const handleLanguageChange = (languageCode: string) => {
+    setSelectedLanguage(languageCode);
+  };
+
   const translations = {
     en: {
       title: 'EverRise Documentation',
@@ -13,7 +17,7 @@ export default function DocsPage() {
         title: 'EverRise Litepaper',
         description: 'Read our comprehensive litepaper to understand the core mechanics, pricing formula, and vision of EverRise.',
         downloadText: 'Read Online',
-        downloadLink: '/litepaper/en'
+        downloadLink: `/litepaper/${selectedLanguage}`
       },
       videos: {
         title: 'Educational Videos',
@@ -53,21 +57,7 @@ export default function DocsPage() {
           hi: 'हिंदी',
           es: 'Español',
           ar: 'العربية',
-          fr: 'Français',
-          bn: 'বাংলা',
-          pt: 'Português',
-          ru: 'Русский',
-          id: 'Bahasa Indonesia',
-          ur: 'اردو',
-          de: 'Deutsch',
-          ja: '日本語',
-          na: 'Naijá',
-          ms: 'مصري',
-          mr: 'मराठी',
-          vi: 'Tiếng Việt',
-          te: 'తెలుగు',
-          ha: 'Hausa',
-          tr: 'Türkçe'
+          fr: 'Français'
         }
       }
     },
@@ -78,7 +68,7 @@ export default function DocsPage() {
         title: 'EverRise 白皮书',
         description: '阅读我们的综合白皮书，了解 EverRise 的核心机制、定价公式和愿景。',
         downloadText: '在线阅读',
-        downloadLink: '/litepaper/zh'
+        downloadLink: `/litepaper/${selectedLanguage}`
       },
       videos: {
         title: '教育视频',
@@ -143,7 +133,7 @@ export default function DocsPage() {
         title: 'EverRise लाइटपेपर',
         description: 'EverRise के मूल यांत्रिकी, मूल्य निर्धारण सूत्र और दृष्टि को समझने के लिए हमारा व्यापक लाइटपेपर पढ़ें।',
         downloadText: 'ऑनलाइन पढ़ें',
-        downloadLink: '/litepaper/hi'
+        downloadLink: `/litepaper/${selectedLanguage}`
       },
       videos: {
         title: 'शैक्षिक वीडियो',
@@ -208,7 +198,7 @@ export default function DocsPage() {
         title: 'Litepaper de EverRise',
         description: 'Lee nuestro litepaper completo para entender la mecánica central, fórmula de precios y visión de EverRise.',
         downloadText: 'Leer en línea',
-        downloadLink: '/litepaper/es'
+        downloadLink: `/litepaper/${selectedLanguage}`
       },
       videos: {
         title: 'Videos Educativos',
@@ -273,7 +263,7 @@ export default function DocsPage() {
         title: 'ورقة EverRise البيضاء',
         description: 'اقرأ ورقتنا البيضاء الشاملة لفهم الآليات الأساسية وصيغة التسعير ورؤية EverRise.',
         downloadText: 'اقرأ عبر الإنترنت',
-        downloadLink: '/litepaper/ar'
+        downloadLink: `/litepaper/${selectedLanguage}`
       },
       videos: {
         title: 'الفيديوهات التعليمية',
@@ -338,7 +328,7 @@ export default function DocsPage() {
         title: 'Livre blanc EverRise',
         description: 'Lisez notre livre blanc complet pour comprendre les mécanismes centraux, la formule de prix et la vision d\'EverRise.',
         downloadText: 'Lire en ligne',
-        downloadLink: '/litepaper/fr'
+        downloadLink: `/litepaper/${selectedLanguage}`
       },
       videos: {
         title: 'Vidéos éducatives',
