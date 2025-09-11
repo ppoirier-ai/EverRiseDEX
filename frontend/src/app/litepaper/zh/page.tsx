@@ -54,21 +54,17 @@ EverRise ($EVER) 作为一种创新替代方案出现——一种为永续上升
 有机价格计算：
 基础价格使用以下公式计算：
 
-![有机价格公式](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8dGV4dCB4PSIyMDAiIHk9IjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMwMDAiPk1hdGhlbWF0aWNhbCBGb3JtdWxhPC90ZXh0Pgo8L3N2Zz4K)
-
-P_organic(Y) = (X / Y) + Σ_{i=1 to n} [(0.001 × V_i) / ((X_i / Y_i) × SC_i)]
+**P_organic(Y) = (X / Y) + Σ_{i=1 to n} [(0.001 × V_i) / ((X_i / Y_i) × SC_i)]**
 
 其中：
-- 第一项 (X / Y) 提供了随着储备减少而上升的基线
+- 第一项 **(X / Y)** 提供了随着储备减少而上升的基线
 - 求和项添加了来自基于队列购买的永久奖金
 - 每个历史队列购买 i 贡献一个按交易量缩放并按价格和流通供应量标准化的奖金
 
 每日最低提升：
 为了保证每 24 小时至少 0.02% 的增长，如果有机增长低于此阈值，系统会应用每日提升：
 
-![每日提升公式](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8dGV4dCB4PSIyMDAiIHk9IjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMwMDAiPkRhaWx5IEJvb3N0IEZvcm11bGE8L3RleHQ+Cjwvc3ZnPgo)
-
-P(Y) = P_organic(Y) × (1 + (0.0002 - OrganicGrowth))
+**P(Y) = P_organic(Y) × (1 + (0.0002 - OrganicGrowth))**
 
 此提升是临时的且非复合的，每天重置。`
     },

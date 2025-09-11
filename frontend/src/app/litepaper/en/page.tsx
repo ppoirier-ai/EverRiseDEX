@@ -54,21 +54,17 @@ Variable Definitions:
 Organic Price Calculation:
 The base price is calculated using the following formula:
 
-![Organic Price Formula](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8dGV4dCB4PSIyMDAiIHk9IjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMwMDAiPk1hdGhlbWF0aWNhbCBGb3JtdWxhPC90ZXh0Pgo8L3N2Zz4K)
-
-P_organic(Y) = (X / Y) + Σ_{i=1 to n} [(0.001 × V_i) / ((X_i / Y_i) × SC_i)]
+**P_organic(Y) = (X / Y) + Σ_{i=1 to n} [(0.001 × V_i) / ((X_i / Y_i) × SC_i)]**
 
 Where:
-- The first term (X / Y) provides a baseline that rises as reserves diminish
+- The first term **(X / Y)** provides a baseline that rises as reserves diminish
 - The summation adds permanent bonuses from queue-based buys
 - Each historical queue buy i contributes a bonus scaled by volume and normalized by price and circulating supply
 
 Daily Minimum Boost:
 To guarantee at least 0.02% growth per 24-hour period, the system applies a daily boost if organic growth falls below this threshold:
 
-![Daily Boost Formula](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8dGV4dCB4PSIyMDAiIHk9IjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMwMDAiPkRhaWx5IEJvb3N0IEZvcm11bGE8L3RleHQ+Cjwvc3ZnPgo)
-
-P(Y) = P_organic(Y) × (1 + (0.0002 - OrganicGrowth))
+**P(Y) = P_organic(Y) × (1 + (0.0002 - OrganicGrowth))**
 
 This boost is temporary and non-compounding, resetting each day.`
     },
