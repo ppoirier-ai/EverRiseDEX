@@ -54,7 +54,7 @@ Variable Definitions:
 Organic Price Calculation:
 The base price is calculated using the following formula:
 
-![Organic Price Formula](/images/organic-price-formula.svg)
+![Organic Price Formula](/images/organic-price-formula.png)
 
 Where:
 - The first term **(X / Y)** provides a baseline that rises as reserves diminish
@@ -64,7 +64,7 @@ Where:
 Daily Minimum Boost:
 To guarantee at least 0.02% growth per 24-hour period, the system applies a daily boost if organic growth falls below this threshold:
 
-![Daily Boost Formula](/images/daily-boost-formula.svg)
+![Daily Boost Formula](/images/daily-boost-formula.png)
 
 This boost is temporary and non-compounding, resetting each day.`
     },
