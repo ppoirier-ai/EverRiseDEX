@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { TrendingUp, DollarSign, Activity, Coins, Clock } from 'lucide-react';
-import Image from 'next/image';
 
 interface PriceDisplayProps {
   currentPrice: number;
@@ -54,15 +53,6 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
     <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 flex items-center justify-center">
-            <Image 
-              src="/images/everrise-logo.png" 
-              alt="EverRise Logo" 
-              width={48} 
-              height={48}
-              className="object-contain"
-            />
-          </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">EverRise</h1>
             <p className="text-gray-500">$EVER</p>
