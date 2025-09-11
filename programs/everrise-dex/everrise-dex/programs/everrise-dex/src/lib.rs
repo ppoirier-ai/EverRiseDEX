@@ -290,14 +290,19 @@ pub mod everrise_dex {
 
         // If there's still USDC remaining, buy from reserves using bonding curve
         if remaining_usdc > 0 {
+            msg!("DEBUG: Processing buy from reserves - Remaining USDC: {}", remaining_usdc);
+            
             // Process affiliate commission (5% of remaining USDC)
             let commission_amount = (remaining_usdc * 500) / 10000; // 5% = 500 basis points
             let reserve_usdc = remaining_usdc - commission_amount;
+            
+            msg!("DEBUG: Commission amount: {} USDC, Reserve amount: {} USDC", commission_amount, reserve_usdc);
             
                 if commission_amount > 0 {
                     // Transfer commission to referrer (or treasury if no referrer)
                     let (commission_recipient, is_referrer) = {
                         let account_info = ctx.accounts.referrer_usdc_account.to_account_info();
+                        
                         // Check if this is a valid token account (not a system program or dummy account)
                         if account_info.owner == &token::ID && account_info.key() != Pubkey::from_str("11111111111111111111111111111111").unwrap() {
                             (account_info, true)
@@ -1153,6 +1158,7 @@ pub struct BuyWithSellProcessing<'info> {
     
     // Referrer's USDC account - always required but may be treasury if no referrer
     /// CHECK: This account is validated in the instruction logic
+    #[account(mut)]
     pub referrer_usdc_account: UncheckedAccount<'info>,
     
     pub token_program: Program<'info, Token>,

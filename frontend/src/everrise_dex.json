@@ -303,7 +303,8 @@
           "name": "referrer"
         },
         {
-          "name": "referrer_usdc_account"
+          "name": "referrer_usdc_account",
+          "writable": true
         },
         {
           "name": "token_program",
