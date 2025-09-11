@@ -13,7 +13,7 @@ export default function DocsPage() {
         title: 'EverRise Litepaper',
         description: 'Read our comprehensive litepaper to understand the core mechanics, pricing formula, and vision of EverRise.',
         downloadText: 'Download PDF',
-        downloadLink: '/specs/EverRise - Litepaper (1).pdf'
+        downloadLink: '/specs/language/EverRise - Litepaper - English.pdf'
       },
       videos: {
         title: 'Educational Videos',
@@ -68,7 +68,7 @@ export default function DocsPage() {
         title: 'Litepaper de EverRise',
         description: 'Lee nuestro litepaper completo para entender la mecánica central, fórmula de precios y visión de EverRise.',
         downloadText: 'Descargar PDF',
-        downloadLink: '/specs/EverRise - Litepaper - Spanish.pdf'
+        downloadLink: '/specs/language/EverRise - Litepaper - Spanish.pdf'
       },
       videos: {
         title: 'Videos Educativos',

@@ -10,7 +10,7 @@ Each language should follow this format:
 ## [Language Name] ([Language Code])
 
 ### Litepaper
-- **PDF Link**: `/specs/EverRise - Litepaper - [Language].pdf`
+- **PDF Link**: `/specs/language/EverRise - Litepaper - [Language].pdf`
 - **Status**: [Available/In Progress/Planned]
 - **Last Updated**: [Date]
 
@@ -39,52 +39,52 @@ Each language should follow this format:
 ## Language Examples
 
 ### English (en)
-- **PDF Link**: `/specs/EverRise - Litepaper (1).pdf`
+- **PDF Link**: `/specs/language/EverRise - Litepaper - English.pdf`
 - **Status**: Available
 - **Last Updated**: 2024-01-15
 
 ### Spanish (es)
-- **PDF Link**: `/specs/EverRise - Litepaper - Spanish.pdf`
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Spanish.pdf`
 - **Status**: In Progress
 - **Last Updated**: 2024-01-15
 
 ### French (fr)
-- **PDF Link**: `/specs/EverRise - Litepaper - French.pdf`
+- **PDF Link**: `/specs/language/EverRise - Litepaper - French.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
 ### German (de)
-- **PDF Link**: `/specs/EverRise - Litepaper - German.pdf`
+- **PDF Link**: `/specs/language/EverRise - Litepaper - German.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
 ### Chinese (zh)
-- **PDF Link**: `/specs/EverRise - Litepaper - Chinese.pdf`
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Chinese.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
 ### Japanese (ja)
-- **PDF Link**: `/specs/EverRise - Litepaper - Japanese.pdf`
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Japanese.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
 ### Korean (ko)
-- **PDF Link**: `/specs/EverRise - Litepaper - Korean.pdf`
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Korean.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
 ### Portuguese (pt)
-- **PDF Link**: `/specs/EverRise - Litepaper - Portuguese.pdf`
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Portuguese.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
 ### Russian (ru)
-- **PDF Link**: `/specs/EverRise - Litepaper - Russian.pdf`
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Russian.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
 ### Arabic (ar)
-- **PDF Link**: `/specs/EverRise - Litepaper - Arabic.pdf`
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Arabic.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
@@ -117,7 +117,7 @@ Each language should follow this format:
    - Update PDF links to point to actual translated files
 
 3. **File naming convention:**
-   - PDFs: `EverRise - Litepaper - [Language].pdf`
+   - PDFs: `EverRise - Litepaper - [Language].pdf` (stored in `/specs/language/` folder)
    - Videos: Use descriptive titles in the target language
    - YouTube IDs: Use the actual video ID from YouTube URLs
 
@@ -128,7 +128,7 @@ Each language should follow this format:
 
 ## Notes
 
-- All PDF files should be placed in the `/specs/` directory
+- All PDF files should be placed in the `/specs/language/` directory
 - YouTube video IDs can be extracted from URLs (e.g., `https://youtube.com/watch?v=ABC123` → `ABC123`)
 - Ensure all links are relative to the project root
 - Test all links before marking as "Available"
