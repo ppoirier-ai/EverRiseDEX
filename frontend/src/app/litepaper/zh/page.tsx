@@ -54,7 +54,7 @@ EverRise ($EVER) 作为一种创新替代方案出现——一种为永续上升
 有机价格计算：
 基础价格使用以下公式计算：
 
-![有机价格公式](/images/organic-price-formula.png)
+<img src="/images/organic-price-formula.png" alt="有机价格公式" className="mx-auto my-4 max-w-full h-auto" />
 
 其中：
 - 第一项 **(X / Y)** 提供了随着储备减少而上升的基线
@@ -64,7 +64,7 @@ EverRise ($EVER) 作为一种创新替代方案出现——一种为永续上升
 每日最低提升：
 为了保证每 24 小时至少 0.02% 的增长，如果有机增长低于此阈值，系统会应用每日提升：
 
-![每日提升公式](/images/daily-boost-formula.png)
+<img src="/images/daily-boost-formula.png" alt="每日提升公式" className="mx-auto my-4 max-w-full h-auto" />
 
 此提升是临时的且非复合的，每天重置。`
     },

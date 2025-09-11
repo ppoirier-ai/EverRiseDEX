@@ -52,12 +52,21 @@ Définitions de Variables :
 • P(Y) : Prix actuel en USDC.
 
 Calcul de Prix Organique :
-Le prix de base est calculé comme : P(Y) = X / Y
+Le prix de base est calculé en utilisant la formule suivante :
 
-Cela fournit une ligne de base qui monte à mesure que les réserves diminuent, assurant une appréciation de prix perpétuelle.
+<img src="/images/organic-price-formula.png" alt="Formule de Prix Organique" className="mx-auto my-4 max-w-full h-auto" />
+
+Où :
+- Le premier terme **(X / Y)** fournit une ligne de base qui monte à mesure que les réserves diminuent
+- La sommation ajoute des bonus permanents des achats basés sur la file d'attente
+- Chaque achat historique de file d'attente i contribue un bonus mis à l'échelle par le volume et normalisé par le prix et l'offre en circulation
 
 Boost Minimum Quotidien :
-Pour garantir au moins 0.02% de croissance par période de 24 heures, le système applique un boost quotidien si la croissance organique tombe en dessous de ce seuil. Ce boost est temporaire et non-composé, se réinitialisant chaque jour.`
+Pour garantir au moins 0.02% de croissance par période de 24 heures, le système applique un boost quotidien si la croissance organique tombe en dessous de ce seuil :
+
+<img src="/images/daily-boost-formula.png" alt="Formule de Boost Quotidien" className="mx-auto my-4 max-w-full h-auto" />
+
+Ce boost est temporaire et non-composé, se réinitialisant chaque jour.`
     },
     {
       id: 'affiliate-program',

@@ -54,7 +54,7 @@ Definiciones de Variables:
 Cálculo de Precio Orgánico:
 El precio base se calcula usando la siguiente fórmula:
 
-![Fórmula de Precio Orgánico](/images/organic-price-formula.png)
+<img src="/images/organic-price-formula.png" alt="Fórmula de Precio Orgánico" className="mx-auto my-4 max-w-full h-auto" />
 
 Donde:
 - El primer término **(X / Y)** proporciona una línea base que sube a medida que las reservas disminuyen
@@ -64,7 +64,7 @@ Donde:
 Impulso Mínimo Diario:
 Para garantizar al menos 0.02% de crecimiento por período de 24 horas, el sistema aplica un impulso diario si el crecimiento orgánico cae por debajo de este umbral:
 
-![Fórmula de Impulso Diario](/images/daily-boost-formula.png)
+<img src="/images/daily-boost-formula.png" alt="Fórmula de Impulso Diario" className="mx-auto my-4 max-w-full h-auto" />
 
 Este impulso es temporal y no compuesto, reiniciándose cada día.`
     },
