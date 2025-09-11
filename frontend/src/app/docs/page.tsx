@@ -402,7 +402,8 @@ export default function DocsPage() {
     }
   });
 
-  const currentLang = getTranslations(selectedLanguage)[selectedLanguage as keyof ReturnType<typeof getTranslations>] || getTranslations('en').en;
+  const translations = getTranslations(selectedLanguage);
+  const currentLang = translations[selectedLanguage as keyof typeof translations] || translations.en;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
