@@ -57,7 +57,21 @@ export default function DocsPage() {
           hi: 'हिंदी',
           es: 'Español',
           ar: 'العربية',
-          fr: 'Français'
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
         }
       }
     },
