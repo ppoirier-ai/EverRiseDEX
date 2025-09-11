@@ -1,0 +1,16 @@
+<svg width="500" height="80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .formula-text { font-family: 'Times New Roman', serif; font-size: 20px; fill: #1f2937; }
+      .subscript { font-size: 16px; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="500" height="80" fill="#f8fafc" stroke="#e5e7eb" stroke-width="1" rx="8"/>
+  
+  <!-- Formula -->
+  <text x="250" y="45" text-anchor="middle" class="formula-text" font-weight="bold">
+    P(Y) = P<tspan class="subscript">organic</tspan>(Y) × (1 + (0.0002 - OrganicGrowth))
+  </text>
+</svg>

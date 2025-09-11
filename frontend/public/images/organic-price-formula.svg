@@ -1,0 +1,26 @@
+<svg width="600" height="120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .formula-text { font-family: 'Times New Roman', serif; font-size: 18px; fill: #1f2937; }
+      .subscript { font-size: 14px; }
+      .summation { font-size: 16px; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="600" height="120" fill="#f8fafc" stroke="#e5e7eb" stroke-width="1" rx="8"/>
+  
+  <!-- Formula -->
+  <text x="300" y="40" text-anchor="middle" class="formula-text" font-weight="bold">
+    P<tspan class="subscript">organic</tspan>(Y) = (X / Y) + 
+    <tspan class="summation">Σ</tspan>
+    <tspan class="subscript">i=1 to n</tspan>
+  </text>
+  
+  <text x="300" y="70" text-anchor="middle" class="formula-text">
+    [(0.001 × V<tspan class="subscript">i</tspan>) / ((X<tspan class="subscript">i</tspan> / Y<tspan class="subscript">i</tspan>) × SC<tspan class="subscript">i</tspan>)]
+  </text>
+  
+  <!-- Underline for summation -->
+  <line x1="200" y1="45" x2="400" y2="45" stroke="#1f2937" stroke-width="1"/>
+</svg>

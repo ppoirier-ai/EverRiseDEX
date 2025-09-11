@@ -54,7 +54,7 @@ Definiciones de Variables:
 Cálculo de Precio Orgánico:
 El precio base se calcula usando la siguiente fórmula:
 
-**P_organic(Y) = (X / Y) + Σ_{i=1 to n} [(0.001 × V_i) / ((X_i / Y_i) × SC_i)]**
+![Fórmula de Precio Orgánico](/images/organic-price-formula.svg)
 
 Donde:
 - El primer término **(X / Y)** proporciona una línea base que sube a medida que las reservas disminuyen
@@ -64,7 +64,7 @@ Donde:
 Impulso Mínimo Diario:
 Para garantizar al menos 0.02% de crecimiento por período de 24 horas, el sistema aplica un impulso diario si el crecimiento orgánico cae por debajo de este umbral:
 
-**P(Y) = P_organic(Y) × (1 + (0.0002 - OrganicGrowth))**
+![Fórmula de Impulso Diario](/images/daily-boost-formula.svg)
 
 Este impulso es temporal y no compuesto, reiniciándose cada día.`
     },
