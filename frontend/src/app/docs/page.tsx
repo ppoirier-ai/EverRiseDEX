@@ -12,8 +12,8 @@ export default function DocsPage() {
       litepaper: {
         title: 'EverRise Litepaper',
         description: 'Read our comprehensive litepaper to understand the core mechanics, pricing formula, and vision of EverRise.',
-        downloadText: 'Download PDF',
-        downloadLink: '/specs/language/EverRise - Litepaper - English.pdf'
+        downloadText: 'Read Online',
+        downloadLink: '/litepaper/en'
       },
       videos: {
         title: 'Educational Videos',
@@ -77,8 +77,8 @@ export default function DocsPage() {
       litepaper: {
         title: 'EverRise 白皮书',
         description: '阅读我们的综合白皮书，了解 EverRise 的核心机制、定价公式和愿景。',
-        downloadText: '下载 PDF',
-        downloadLink: '/specs/language/EverRise - Litepaper - Putonghua.pdf'
+        downloadText: '在线阅读',
+        downloadLink: '/litepaper/zh'
       },
       videos: {
         title: '教育视频',
@@ -142,8 +142,8 @@ export default function DocsPage() {
       litepaper: {
         title: 'EverRise लाइटपेपर',
         description: 'EverRise के मूल यांत्रिकी, मूल्य निर्धारण सूत्र और दृष्टि को समझने के लिए हमारा व्यापक लाइटपेपर पढ़ें।',
-        downloadText: 'PDF डाउनलोड करें',
-        downloadLink: '/specs/language/EverRise - Litepaper - Hindi.pdf'
+        downloadText: 'ऑनलाइन पढ़ें',
+        downloadLink: '/litepaper/hi'
       },
       videos: {
         title: 'शैक्षिक वीडियो',
@@ -207,8 +207,8 @@ export default function DocsPage() {
       litepaper: {
         title: 'Litepaper de EverRise',
         description: 'Lee nuestro litepaper completo para entender la mecánica central, fórmula de precios y visión de EverRise.',
-        downloadText: 'Descargar PDF',
-        downloadLink: '/specs/language/EverRise - Litepaper - Espanol.pdf'
+        downloadText: 'Leer en línea',
+        downloadLink: '/litepaper/es'
       },
       videos: {
         title: 'Videos Educativos',
@@ -272,8 +272,8 @@ export default function DocsPage() {
       litepaper: {
         title: 'ورقة EverRise البيضاء',
         description: 'اقرأ ورقتنا البيضاء الشاملة لفهم الآليات الأساسية وصيغة التسعير ورؤية EverRise.',
-        downloadText: 'تحميل PDF',
-        downloadLink: '/specs/language/EverRise - Litepaper - al-Arabiyyah.pdf'
+        downloadText: 'اقرأ عبر الإنترنت',
+        downloadLink: '/litepaper/ar'
       },
       videos: {
         title: 'الفيديوهات التعليمية',
@@ -337,8 +337,8 @@ export default function DocsPage() {
       litepaper: {
         title: 'Livre blanc EverRise',
         description: 'Lisez notre livre blanc complet pour comprendre les mécanismes centraux, la formule de prix et la vision d\'EverRise.',
-        downloadText: 'Télécharger PDF',
-        downloadLink: '/specs/language/EverRise - Litepaper - Francais.pdf'
+        downloadText: 'Lire en ligne',
+        downloadLink: '/litepaper/fr'
       },
       videos: {
         title: 'Vidéos éducatives',
@@ -443,12 +443,10 @@ export default function DocsPage() {
             </p>
             <a
               href={currentLang.litepaper.downloadLink}
-              target="_blank"
-              rel="noopener noreferrer"
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
               {currentLang.litepaper.downloadText}
             </a>
