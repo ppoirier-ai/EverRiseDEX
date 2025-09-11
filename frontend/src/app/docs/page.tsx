@@ -49,15 +49,155 @@ export default function DocsPage() {
         label: 'Language',
         options: {
           en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
           es: 'Español',
+          ar: 'العربية',
           fr: 'Français',
-          de: 'Deutsch',
-          zh: '中文',
-          ja: '日本語',
-          ko: '한국어',
+          bn: 'বাংলা',
           pt: 'Português',
           ru: 'Русский',
-          ar: 'العربية'
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    zh: {
+      title: 'EverRise 文档',
+      subtitle: '了解革命性的不可议价价格资产',
+      litepaper: {
+        title: 'EverRise 白皮书',
+        description: '阅读我们的综合白皮书，了解 EverRise 的核心机制、定价公式和愿景。',
+        downloadText: '下载 PDF',
+        downloadLink: '/specs/language/EverRise - Litepaper - Putonghua.pdf'
+      },
+      videos: {
+        title: '教育视频',
+        description: '观看我们的视频系列，解释 EverRise 概念和机制',
+        items: [
+          {
+            title: 'EverRise 介绍',
+            description: '学习 EverRise 的基础知识以及它为什么代表数字资产的新范式',
+            videoId: 'PLACEHOLDER_VIDEO_ID_1_ZH',
+            duration: '5:30'
+          },
+          {
+            title: '理解债券曲线',
+            description: '深入了解债券曲线如何确保永续价格升值',
+            videoId: 'PLACEHOLDER_VIDEO_ID_2_ZH',
+            duration: '8:15'
+          },
+          {
+            title: '联盟系统解释',
+            description: '联盟营销计划如何运作以及如何赚取佣金',
+            videoId: 'PLACEHOLDER_VIDEO_ID_3_ZH',
+            duration: '6:45'
+          },
+          {
+            title: '国库和未来路线图',
+            description: '了解我们对数字资产国库公司和质押金库的计划',
+            videoId: 'PLACEHOLDER_VIDEO_ID_4_ZH',
+            duration: '10:20'
+          }
+        ]
+      },
+      language: {
+        label: '语言',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    hi: {
+      title: 'EverRise दस्तावेज़',
+      subtitle: 'क्रांतिकारी गैर-बातचीत योग्य मूल्य संपत्ति के बारे में जानें',
+      litepaper: {
+        title: 'EverRise लाइटपेपर',
+        description: 'EverRise के मूल यांत्रिकी, मूल्य निर्धारण सूत्र और दृष्टि को समझने के लिए हमारा व्यापक लाइटपेपर पढ़ें।',
+        downloadText: 'PDF डाउनलोड करें',
+        downloadLink: '/specs/language/EverRise - Litepaper - Hindi.pdf'
+      },
+      videos: {
+        title: 'शैक्षिक वीडियो',
+        description: 'EverRise अवधारणाओं और यांत्रिकी की व्याख्या करने वाले हमारे वीडियो श्रृंखला देखें',
+        items: [
+          {
+            title: 'EverRise का परिचय',
+            description: 'EverRise की मूल बातें सीखें और यह डिजिटल संपत्ति में एक नया प्रतिमान क्यों है',
+            videoId: 'PLACEHOLDER_VIDEO_ID_1_HI',
+            duration: '5:30'
+          },
+          {
+            title: 'बॉन्डिंग कर्व को समझना',
+            description: 'गहराई से जानें कि बॉन्डिंग कर्व कैसे सतत मूल्य वृद्धि सुनिश्चित करता है',
+            videoId: 'PLACEHOLDER_VIDEO_ID_2_HI',
+            duration: '8:15'
+          },
+          {
+            title: 'एफिलिएट सिस्टम की व्याख्या',
+            description: 'एफिलिएट मार्केटिंग प्रोग्राम कैसे काम करता है और कमीशन कैसे कमाएं',
+            videoId: 'PLACEHOLDER_VIDEO_ID_3_HI',
+            duration: '6:45'
+          },
+          {
+            title: 'ट्रेजरी और भविष्य का रोडमैप',
+            description: 'डिजिटल एसेट ट्रेजरी कंपनी और स्टेकिंग वॉल्ट के लिए हमारी योजनाओं के बारे में जानें',
+            videoId: 'PLACEHOLDER_VIDEO_ID_4_HI',
+            duration: '10:20'
+          }
+        ]
+      },
+      language: {
+        label: 'भाषा',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
         }
       }
     },
@@ -68,7 +208,7 @@ export default function DocsPage() {
         title: 'Litepaper de EverRise',
         description: 'Lee nuestro litepaper completo para entender la mecánica central, fórmula de precios y visión de EverRise.',
         downloadText: 'Descargar PDF',
-        downloadLink: '/specs/language/EverRise - Litepaper - Spanish.pdf'
+        downloadLink: '/specs/language/EverRise - Litepaper - Espanol.pdf'
       },
       videos: {
         title: 'Videos Educativos',
@@ -104,15 +244,155 @@ export default function DocsPage() {
         label: 'Idioma',
         options: {
           en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
           es: 'Español',
+          ar: 'العربية',
           fr: 'Français',
-          de: 'Deutsch',
-          zh: '中文',
-          ja: '日本語',
-          ko: '한국어',
+          bn: 'বাংলা',
           pt: 'Português',
           ru: 'Русский',
-          ar: 'العربية'
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    ar: {
+      title: 'وثائق EverRise',
+      subtitle: 'تعرف على الأصول الثورية ذات الأسعار غير القابلة للمساومة',
+      litepaper: {
+        title: 'ورقة EverRise البيضاء',
+        description: 'اقرأ ورقتنا البيضاء الشاملة لفهم الآليات الأساسية وصيغة التسعير ورؤية EverRise.',
+        downloadText: 'تحميل PDF',
+        downloadLink: '/specs/language/EverRise - Litepaper - al-Arabiyyah.pdf'
+      },
+      videos: {
+        title: 'الفيديوهات التعليمية',
+        description: 'شاهد سلسلة الفيديوهات التي تشرح مفاهيم وآليات EverRise',
+        items: [
+          {
+            title: 'مقدمة في EverRise',
+            description: 'تعلم أساسيات EverRise ولماذا يمثل نموذجًا جديدًا في الأصول الرقمية',
+            videoId: 'PLACEHOLDER_VIDEO_ID_1_AR',
+            duration: '5:30'
+          },
+          {
+            title: 'فهم منحنى الترابط',
+            description: 'غوص عميق في كيفية ضمان منحنى الترابط للارتفاع المستمر في الأسعار',
+            videoId: 'PLACEHOLDER_VIDEO_ID_2_AR',
+            duration: '8:15'
+          },
+          {
+            title: 'شرح نظام الشراكة',
+            description: 'كيف يعمل برنامج التسويق بالشراكة وكيفية كسب العمولات',
+            videoId: 'PLACEHOLDER_VIDEO_ID_3_AR',
+            duration: '6:45'
+          },
+          {
+            title: 'الخزينة والخطة المستقبلية',
+            description: 'تعرف على خططنا لشركة خزينة الأصول الرقمية وخزينة الرهان',
+            videoId: 'PLACEHOLDER_VIDEO_ID_4_AR',
+            duration: '10:20'
+          }
+        ]
+      },
+      language: {
+        label: 'اللغة',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    fr: {
+      title: 'Documentation EverRise',
+      subtitle: 'Découvrez l\'actif révolutionnaire aux prix non négociables',
+      litepaper: {
+        title: 'Livre blanc EverRise',
+        description: 'Lisez notre livre blanc complet pour comprendre les mécanismes centraux, la formule de prix et la vision d\'EverRise.',
+        downloadText: 'Télécharger PDF',
+        downloadLink: '/specs/language/EverRise - Litepaper - Francais.pdf'
+      },
+      videos: {
+        title: 'Vidéos éducatives',
+        description: 'Regardez notre série de vidéos expliquant les concepts et mécanismes d\'EverRise',
+        items: [
+          {
+            title: 'Introduction à EverRise',
+            description: 'Apprenez les bases d\'EverRise et pourquoi il représente un nouveau paradigme dans les actifs numériques',
+            videoId: 'PLACEHOLDER_VIDEO_ID_1_FR',
+            duration: '5:30'
+          },
+          {
+            title: 'Comprendre la courbe de liaison',
+            description: 'Plongée profonde dans la façon dont la courbe de liaison assure l\'appréciation perpétuelle des prix',
+            videoId: 'PLACEHOLDER_VIDEO_ID_2_FR',
+            duration: '8:15'
+          },
+          {
+            title: 'Système d\'affiliation expliqué',
+            description: 'Comment fonctionne le programme de marketing d\'affiliation et comment gagner des commissions',
+            videoId: 'PLACEHOLDER_VIDEO_ID_3_FR',
+            duration: '6:45'
+          },
+          {
+            title: 'Trésorerie et feuille de route future',
+            description: 'Découvrez nos plans pour l\'entreprise de trésorerie d\'actifs numériques et le coffre-fort de staking',
+            videoId: 'PLACEHOLDER_VIDEO_ID_4_FR',
+            duration: '10:20'
+          }
+        ]
+      },
+      language: {
+        label: 'Langue',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
         }
       }
     }

@@ -38,53 +38,103 @@ Each language should follow this format:
 
 ## Language Examples
 
-### English (en)
+### English (en) - English
 - **PDF Link**: `/specs/language/EverRise - Litepaper - English.pdf`
 - **Status**: Available
 - **Last Updated**: 2024-01-15
 
-### Spanish (es)
-- **PDF Link**: `/specs/language/EverRise - Litepaper - Spanish.pdf`
+### Chinese (zh) - 普通话
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Putonghua.pdf`
+- **Status**: Planned
+- **Last Updated**: 2024-01-15
+
+### Hindi (hi) - हिंदी
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Hindi.pdf`
+- **Status**: Planned
+- **Last Updated**: 2024-01-15
+
+### Spanish (es) - Español
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Espanol.pdf`
 - **Status**: In Progress
 - **Last Updated**: 2024-01-15
 
-### French (fr)
-- **PDF Link**: `/specs/language/EverRise - Litepaper - French.pdf`
+### Arabic (ar) - العربية
+- **PDF Link**: `/specs/language/EverRise - Litepaper - al-Arabiyyah.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
-### German (de)
-- **PDF Link**: `/specs/language/EverRise - Litepaper - German.pdf`
+### French (fr) - Français
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Francais.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
-### Chinese (zh)
-- **PDF Link**: `/specs/language/EverRise - Litepaper - Chinese.pdf`
+### Bengali (bn) - বাংলা
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Bangla.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
-### Japanese (ja)
-- **PDF Link**: `/specs/language/EverRise - Litepaper - Japanese.pdf`
+### Portuguese (pt) - Português
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Portugues.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
-### Korean (ko)
-- **PDF Link**: `/specs/language/EverRise - Litepaper - Korean.pdf`
+### Russian (ru) - Русский
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Russkiy.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
-### Portuguese (pt)
-- **PDF Link**: `/specs/language/EverRise - Litepaper - Portuguese.pdf`
+### Indonesian (id) - Bahasa Indonesia
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Bahasa Indonesia.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
-### Russian (ru)
-- **PDF Link**: `/specs/language/EverRise - Litepaper - Russian.pdf`
+### Urdu (ur) - اردو
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Urdu.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
-### Arabic (ar)
-- **PDF Link**: `/specs/language/EverRise - Litepaper - Arabic.pdf`
+### German (de) - Deutsch
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Deutsch.pdf`
+- **Status**: Planned
+- **Last Updated**: 2024-01-15
+
+### Japanese (ja) - 日本語
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Nihongo.pdf`
+- **Status**: Planned
+- **Last Updated**: 2024-01-15
+
+### Nigerian Pidgin (na) - Naijá
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Naija.pdf`
+- **Status**: Planned
+- **Last Updated**: 2024-01-15
+
+### Egyptian Arabic (ms) - مصري
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Masri.pdf`
+- **Status**: Planned
+- **Last Updated**: 2024-01-15
+
+### Marathi (mr) - मराठी
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Marathi.pdf`
+- **Status**: Planned
+- **Last Updated**: 2024-01-15
+
+### Vietnamese (vi) - Tiếng Việt
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Tieng Viet.pdf`
+- **Status**: Planned
+- **Last Updated**: 2024-01-15
+
+### Telugu (te) - తెలుగు
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Telugu.pdf`
+- **Status**: Planned
+- **Last Updated**: 2024-01-15
+
+### Hausa (ha) - Hausa
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Hausa.pdf`
+- **Status**: Planned
+- **Last Updated**: 2024-01-15
+
+### Turkish (tr) - Türkçe
+- **PDF Link**: `/specs/language/EverRise - Litepaper - Turkce.pdf`
 - **Status**: Planned
 - **Last Updated**: 2024-01-15
 
