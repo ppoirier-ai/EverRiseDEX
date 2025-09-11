@@ -399,6 +399,636 @@ export default function DocsPage() {
           tr: 'Türkçe'
         }
       }
+    },
+    bn: {
+      title: 'EverRise ডকুমেন্টেশন',
+      subtitle: 'বিপ্লবী অ-দরকষাকষি মূল্য সম্পদ সম্পর্কে জানুন',
+      litepaper: {
+        title: 'EverRise লাইটপেপার',
+        description: 'EverRise-এর মূল যান্ত্রিকতা, মূল্য নির্ধারণ সূত্র এবং দৃষ্টিভঙ্গি বুঝতে আমাদের বিস্তৃত লাইটপেপার পড়ুন।',
+        downloadText: 'অনলাইনে পড়ুন',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'শিক্ষামূলক ভিডিও',
+        description: 'EverRise ধারণা এবং যান্ত্রিকতা ব্যাখ্যা করে আমাদের ভিডিও সিরিজ দেখুন',
+        items: [
+          { title: 'EverRise পরিচিতি', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'মূল্য নির্ধারণ সূত্র', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'অনুমোদিত বিপণন প্রোগ্রাম', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'ভবিষ্যতের পরিকল্পনা', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'ভাষা',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    pt: {
+      title: 'Documentação EverRise',
+      subtitle: 'Aprenda sobre o ativo de preço não-negociável revolucionário',
+      litepaper: {
+        title: 'Litepaper EverRise',
+        description: 'Leia nosso litepaper abrangente para entender as mecânicas centrais, fórmula de preço e visão do EverRise.',
+        downloadText: 'Ler Online',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'Vídeos Educacionais',
+        description: 'Assista nossa série de vídeos explicando conceitos e mecânicas do EverRise',
+        items: [
+          { title: 'Introdução ao EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Fórmula de Preço', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Programa de Afiliados', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'Planos Futuros', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'Idioma',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    ru: {
+      title: 'Документация EverRise',
+      subtitle: 'Узнайте о революционном активе с необсуждаемой ценой',
+      litepaper: {
+        title: 'Лайтпейпер EverRise',
+        description: 'Прочитайте наш подробный лайтпейпер, чтобы понять основные механики, формулу ценообразования и видение EverRise.',
+        downloadText: 'Читать Онлайн',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'Обучающие Видео',
+        description: 'Посмотрите нашу серию видео, объясняющих концепции и механики EverRise',
+        items: [
+          { title: 'Введение в EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Формула Ценообразования', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Партнерская Программа', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'Будущие Планы', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'Язык',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    id: {
+      title: 'Dokumentasi EverRise',
+      subtitle: 'Pelajari tentang aset harga yang tidak dapat dinegosiasikan yang revolusioner',
+      litepaper: {
+        title: 'Litepaper EverRise',
+        description: 'Baca litepaper komprehensif kami untuk memahami mekanika inti, rumus harga, dan visi EverRise.',
+        downloadText: 'Baca Online',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'Video Edukasi',
+        description: 'Tonton seri video kami yang menjelaskan konsep dan mekanika EverRise',
+        items: [
+          { title: 'Pengenalan EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Rumus Harga', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Program Afiliasi', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'Rencana Masa Depan', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'Bahasa',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    ur: {
+      title: 'EverRise دستاویزات',
+      subtitle: 'انقلابی غیر قابل مذاکرات قیمت کے اثاثے کے بارے میں جانیں',
+      litepaper: {
+        title: 'EverRise لائٹ پیپر',
+        description: 'EverRise کے مرکزی میکانیات، قیمت کے فارمولے اور وژن کو سمجھنے کے لیے ہمارا جامع لائٹ پیپر پڑھیں۔',
+        downloadText: 'آن لائن پڑھیں',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'تعلیمی ویڈیوز',
+        description: 'EverRise تصورات اور میکانیات کی وضاحت کرنے والی ہماری ویڈیو سیریز دیکھیں',
+        items: [
+          { title: 'EverRise کا تعارف', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'قیمت کا فارمولا', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'ایفیلی ایٹ پروگرام', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'مستقبل کے منصوبے', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'زبان',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    de: {
+      title: 'EverRise Dokumentation',
+      subtitle: 'Erfahren Sie mehr über das revolutionäre nicht verhandelbare Preis-Asset',
+      litepaper: {
+        title: 'EverRise Litepaper',
+        description: 'Lesen Sie unser umfassendes Litepaper, um die Kernmechaniken, Preisformel und Vision von EverRise zu verstehen.',
+        downloadText: 'Online Lesen',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'Bildungsvideos',
+        description: 'Schauen Sie sich unsere Videoserie an, die EverRise-Konzepte und -Mechaniken erklärt',
+        items: [
+          { title: 'EverRise Einführung', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Preisformel', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Affiliate-Programm', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'Zukunftspläne', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'Sprache',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    ja: {
+      title: 'EverRise ドキュメント',
+      subtitle: '革命的な交渉不可能な価格アセットについて学ぶ',
+      litepaper: {
+        title: 'EverRise ライトペーパー',
+        description: 'EverRiseのコアメカニクス、価格公式、ビジョンを理解するために、包括的なライトペーパーをお読みください。',
+        downloadText: 'オンラインで読む',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: '教育ビデオ',
+        description: 'EverRiseの概念とメカニクスを説明するビデオシリーズをご覧ください',
+        items: [
+          { title: 'EverRise紹介', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: '価格公式', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'アフィリエイトプログラム', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: '将来の計画', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: '言語',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    na: {
+      title: 'EverRise Documentation',
+      subtitle: 'Learn about di revolutionary unhaggleable price asset',
+      litepaper: {
+        title: 'EverRise Litepaper',
+        description: 'Read our comprehensive litepaper to understand di core mechanics, pricing formula, and vision of EverRise.',
+        downloadText: 'Read Online',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'Educational Videos',
+        description: 'Watch our video series explaining EverRise concepts and mechanics',
+        items: [
+          { title: 'EverRise Introduction', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Pricing Formula', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Affiliate Program', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'Future Plans', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'Language',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    ms: {
+      title: 'وثائق EverRise',
+      subtitle: 'تعلم عن الأصل الثوري ذو السعر غير القابل للتفاوض',
+      litepaper: {
+        title: 'الورقة البيضاء EverRise',
+        description: 'اقرأ ورقتنا البيضاء الشاملة لفهم الآليات الأساسية وصيغة التسعير ورؤية EverRise.',
+        downloadText: 'اقرأ عبر الإنترنت',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'فيديوهات تعليمية',
+        description: 'شاهد سلسلة الفيديوهات الخاصة بنا التي تشرح مفاهيم وآليات EverRise',
+        items: [
+          { title: 'مقدمة EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'صيغة التسعير', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'برنامج الشراكة', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'الخطط المستقبلية', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'اللغة',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    mr: {
+      title: 'EverRise दस्तावेज',
+      subtitle: 'क्रांतिकारी न-वाटाघाटीय किंमत मालमत्तेबद्दल जाणून घ्या',
+      litepaper: {
+        title: 'EverRise लाइटपेपर',
+        description: 'EverRise च्या मुख्य यंत्रणा, किंमत सूत्र आणि दृष्टिकोन समजून घेण्यासाठी आमचे व्यापक लाइटपेपर वाचा.',
+        downloadText: 'ऑनलाइन वाचा',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'शैक्षणिक व्हिडिओ',
+        description: 'EverRise संकल्पना आणि यंत्रणा स्पष्ट करणारी आमची व्हिडिओ मालिका पहा',
+        items: [
+          { title: 'EverRise परिचय', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'किंमत सूत्र', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'संलग्न कार्यक्रम', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'भविष्यातील योजना', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'भाषा',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    vi: {
+      title: 'Tài liệu EverRise',
+      subtitle: 'Tìm hiểu về tài sản giá cả không thể thương lượng cách mạng',
+      litepaper: {
+        title: 'Sách Trắng EverRise',
+        description: 'Đọc sách trắng toàn diện của chúng tôi để hiểu các cơ chế cốt lõi, công thức giá và tầm nhìn của EverRise.',
+        downloadText: 'Đọc Trực tuyến',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'Video Giáo dục',
+        description: 'Xem loạt video của chúng tôi giải thích các khái niệm và cơ chế EverRise',
+        items: [
+          { title: 'Giới thiệu EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Công thức Giá', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Chương trình Tiếp thị Liên kết', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'Kế hoạch Tương lai', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'Ngôn ngữ',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    te: {
+      title: 'EverRise డాక్యుమెంటేషన్',
+      subtitle: 'విప్లవాత్మక చర్చించలేని ధర ఆస్తి గురించి తెలుసుకోండి',
+      litepaper: {
+        title: 'EverRise లైట్ పేపర్',
+        description: 'EverRise యొక్క కోర్ మెకానిక్స్, ధర సూత్రం మరియు దృష్టిని అర్థం చేసుకోవడానికి మా సమగ్ర లైట్ పేపర్ చదవండి.',
+        downloadText: 'ఆన్‌లైన్ చదవండి',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'విద్యాపరమైన వీడియోలు',
+        description: 'EverRise భావనలు మరియు మెకానిక్స్‌ను వివరించే మా వీడియో సిరీస్ చూడండి',
+        items: [
+          { title: 'EverRise పరిచయం', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'ధర సూత్రం', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'అనుబంధ కార్యక్రమం', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'భవిష్యత్ ప్రణాళికలు', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'భాష',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    ha: {
+      title: 'Takardun EverRise',
+      subtitle: 'Koyi game da sabon kadari na farashin da ba za a iya tattaunawa ba',
+      litepaper: {
+        title: 'Litepaper na EverRise',
+        description: 'Karanta litepaper ɗin mu na cikakke don fahimtar ainihin hanyoyin aiki, tsarin farashi, da hangen nesa na EverRise.',
+        downloadText: 'Karanta A Kan Layi',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'Bidiyoyin Ilimi',
+        description: 'Kalli jerin bidiyon mu wanda ke bayyana ra\'ayoyin da hanyoyin aiki na EverRise',
+        items: [
+          { title: 'Gabatarwar EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Tsarin Farashi', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Shirin Hadin Kai', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'Shirye-shiryen Gaba', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'Harshe',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
+    },
+    tr: {
+      title: 'EverRise Dokümantasyonu',
+      subtitle: 'Devrimci pazarlık edilemeyen fiyat varlığı hakkında bilgi edinin',
+      litepaper: {
+        title: 'EverRise Litepaper',
+        description: 'EverRise\'in temel mekaniklerini, fiyat formülünü ve vizyonunu anlamak için kapsamlı litepaper\'ımızı okuyun.',
+        downloadText: 'Çevrimiçi Oku',
+        downloadLink: `/litepaper/${lang}`
+      },
+      videos: {
+        title: 'Eğitim Videoları',
+        description: 'EverRise kavramlarını ve mekaniklerini açıklayan video serimizi izleyin',
+        items: [
+          { title: 'EverRise Giriş', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Fiyat Formülü', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Bağlı Pazarlama Programı', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
+          { title: 'Gelecek Planları', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
+        ]
+      },
+      language: {
+        label: 'Dil',
+        options: {
+          en: 'English',
+          zh: '普通话',
+          hi: 'हिंदी',
+          es: 'Español',
+          ar: 'العربية',
+          fr: 'Français',
+          bn: 'বাংলা',
+          pt: 'Português',
+          ru: 'Русский',
+          id: 'Bahasa Indonesia',
+          ur: 'اردو',
+          de: 'Deutsch',
+          ja: '日本語',
+          na: 'Naijá',
+          ms: 'مصري',
+          mr: 'मराठी',
+          vi: 'Tiếng Việt',
+          te: 'తెలుగు',
+          ha: 'Hausa',
+          tr: 'Türkçe'
+        }
+      }
     }
   });
 
@@ -482,7 +1112,7 @@ export default function DocsPage() {
                   </div>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{video.title}</h3>
-                <p className="text-gray-600 text-sm">{video.description}</p>
+                <p className="text-gray-600 text-sm">{(video as any).description || ''}</p>
                 <div className="mt-4">
                   <a
                     href={`https://www.youtube.com/watch?v=${video.videoId}`}
