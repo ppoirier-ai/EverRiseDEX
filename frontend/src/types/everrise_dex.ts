@@ -1,14 +1,20 @@
-{
+/**
+ * Program IDL in camelCase format in order to be used in JS/TS.
+ *
+ * Note that this is only a type helper and is not the actual IDL. The original
+ * IDL can be found at `target/idl/everrise_dex.json`.
+ */
+export type EverriseDex = {
   "address": "9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy",
   "metadata": {
-    "name": "everrise_dex",
+    "name": "everriseDex",
     "version": "0.1.0",
     "spec": "0.1.0",
     "description": "Created with Anchor"
   },
   "instructions": [
     {
-      "name": "apply_daily_boost_manual",
+      "name": "applyDailyBoostManual",
       "docs": [
         "Manually apply daily boost (for testing and maintenance)"
       ],
@@ -24,7 +30,7 @@
       ],
       "accounts": [
         {
-          "name": "bonding_curve",
+          "name": "bondingCurve",
           "writable": true,
           "pda": {
             "seeds": [
@@ -58,7 +64,7 @@
       "args": []
     },
     {
-      "name": "bump_buy_tail",
+      "name": "bumpBuyTail",
       "docs": [
         "Bump buy_queue_tail by 1 to skip an occupied PDA"
       ],
@@ -74,7 +80,7 @@
       ],
       "accounts": [
         {
-          "name": "bonding_curve",
+          "name": "bondingCurve",
           "writable": true,
           "pda": {
             "seeds": [
@@ -107,7 +113,7 @@
       "args": []
     },
     {
-      "name": "bump_sell_tail",
+      "name": "bumpSellTail",
       "docs": [
         "Bump sell_queue_tail by 1 to skip an occupied sell_order PDA"
       ],
@@ -123,7 +129,7 @@
       ],
       "accounts": [
         {
-          "name": "bonding_curve",
+          "name": "bondingCurve",
           "writable": true,
           "pda": {
             "seeds": [
@@ -172,7 +178,7 @@
       ],
       "accounts": [
         {
-          "name": "bonding_curve",
+          "name": "bondingCurve",
           "writable": true,
           "pda": {
             "seeds": [
@@ -203,35 +209,35 @@
           "signer": true
         },
         {
-          "name": "user_usdc_account",
+          "name": "userUsdcAccount",
           "writable": true
         },
         {
-          "name": "user_ever_account",
+          "name": "userEverAccount",
           "writable": true
         },
         {
-          "name": "treasury_usdc_account",
+          "name": "treasuryUsdcAccount",
           "writable": true
         },
         {
-          "name": "program_ever_account",
+          "name": "programEverAccount",
           "writable": true
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": [
         {
-          "name": "usdc_amount",
+          "name": "usdcAmount",
           "type": "u64"
         }
       ]
     },
     {
-      "name": "buy_smart",
+      "name": "buySmart",
       "docs": [
         "Smart buy that processes sell orders first, then buys from reserves if needed"
       ],
@@ -247,7 +253,7 @@
       ],
       "accounts": [
         {
-          "name": "bonding_curve",
+          "name": "bondingCurve",
           "writable": true,
           "pda": {
             "seeds": [
@@ -278,47 +284,47 @@
           "signer": true
         },
         {
-          "name": "user_usdc_account",
+          "name": "userUsdcAccount",
           "writable": true
         },
         {
-          "name": "user_ever_account",
+          "name": "userEverAccount",
           "writable": true
         },
         {
-          "name": "treasury_usdc_account",
+          "name": "treasuryUsdcAccount",
           "writable": true
         },
         {
-          "name": "program_ever_account",
+          "name": "programEverAccount",
           "writable": true
         },
         {
-          "name": "sell_order"
+          "name": "sellOrder"
         },
         {
-          "name": "seller_usdc_account"
+          "name": "sellerUsdcAccount"
         },
         {
           "name": "referrer"
         },
         {
-          "name": "referrer_usdc_account"
+          "name": "referrerUsdcAccount"
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": [
         {
-          "name": "usdc_amount",
+          "name": "usdcAmount",
           "type": "u64"
         }
       ]
     },
     {
-      "name": "emergency_refund",
+      "name": "emergencyRefund",
       "docs": [
         "Emergency refund function - refunds USDC to buyer if transaction fails",
         "This is a safety mechanism to prevent USDC loss"
@@ -335,7 +341,7 @@
       ],
       "accounts": [
         {
-          "name": "bonding_curve",
+          "name": "bondingCurve",
           "writable": true,
           "pda": {
             "seeds": [
@@ -361,7 +367,7 @@
           }
         },
         {
-          "name": "buy_order",
+          "name": "buyOrder",
           "writable": true,
           "pda": {
             "seeds": [
@@ -382,28 +388,28 @@
               {
                 "kind": "account",
                 "path": "bonding_curve.buy_queue_head",
-                "account": "BondingCurve"
+                "account": "bondingCurve"
               }
             ]
           }
         },
         {
-          "name": "program_usdc_account",
+          "name": "programUsdcAccount",
           "writable": true
         },
         {
-          "name": "buyer_usdc_account",
+          "name": "buyerUsdcAccount",
           "writable": true
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": []
     },
     {
-      "name": "get_version",
+      "name": "getVersion",
       "docs": [
         "Get smart contract version for debugging"
       ],
@@ -438,7 +444,7 @@
       ],
       "accounts": [
         {
-          "name": "bonding_curve",
+          "name": "bondingCurve",
           "writable": true,
           "pda": {
             "seeds": [
@@ -469,19 +475,19 @@
           "signer": true
         },
         {
-          "name": "system_program",
+          "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
         {
-          "name": "treasury_wallet",
+          "name": "treasuryWallet",
           "type": "pubkey"
         }
       ]
     },
     {
-      "name": "process_buy_queue",
+      "name": "processBuyQueue",
       "docs": [
         "Process buy orders from the queue with partial fill support and transaction safety"
       ],
@@ -497,7 +503,7 @@
       ],
       "accounts": [
         {
-          "name": "bonding_curve",
+          "name": "bondingCurve",
           "writable": true,
           "pda": {
             "seeds": [
@@ -523,7 +529,7 @@
           }
         },
         {
-          "name": "buy_order",
+          "name": "buyOrder",
           "writable": true,
           "pda": {
             "seeds": [
@@ -544,42 +550,42 @@
               {
                 "kind": "account",
                 "path": "bonding_curve.buy_queue_head",
-                "account": "BondingCurve"
+                "account": "bondingCurve"
               }
             ]
           }
         },
         {
-          "name": "sell_order"
+          "name": "sellOrder"
         },
         {
-          "name": "program_usdc_account",
+          "name": "programUsdcAccount",
           "writable": true
         },
         {
-          "name": "program_ever_account",
+          "name": "programEverAccount",
           "writable": true
         },
         {
-          "name": "buyer_ever_account",
+          "name": "buyerEverAccount",
           "writable": true
         },
         {
-          "name": "seller_usdc_account"
+          "name": "sellerUsdcAccount"
         },
         {
-          "name": "treasury_usdc_account",
+          "name": "treasuryUsdcAccount",
           "writable": true
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": []
     },
     {
-      "name": "process_sell_queue",
+      "name": "processSellQueue",
       "docs": [
         "Process sell orders from the queue - handles matching with buy orders or direct processing"
       ],
@@ -595,7 +601,7 @@
       ],
       "accounts": [
         {
-          "name": "bonding_curve",
+          "name": "bondingCurve",
           "writable": true,
           "pda": {
             "seeds": [
@@ -621,7 +627,7 @@
           }
         },
         {
-          "name": "sell_order",
+          "name": "sellOrder",
           "writable": true,
           "pda": {
             "seeds": [
@@ -643,29 +649,29 @@
               {
                 "kind": "account",
                 "path": "bonding_curve.sell_queue_head",
-                "account": "BondingCurve"
+                "account": "bondingCurve"
               }
             ]
           }
         },
         {
-          "name": "program_ever_account",
+          "name": "programEverAccount",
           "writable": true
         },
         {
-          "name": "seller_usdc_account",
+          "name": "sellerUsdcAccount",
           "writable": true
         },
         {
-          "name": "treasury_usdc_account",
+          "name": "treasuryUsdcAccount",
           "writable": true
         },
         {
-          "name": "burn_ever_account",
+          "name": "burnEverAccount",
           "writable": true
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
@@ -688,7 +694,7 @@
       ],
       "accounts": [
         {
-          "name": "bonding_curve",
+          "name": "bondingCurve",
           "writable": true,
           "pda": {
             "seeds": [
@@ -714,7 +720,7 @@
           }
         },
         {
-          "name": "sell_order",
+          "name": "sellOrder",
           "writable": true
         },
         {
@@ -723,31 +729,31 @@
           "signer": true
         },
         {
-          "name": "user_ever_account",
+          "name": "userEverAccount",
           "writable": true
         },
         {
-          "name": "program_ever_account",
+          "name": "programEverAccount",
           "writable": true
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
         {
-          "name": "system_program",
+          "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
         {
-          "name": "ever_amount",
+          "name": "everAmount",
           "type": "u64"
         }
       ]
     },
     {
-      "name": "skip_orphaned_buy_orders",
+      "name": "skipOrphanedBuyOrders",
       "docs": [
         "Skip orphaned buy order accounts (emergency function)"
       ],
@@ -763,7 +769,7 @@
       ],
       "accounts": [
         {
-          "name": "bonding_curve",
+          "name": "bondingCurve",
           "writable": true,
           "pda": {
             "seeds": [
@@ -806,7 +812,7 @@
   ],
   "accounts": [
     {
-      "name": "BondingCurve",
+      "name": "bondingCurve",
       "discriminator": [
         23,
         183,
@@ -819,7 +825,7 @@
       ]
     },
     {
-      "name": "BuyOrder",
+      "name": "buyOrder",
       "discriminator": [
         227,
         11,
@@ -832,7 +838,7 @@
       ]
     },
     {
-      "name": "SellOrder",
+      "name": "sellOrder",
       "discriminator": [
         125,
         28,
@@ -847,7 +853,7 @@
   ],
   "events": [
     {
-      "name": "AtomicBuyEvent",
+      "name": "atomicBuyEvent",
       "discriminator": [
         61,
         41,
@@ -860,7 +866,7 @@
       ]
     },
     {
-      "name": "BuyProcessedEvent",
+      "name": "buyProcessedEvent",
       "discriminator": [
         49,
         249,
@@ -873,7 +879,7 @@
       ]
     },
     {
-      "name": "BuyQueueEvent",
+      "name": "buyQueueEvent",
       "discriminator": [
         91,
         157,
@@ -886,7 +892,7 @@
       ]
     },
     {
-      "name": "DailyBoostEvent",
+      "name": "dailyBoostEvent",
       "discriminator": [
         241,
         202,
@@ -899,7 +905,7 @@
       ]
     },
     {
-      "name": "EmergencyRefundEvent",
+      "name": "emergencyRefundEvent",
       "discriminator": [
         241,
         138,
@@ -912,7 +918,7 @@
       ]
     },
     {
-      "name": "SellProcessedEvent",
+      "name": "sellProcessedEvent",
       "discriminator": [
         253,
         169,
@@ -925,7 +931,7 @@
       ]
     },
     {
-      "name": "SellQueueEvent",
+      "name": "sellQueueEvent",
       "discriminator": [
         176,
         33,
@@ -941,58 +947,58 @@
   "errors": [
     {
       "code": 6000,
-      "name": "MathOverflow",
+      "name": "mathOverflow",
       "msg": "Math overflow"
     },
     {
       "code": 6001,
-      "name": "InsufficientFunds",
+      "name": "insufficientFunds",
       "msg": "Insufficient funds"
     },
     {
       "code": 6002,
-      "name": "InvalidAmount",
+      "name": "invalidAmount",
       "msg": "Invalid amount"
     },
     {
       "code": 6003,
-      "name": "QueueEmpty",
+      "name": "queueEmpty",
       "msg": "Queue is empty"
     },
     {
       "code": 6004,
-      "name": "AmountTooLarge",
+      "name": "amountTooLarge",
       "msg": "Transaction amount too large"
     },
     {
       "code": 6005,
-      "name": "Unauthorized",
+      "name": "unauthorized",
       "msg": "Unauthorized access"
     },
     {
       "code": 6006,
-      "name": "InvalidBuyer",
+      "name": "invalidBuyer",
       "msg": "Invalid buyer address"
     },
     {
       "code": 6007,
-      "name": "RefundNotReady",
+      "name": "refundNotReady",
       "msg": "Transaction not ready for refund"
     },
     {
       "code": 6008,
-      "name": "PriceCalculationFailed",
+      "name": "priceCalculationFailed",
       "msg": "Price calculation failed"
     },
     {
       "code": 6009,
-      "name": "InsufficientLiquidity",
+      "name": "insufficientLiquidity",
       "msg": "Insufficient liquidity"
     }
   ],
   "types": [
     {
-      "name": "AtomicBuyEvent",
+      "name": "atomicBuyEvent",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1001,15 +1007,15 @@
             "type": "pubkey"
           },
           {
-            "name": "usdc_amount",
+            "name": "usdcAmount",
             "type": "u64"
           },
           {
-            "name": "ever_received",
+            "name": "everReceived",
             "type": "u64"
           },
           {
-            "name": "new_price",
+            "name": "newPrice",
             "type": "u64"
           },
           {
@@ -1020,7 +1026,7 @@
       }
     },
     {
-      "name": "BondingCurve",
+      "name": "bondingCurve",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1029,7 +1035,7 @@
             "type": "pubkey"
           },
           {
-            "name": "treasury_wallet",
+            "name": "treasuryWallet",
             "type": "pubkey"
           },
           {
@@ -1045,47 +1051,47 @@
             "type": "u128"
           },
           {
-            "name": "last_daily_boost",
+            "name": "lastDailyBoost",
             "type": "i64"
           },
           {
-            "name": "total_volume_24h",
+            "name": "totalVolume24h",
             "type": "u64"
           },
           {
-            "name": "sell_queue_head",
+            "name": "sellQueueHead",
             "type": "u64"
           },
           {
-            "name": "sell_queue_tail",
+            "name": "sellQueueTail",
             "type": "u64"
           },
           {
-            "name": "buy_queue_head",
+            "name": "buyQueueHead",
             "type": "u64"
           },
           {
-            "name": "buy_queue_tail",
+            "name": "buyQueueTail",
             "type": "u64"
           },
           {
-            "name": "cumulative_bonus",
+            "name": "cumulativeBonus",
             "type": "u64"
           },
           {
-            "name": "current_price",
+            "name": "currentPrice",
             "type": "u64"
           },
           {
-            "name": "last_price_update",
+            "name": "lastPriceUpdate",
             "type": "i64"
           },
           {
-            "name": "daily_boost_applied",
+            "name": "dailyBoostApplied",
             "type": "bool"
           },
           {
-            "name": "circulating_supply",
+            "name": "circulatingSupply",
             "type": "u64"
           },
           {
@@ -1096,7 +1102,7 @@
       }
     },
     {
-      "name": "BuyOrder",
+      "name": "buyOrder",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1105,11 +1111,11 @@
             "type": "pubkey"
           },
           {
-            "name": "usdc_amount",
+            "name": "usdcAmount",
             "type": "u64"
           },
           {
-            "name": "expected_tokens",
+            "name": "expectedTokens",
             "type": "u64"
           },
           {
@@ -1128,7 +1134,7 @@
       }
     },
     {
-      "name": "BuyProcessedEvent",
+      "name": "buyProcessedEvent",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1137,19 +1143,19 @@
             "type": "pubkey"
           },
           {
-            "name": "usdc_amount",
+            "name": "usdcAmount",
             "type": "u64"
           },
           {
-            "name": "ever_tokens",
+            "name": "everTokens",
             "type": "u64"
           },
           {
-            "name": "queue_transactions",
+            "name": "queueTransactions",
             "type": "u64"
           },
           {
-            "name": "reserve_transactions",
+            "name": "reserveTransactions",
             "type": "u64"
           },
           {
@@ -1160,7 +1166,7 @@
       }
     },
     {
-      "name": "BuyQueueEvent",
+      "name": "buyQueueEvent",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1169,15 +1175,15 @@
             "type": "pubkey"
           },
           {
-            "name": "usdc_amount",
+            "name": "usdcAmount",
             "type": "u64"
           },
           {
-            "name": "estimated_tokens",
+            "name": "estimatedTokens",
             "type": "u64"
           },
           {
-            "name": "queue_position",
+            "name": "queuePosition",
             "type": "u64"
           },
           {
@@ -1188,28 +1194,28 @@
       }
     },
     {
-      "name": "DailyBoostEvent",
+      "name": "dailyBoostEvent",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "organic_price",
+            "name": "organicPrice",
             "type": "u64"
           },
           {
-            "name": "minimum_price",
+            "name": "minimumPrice",
             "type": "u64"
           },
           {
-            "name": "final_price",
+            "name": "finalPrice",
             "type": "u64"
           },
           {
-            "name": "days_passed",
+            "name": "daysPassed",
             "type": "i64"
           },
           {
-            "name": "boost_amount",
+            "name": "boostAmount",
             "type": "u64"
           },
           {
@@ -1220,7 +1226,7 @@
       }
     },
     {
-      "name": "EmergencyRefundEvent",
+      "name": "emergencyRefundEvent",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1229,11 +1235,11 @@
             "type": "pubkey"
           },
           {
-            "name": "usdc_amount",
+            "name": "usdcAmount",
             "type": "u64"
           },
           {
-            "name": "time_elapsed",
+            "name": "timeElapsed",
             "type": "i64"
           },
           {
@@ -1244,7 +1250,7 @@
       }
     },
     {
-      "name": "SellOrder",
+      "name": "sellOrder",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1253,15 +1259,15 @@
             "type": "pubkey"
           },
           {
-            "name": "ever_amount",
+            "name": "everAmount",
             "type": "u64"
           },
           {
-            "name": "remaining_amount",
+            "name": "remainingAmount",
             "type": "u64"
           },
           {
-            "name": "locked_price",
+            "name": "lockedPrice",
             "type": "u64"
           },
           {
@@ -1280,7 +1286,7 @@
       }
     },
     {
-      "name": "SellProcessedEvent",
+      "name": "sellProcessedEvent",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1289,19 +1295,19 @@
             "type": "pubkey"
           },
           {
-            "name": "ever_amount",
+            "name": "everAmount",
             "type": "u64"
           },
           {
-            "name": "usdc_amount",
+            "name": "usdcAmount",
             "type": "u64"
           },
           {
-            "name": "locked_price",
+            "name": "lockedPrice",
             "type": "u64"
           },
           {
-            "name": "processing_type",
+            "name": "processingType",
             "type": "u8"
           },
           {
@@ -1312,7 +1318,7 @@
       }
     },
     {
-      "name": "SellQueueEvent",
+      "name": "sellQueueEvent",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1321,15 +1327,15 @@
             "type": "pubkey"
           },
           {
-            "name": "ever_amount",
+            "name": "everAmount",
             "type": "u64"
           },
           {
-            "name": "locked_price",
+            "name": "lockedPrice",
             "type": "u64"
           },
           {
-            "name": "queue_position",
+            "name": "queuePosition",
             "type": "u64"
           },
           {
@@ -1340,4 +1346,4 @@
       }
     }
   ]
-}
+};
