@@ -9,7 +9,7 @@ export default function DocsPage() {
     setSelectedLanguage(languageCode);
   };
 
-  const translations = {
+  const getTranslations = (lang: string) => ({
     en: {
       title: 'EverRise Documentation',
       subtitle: 'Learn about the revolutionary unhaggleable price asset',
@@ -17,7 +17,7 @@ export default function DocsPage() {
         title: 'EverRise Litepaper',
         description: 'Read our comprehensive litepaper to understand the core mechanics, pricing formula, and vision of EverRise.',
         downloadText: 'Read Online',
-        downloadLink: `/litepaper/${selectedLanguage}`
+        downloadLink: `/litepaper/${lang}`
       },
       videos: {
         title: 'Educational Videos',
@@ -82,7 +82,7 @@ export default function DocsPage() {
         title: 'EverRise 白皮书',
         description: '阅读我们的综合白皮书，了解 EverRise 的核心机制、定价公式和愿景。',
         downloadText: '在线阅读',
-        downloadLink: `/litepaper/${selectedLanguage}`
+        downloadLink: `/litepaper/${lang}`
       },
       videos: {
         title: '教育视频',
@@ -147,7 +147,7 @@ export default function DocsPage() {
         title: 'EverRise लाइटपेपर',
         description: 'EverRise के मूल यांत्रिकी, मूल्य निर्धारण सूत्र और दृष्टि को समझने के लिए हमारा व्यापक लाइटपेपर पढ़ें।',
         downloadText: 'ऑनलाइन पढ़ें',
-        downloadLink: `/litepaper/${selectedLanguage}`
+        downloadLink: `/litepaper/${lang}`
       },
       videos: {
         title: 'शैक्षिक वीडियो',
@@ -212,7 +212,7 @@ export default function DocsPage() {
         title: 'Litepaper de EverRise',
         description: 'Lee nuestro litepaper completo para entender la mecánica central, fórmula de precios y visión de EverRise.',
         downloadText: 'Leer en línea',
-        downloadLink: `/litepaper/${selectedLanguage}`
+        downloadLink: `/litepaper/${lang}`
       },
       videos: {
         title: 'Videos Educativos',
@@ -277,7 +277,7 @@ export default function DocsPage() {
         title: 'ورقة EverRise البيضاء',
         description: 'اقرأ ورقتنا البيضاء الشاملة لفهم الآليات الأساسية وصيغة التسعير ورؤية EverRise.',
         downloadText: 'اقرأ عبر الإنترنت',
-        downloadLink: `/litepaper/${selectedLanguage}`
+        downloadLink: `/litepaper/${lang}`
       },
       videos: {
         title: 'الفيديوهات التعليمية',
@@ -342,7 +342,7 @@ export default function DocsPage() {
         title: 'Livre blanc EverRise',
         description: 'Lisez notre livre blanc complet pour comprendre les mécanismes centraux, la formule de prix et la vision d\'EverRise.',
         downloadText: 'Lire en ligne',
-        downloadLink: `/litepaper/${selectedLanguage}`
+        downloadLink: `/litepaper/${lang}`
       },
       videos: {
         title: 'Vidéos éducatives',
@@ -400,9 +400,9 @@ export default function DocsPage() {
         }
       }
     }
-  };
+  });
 
-  const currentLang = translations[selectedLanguage as keyof typeof translations] || translations.en;
+  const currentLang = getTranslations(selectedLanguage)[selectedLanguage as keyof ReturnType<typeof getTranslations>] || getTranslations('en').en;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
