@@ -52,12 +52,25 @@ Definiciones de Variables:
 • P(Y): Precio actual en USDC.
 
 Cálculo de Precio Orgánico:
-El precio base se calcula como: P(Y) = X / Y
+El precio base se calcula usando la siguiente fórmula:
 
-Esto proporciona una línea base que sube a medida que las reservas disminuyen, asegurando apreciación de precio perpetua.
+![Fórmula de Precio Orgánico](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8dGV4dCB4PSIyMDAiIHk9IjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMwMDAiPk1hdGhlbWF0aWNhbCBGb3JtdWxhPC90ZXh0Pgo8L3N2Zz4K)
+
+P_organic(Y) = (X / Y) + Σ_{i=1 to n} [(0.001 × V_i) / ((X_i / Y_i) × SC_i)]
+
+Donde:
+- El primer término (X / Y) proporciona una línea base que sube a medida que las reservas disminuyen
+- La sumatoria añade bonificaciones permanentes de compras basadas en cola
+- Cada compra histórica de cola i contribuye una bonificación escalada por volumen y normalizada por precio y suministro circulante
 
 Impulso Mínimo Diario:
-Para garantizar al menos 0.02% de crecimiento por período de 24 horas, el sistema aplica un impulso diario si el crecimiento orgánico cae por debajo de este umbral. Este impulso es temporal y no compuesto, reiniciándose cada día.`
+Para garantizar al menos 0.02% de crecimiento por período de 24 horas, el sistema aplica un impulso diario si el crecimiento orgánico cae por debajo de este umbral:
+
+![Fórmula de Impulso Diario](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8dGV4dCB4PSIyMDAiIHk9IjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMwMDAiPkRhaWx5IEJvb3N0IEZvcm11bGE8L3RleHQ+Cjwvc3ZnPgo)
+
+P(Y) = P_organic(Y) × (1 + (0.0002 - OrganicGrowth))
+
+Este impulso es temporal y no compuesto, reiniciándose cada día.`
     },
     {
       id: 'affiliate-program',
