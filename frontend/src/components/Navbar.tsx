@@ -76,9 +76,6 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
             <a href="#trading" className="text-gray-600 hover:text-gray-900 transition-colors">
               Trading
             </a>
-            <a href="#analytics" className="text-gray-600 hover:text-gray-900 transition-colors">
-              Analytics
-            </a>
             <a href="#docs" className="text-gray-600 hover:text-gray-900 transition-colors">
               Docs
             </a>
@@ -194,9 +191,6 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
             <div className="space-y-4">
               <a href="#trading" className="block text-gray-600 hover:text-gray-900 transition-colors">
                 Trading
-              </a>
-              <a href="#analytics" className="block text-gray-600 hover:text-gray-900 transition-colors">
-                Analytics
               </a>
               <a href="#docs" className="block text-gray-600 hover:text-gray-900 transition-colors">
                 Docs
