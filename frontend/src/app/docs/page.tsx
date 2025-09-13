@@ -26,7 +26,7 @@ export default function DocsPage() {
           {
             title: 'Introduction to EverRise',
             description: 'Learn the basics of EverRise and why it represents a new paradigm in digital assets',
-            videoId: 'PLACEHOLDER_VIDEO_ID_1',
+            videoId: 'js4fexx_Lec',
             duration: '5:30'
           },
           {
@@ -91,7 +91,7 @@ export default function DocsPage() {
           {
             title: 'EverRise 介绍',
             description: '学习 EverRise 的基础知识以及它为什么代表数字资产的新范式',
-            videoId: 'PLACEHOLDER_VIDEO_ID_1_ZH',
+            videoId: 'js4fexx_Lec',
             duration: '5:30'
           },
           {
@@ -156,7 +156,7 @@ export default function DocsPage() {
           {
             title: 'EverRise का परिचय',
             description: 'EverRise की मूल बातें सीखें और यह डिजिटल संपत्ति में एक नया प्रतिमान क्यों है',
-            videoId: 'PLACEHOLDER_VIDEO_ID_1_HI',
+            videoId: 'js4fexx_Lec',
             duration: '5:30'
           },
           {
@@ -221,7 +221,7 @@ export default function DocsPage() {
           {
             title: 'Introducción a EverRise',
             description: 'Aprende los conceptos básicos de EverRise y por qué representa un nuevo paradigma en activos digitales',
-            videoId: 'PLACEHOLDER_VIDEO_ID_1_ES',
+            videoId: 'js4fexx_Lec',
             duration: '5:30'
           },
           {
@@ -286,7 +286,7 @@ export default function DocsPage() {
           {
             title: 'مقدمة في EverRise',
             description: 'تعلم أساسيات EverRise ولماذا يمثل نموذجًا جديدًا في الأصول الرقمية',
-            videoId: 'PLACEHOLDER_VIDEO_ID_1_AR',
+            videoId: 'js4fexx_Lec',
             duration: '5:30'
           },
           {
@@ -351,7 +351,7 @@ export default function DocsPage() {
           {
             title: 'Introduction à EverRise',
             description: 'Apprenez les bases d\'EverRise et pourquoi il représente un nouveau paradigme dans les actifs numériques',
-            videoId: 'PLACEHOLDER_VIDEO_ID_1_FR',
+            videoId: 'js4fexx_Lec',
             duration: '5:30'
           },
           {
@@ -413,7 +413,7 @@ export default function DocsPage() {
         title: 'শিক্ষামূলক ভিডিও',
         description: 'EverRise ধারণা এবং যান্ত্রিকতা ব্যাখ্যা করে আমাদের ভিডিও সিরিজ দেখুন',
         items: [
-          { title: 'EverRise পরিচিতি', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'EverRise পরিচিতি', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'মূল্য নির্ধারণ সূত্র', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'অনুমোদিত বিপণন প্রোগ্রাম', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'ভবিষ্যতের পরিকল্পনা', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -458,7 +458,7 @@ export default function DocsPage() {
         title: 'Vídeos Educacionais',
         description: 'Assista nossa série de vídeos explicando conceitos e mecânicas do EverRise',
         items: [
-          { title: 'Introdução ao EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Introdução ao EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'Fórmula de Preço', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'Programa de Afiliados', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Planos Futuros', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -503,7 +503,7 @@ export default function DocsPage() {
         title: 'Обучающие Видео',
         description: 'Посмотрите нашу серию видео, объясняющих концепции и механики EverRise',
         items: [
-          { title: 'Введение в EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Введение в EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'Формула Ценообразования', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'Партнерская Программа', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Будущие Планы', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -548,7 +548,7 @@ export default function DocsPage() {
         title: 'Video Edukasi',
         description: 'Tonton seri video kami yang menjelaskan konsep dan mekanika EverRise',
         items: [
-          { title: 'Pengenalan EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Pengenalan EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'Rumus Harga', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'Program Afiliasi', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Rencana Masa Depan', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -593,7 +593,7 @@ export default function DocsPage() {
         title: 'تعلیمی ویڈیوز',
         description: 'EverRise تصورات اور میکانیات کی وضاحت کرنے والی ہماری ویڈیو سیریز دیکھیں',
         items: [
-          { title: 'EverRise کا تعارف', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'EverRise کا تعارف', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'قیمت کا فارمولا', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'ایفیلی ایٹ پروگرام', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'مستقبل کے منصوبے', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -638,7 +638,7 @@ export default function DocsPage() {
         title: 'Bildungsvideos',
         description: 'Schauen Sie sich unsere Videoserie an, die EverRise-Konzepte und -Mechaniken erklärt',
         items: [
-          { title: 'EverRise Einführung', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'EverRise Einführung', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'Preisformel', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'Affiliate-Programm', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Zukunftspläne', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -683,7 +683,7 @@ export default function DocsPage() {
         title: '教育ビデオ',
         description: 'EverRiseの概念とメカニクスを説明するビデオシリーズをご覧ください',
         items: [
-          { title: 'EverRise紹介', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'EverRise紹介', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: '価格公式', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'アフィリエイトプログラム', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: '将来の計画', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -728,7 +728,7 @@ export default function DocsPage() {
         title: 'Educational Videos',
         description: 'Watch our video series explaining EverRise concepts and mechanics',
         items: [
-          { title: 'EverRise Introduction', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'EverRise Introduction', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'Pricing Formula', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'Affiliate Program', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Future Plans', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -773,7 +773,7 @@ export default function DocsPage() {
         title: 'فيديوهات تعليمية',
         description: 'شاهد سلسلة الفيديوهات الخاصة بنا التي تشرح مفاهيم وآليات EverRise',
         items: [
-          { title: 'مقدمة EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'مقدمة EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'صيغة التسعير', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'برنامج الشراكة', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'الخطط المستقبلية', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -818,7 +818,7 @@ export default function DocsPage() {
         title: 'शैक्षणिक व्हिडिओ',
         description: 'EverRise संकल्पना आणि यंत्रणा स्पष्ट करणारी आमची व्हिडिओ मालिका पहा',
         items: [
-          { title: 'EverRise परिचय', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'EverRise परिचय', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'किंमत सूत्र', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'संलग्न कार्यक्रम', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'भविष्यातील योजना', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -863,7 +863,7 @@ export default function DocsPage() {
         title: 'Video Giáo dục',
         description: 'Xem loạt video của chúng tôi giải thích các khái niệm và cơ chế EverRise',
         items: [
-          { title: 'Giới thiệu EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Giới thiệu EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'Công thức Giá', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'Chương trình Tiếp thị Liên kết', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Kế hoạch Tương lai', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -908,7 +908,7 @@ export default function DocsPage() {
         title: 'విద్యాపరమైన వీడియోలు',
         description: 'EverRise భావనలు మరియు మెకానిక్స్‌ను వివరించే మా వీడియో సిరీస్ చూడండి',
         items: [
-          { title: 'EverRise పరిచయం', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'EverRise పరిచయం', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'ధర సూత్రం', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'అనుబంధ కార్యక్రమం', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'భవిష్యత్ ప్రణాళికలు', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -953,7 +953,7 @@ export default function DocsPage() {
         title: 'Bidiyoyin Ilimi',
         description: 'Kalli jerin bidiyon mu wanda ke bayyana ra\'ayoyin da hanyoyin aiki na EverRise',
         items: [
-          { title: 'Gabatarwar EverRise', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'Gabatarwar EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'Tsarin Farashi', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'Shirin Hadin Kai', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Shirye-shiryen Gaba', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
@@ -998,7 +998,7 @@ export default function DocsPage() {
         title: 'Eğitim Videoları',
         description: 'EverRise kavramlarını ve mekaniklerini açıklayan video serimizi izleyin',
         items: [
-          { title: 'EverRise Giriş', videoId: 'PLACEHOLDER_VIDEO_ID_1', duration: '5:30' },
+          { title: 'EverRise Giriş', videoId: 'js4fexx_Lec', duration: '5:30' },
           { title: 'Fiyat Formülü', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
           { title: 'Bağlı Pazarlama Programı', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Gelecek Planları', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
