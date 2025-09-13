@@ -1099,20 +1099,25 @@ export default function DocsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {currentLang.videos.items.map((video, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg p-6">
-                <div className="aspect-video bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                      <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                    </div>
-                    <p className="text-sm text-gray-600">YouTube Video</p>
-                    <p className="text-xs text-gray-500">{video.duration}</p>
-                  </div>
-                </div>
+              <div key={index} className="bg-white rounded-lg shadow-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{video.title}</h3>
-                <p className="text-gray-600 text-sm">{(video as any).description || ''}</p>
+                <p className="text-gray-600 text-sm mb-4">{(video as any).description || ''}</p>
+                
+                {/* Embedded YouTube Video */}
+                <div className="aspect-video rounded-lg overflow-hidden mb-4">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={`https://www.youtube.com/embed/${video.videoId}`}
+                    title={video.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="w-full h-full"
+                  ></iframe>
+                </div>
+                
+                {/* Special note for Phantom wallet video */}
                 {video.videoId === 'bStvWbUdsMw' && (
                   <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
                     <p className="text-sm text-blue-800">
@@ -1120,19 +1125,6 @@ export default function DocsPage() {
                     </p>
                   </div>
                 )}
-                <div className="mt-4">
-                  <a
-                    href={`https://www.youtube.com/watch?v=${video.videoId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    Watch on YouTube
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                </div>
               </div>
             ))}
           </div>
