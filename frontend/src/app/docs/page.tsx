@@ -30,9 +30,9 @@ export default function DocsPage() {
             duration: '5:30'
           },
           {
-            title: 'Understanding the Bonding Curve',
-            description: 'Deep dive into how the bonding curve ensures perpetual price appreciation',
-            videoId: 'PLACEHOLDER_VIDEO_ID_2',
+            title: 'How to Install Phantom Wallet',
+            description: 'Step-by-step guide to installing and setting up Phantom wallet for Solana transactions',
+            videoId: 'bStvWbUdsMw',
             duration: '8:15'
           },
           {
@@ -95,9 +95,9 @@ export default function DocsPage() {
             duration: '5:30'
           },
           {
-            title: '理解债券曲线',
-            description: '深入了解债券曲线如何确保永续价格升值',
-            videoId: 'PLACEHOLDER_VIDEO_ID_2_ZH',
+            title: '如何安装 Phantom 钱包',
+            description: '安装和设置 Phantom 钱包进行 Solana 交易的逐步指南',
+            videoId: 'bStvWbUdsMw',
             duration: '8:15'
           },
           {
@@ -162,7 +162,7 @@ export default function DocsPage() {
           {
             title: 'बॉन्डिंग कर्व को समझना',
             description: 'गहराई से जानें कि बॉन्डिंग कर्व कैसे सतत मूल्य वृद्धि सुनिश्चित करता है',
-            videoId: 'PLACEHOLDER_VIDEO_ID_2_HI',
+            videoId: 'bStvWbUdsMw',
             duration: '8:15'
           },
           {
@@ -227,7 +227,7 @@ export default function DocsPage() {
           {
             title: 'Entendiendo la Curva de Enlace',
             description: 'Análisis profundo de cómo la curva de enlace asegura la apreciación perpetua del precio',
-            videoId: 'PLACEHOLDER_VIDEO_ID_2_ES',
+            videoId: 'bStvWbUdsMw',
             duration: '8:15'
           },
           {
@@ -292,7 +292,7 @@ export default function DocsPage() {
           {
             title: 'فهم منحنى الترابط',
             description: 'غوص عميق في كيفية ضمان منحنى الترابط للارتفاع المستمر في الأسعار',
-            videoId: 'PLACEHOLDER_VIDEO_ID_2_AR',
+            videoId: 'bStvWbUdsMw',
             duration: '8:15'
           },
           {
@@ -357,7 +357,7 @@ export default function DocsPage() {
           {
             title: 'Comprendre la courbe de liaison',
             description: 'Plongée profonde dans la façon dont la courbe de liaison assure l\'appréciation perpétuelle des prix',
-            videoId: 'PLACEHOLDER_VIDEO_ID_2_FR',
+            videoId: 'bStvWbUdsMw',
             duration: '8:15'
           },
           {
@@ -414,7 +414,7 @@ export default function DocsPage() {
         description: 'EverRise ধারণা এবং যান্ত্রিকতা ব্যাখ্যা করে আমাদের ভিডিও সিরিজ দেখুন',
         items: [
           { title: 'EverRise পরিচিতি', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'মূল্য নির্ধারণ সূত্র', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Phantom ওয়ালেট ইনস্টল করার方法', videoId: 'bStvWbUdsMw', duration: '8:15' },
           { title: 'অনুমোদিত বিপণন প্রোগ্রাম', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'ভবিষ্যতের পরিকল্পনা', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -459,7 +459,7 @@ export default function DocsPage() {
         description: 'Assista nossa série de vídeos explicando conceitos e mecânicas do EverRise',
         items: [
           { title: 'Introdução ao EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'Fórmula de Preço', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Como Instalar Phantom Wallet', videoId: 'bStvWbUdsMw', duration: '8:15' },
           { title: 'Programa de Afiliados', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Planos Futuros', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -504,7 +504,7 @@ export default function DocsPage() {
         description: 'Посмотрите нашу серию видео, объясняющих концепции и механики EverRise',
         items: [
           { title: 'Введение в EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'Формула Ценообразования', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Как Установить Phantom Кошелек', videoId: 'bStvWbUdsMw', duration: '8:15' },
           { title: 'Партнерская Программа', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Будущие Планы', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -549,7 +549,7 @@ export default function DocsPage() {
         description: 'Tonton seri video kami yang menjelaskan konsep dan mekanika EverRise',
         items: [
           { title: 'Pengenalan EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'Rumus Harga', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Rumus Harga', videoId: 'bStvWbUdsMw', duration: '8:45' },
           { title: 'Program Afiliasi', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Rencana Masa Depan', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -594,7 +594,7 @@ export default function DocsPage() {
         description: 'EverRise تصورات اور میکانیات کی وضاحت کرنے والی ہماری ویڈیو سیریز دیکھیں',
         items: [
           { title: 'EverRise کا تعارف', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'قیمت کا فارمولا', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'قیمت کا فارمولا', videoId: 'bStvWbUdsMw', duration: '8:45' },
           { title: 'ایفیلی ایٹ پروگرام', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'مستقبل کے منصوبے', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -639,7 +639,7 @@ export default function DocsPage() {
         description: 'Schauen Sie sich unsere Videoserie an, die EverRise-Konzepte und -Mechaniken erklärt',
         items: [
           { title: 'EverRise Einführung', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'Preisformel', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Phantom Wallet Installieren', videoId: 'bStvWbUdsMw', duration: '8:15' },
           { title: 'Affiliate-Programm', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Zukunftspläne', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -684,7 +684,7 @@ export default function DocsPage() {
         description: 'EverRiseの概念とメカニクスを説明するビデオシリーズをご覧ください',
         items: [
           { title: 'EverRise紹介', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: '価格公式', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Phantomウォレットのインストール方法', videoId: 'bStvWbUdsMw', duration: '8:15' },
           { title: 'アフィリエイトプログラム', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: '将来の計画', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -729,7 +729,7 @@ export default function DocsPage() {
         description: 'Watch our video series explaining EverRise concepts and mechanics',
         items: [
           { title: 'EverRise Introduction', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'Pricing Formula', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'How to Install Phantom Wallet', videoId: 'bStvWbUdsMw', duration: '8:15' },
           { title: 'Affiliate Program', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Future Plans', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -774,7 +774,7 @@ export default function DocsPage() {
         description: 'شاهد سلسلة الفيديوهات الخاصة بنا التي تشرح مفاهيم وآليات EverRise',
         items: [
           { title: 'مقدمة EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'صيغة التسعير', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'صيغة التسعير', videoId: 'bStvWbUdsMw', duration: '8:45' },
           { title: 'برنامج الشراكة', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'الخطط المستقبلية', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -819,7 +819,7 @@ export default function DocsPage() {
         description: 'EverRise संकल्पना आणि यंत्रणा स्पष्ट करणारी आमची व्हिडिओ मालिका पहा',
         items: [
           { title: 'EverRise परिचय', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'किंमत सूत्र', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'किंमत सूत्र', videoId: 'bStvWbUdsMw', duration: '8:45' },
           { title: 'संलग्न कार्यक्रम', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'भविष्यातील योजना', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -864,7 +864,7 @@ export default function DocsPage() {
         description: 'Xem loạt video của chúng tôi giải thích các khái niệm và cơ chế EverRise',
         items: [
           { title: 'Giới thiệu EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'Công thức Giá', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Công thức Giá', videoId: 'bStvWbUdsMw', duration: '8:45' },
           { title: 'Chương trình Tiếp thị Liên kết', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Kế hoạch Tương lai', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -909,7 +909,7 @@ export default function DocsPage() {
         description: 'EverRise భావనలు మరియు మెకానిక్స్‌ను వివరించే మా వీడియో సిరీస్ చూడండి',
         items: [
           { title: 'EverRise పరిచయం', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'ధర సూత్రం', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'ధర సూత్రం', videoId: 'bStvWbUdsMw', duration: '8:45' },
           { title: 'అనుబంధ కార్యక్రమం', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'భవిష్యత్ ప్రణాళికలు', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -954,7 +954,7 @@ export default function DocsPage() {
         description: 'Kalli jerin bidiyon mu wanda ke bayyana ra\'ayoyin da hanyoyin aiki na EverRise',
         items: [
           { title: 'Gabatarwar EverRise', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'Tsarin Farashi', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Tsarin Farashi', videoId: 'bStvWbUdsMw', duration: '8:45' },
           { title: 'Shirin Hadin Kai', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Shirye-shiryen Gaba', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -999,7 +999,7 @@ export default function DocsPage() {
         description: 'EverRise kavramlarını ve mekaniklerini açıklayan video serimizi izleyin',
         items: [
           { title: 'EverRise Giriş', videoId: 'js4fexx_Lec', duration: '5:30' },
-          { title: 'Fiyat Formülü', videoId: 'PLACEHOLDER_VIDEO_ID_2', duration: '8:45' },
+          { title: 'Fiyat Formülü', videoId: 'bStvWbUdsMw', duration: '8:45' },
           { title: 'Bağlı Pazarlama Programı', videoId: 'PLACEHOLDER_VIDEO_ID_3', duration: '6:20' },
           { title: 'Gelecek Planları', videoId: 'PLACEHOLDER_VIDEO_ID_4', duration: '10:20' }
         ]
@@ -1113,6 +1113,13 @@ export default function DocsPage() {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{video.title}</h3>
                 <p className="text-gray-600 text-sm">{(video as any).description || ''}</p>
+                {video.videoId === 'bStvWbUdsMw' && (
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-sm text-blue-800">
+                      <strong>💡 Important:</strong> After installing Phantom wallet, you'll need to purchase a few dollars worth of Solana (SOL) for transaction fees and the rest in USDC (USD Coin) which will be used to purchase EverRise tokens. You can buy these cryptocurrencies on exchanges like Coinbase, Binance, or directly through Phantom's built-in swap feature.
+                    </p>
+                  </div>
+                )}
                 <div className="mt-4">
                   <a
                     href={`https://www.youtube.com/watch?v=${video.videoId}`}
