@@ -294,7 +294,8 @@
           "writable": true
         },
         {
-          "name": "sell_order"
+          "name": "sell_order",
+          "writable": true
         },
         {
           "name": "seller_usdc_account",

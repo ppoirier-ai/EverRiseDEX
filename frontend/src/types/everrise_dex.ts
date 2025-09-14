@@ -300,7 +300,8 @@ export type EverriseDex = {
           "writable": true
         },
         {
-          "name": "sellOrder"
+          "name": "sellOrder",
+          "writable": true
         },
         {
           "name": "sellerUsdcAccount",

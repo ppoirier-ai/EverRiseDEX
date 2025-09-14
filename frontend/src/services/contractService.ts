@@ -373,15 +373,26 @@ export class ContractService {
         console.log(`  ${index}: ${key.pubkey.toString()} - writable: ${key.isWritable}, signer: ${key.isSigner}`);
       });
       
-      // Explicitly mark seller's USDC account as writable if it's not a dummy account
+      // Explicitly mark seller's USDC account and sell order as writable if they're not dummy accounts
       if (sellerUsdcAccount.toString() !== '11111111111111111111111111111111') {
-        const accountIndex = instruction.keys.findIndex(key => key.pubkey.equals(sellerUsdcAccount));
-        console.log('🔍 Seller USDC account index:', accountIndex);
-        if (accountIndex !== -1) {
-          instruction.keys[accountIndex].isWritable = true;
+        const sellerAccountIndex = instruction.keys.findIndex(key => key.pubkey.equals(sellerUsdcAccount));
+        console.log('🔍 Seller USDC account index:', sellerAccountIndex);
+        if (sellerAccountIndex !== -1) {
+          instruction.keys[sellerAccountIndex].isWritable = true;
           console.log('🔍 Marked seller USDC account as writable');
         } else {
           console.log('🔍 Seller USDC account not found in instruction keys');
+        }
+      }
+      
+      if (sellOrderPDA.toString() !== '11111111111111111111111111111111') {
+        const sellOrderIndex = instruction.keys.findIndex(key => key.pubkey.equals(sellOrderPDA));
+        console.log('🔍 Sell order account index:', sellOrderIndex);
+        if (sellOrderIndex !== -1) {
+          instruction.keys[sellOrderIndex].isWritable = true;
+          console.log('🔍 Marked sell order account as writable');
+        } else {
+          console.log('🔍 Sell order account not found in instruction keys');
         }
       }
       
