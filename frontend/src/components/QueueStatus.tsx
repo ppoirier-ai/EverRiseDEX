@@ -38,7 +38,7 @@ export const QueueStatus: React.FC<QueueStatusProps> = ({
     setIsLoading(true);
     try {
       const orders = await contractService.getAllSellOrders();
-      const formattedOrders: SaleOrder[] = orders.map((order, index) => ({
+      const formattedOrders: SaleOrder[] = orders.map((order: any, index) => ({
         orderNumber: index + 1,
         seller: order.seller.toString(),
         quantity: parseInt(order.remaining_amount?.toString() || order.remainingAmount?.toString() || '0') / 1_000_000_000, // Convert from 9 decimals - use remaining amount, not original
