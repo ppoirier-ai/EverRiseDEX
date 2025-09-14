@@ -352,6 +352,14 @@ export class ContractService {
       const { Transaction } = await import('@solana/web3.js');
       const transaction = new Transaction().add(instruction);
       
+      // Explicitly mark seller's USDC account as writable if it's not a dummy account
+      if (sellerUsdcAccount.toString() !== '11111111111111111111111111111111') {
+        const accountIndex = instruction.keys.findIndex(key => key.pubkey.equals(sellerUsdcAccount));
+        if (accountIndex !== -1) {
+          instruction.keys[accountIndex].isWritable = true;
+        }
+      }
+      
       return await this.sendTransaction(transaction);
     } catch (error) {
       console.error('Error in buyTokens:', error);
