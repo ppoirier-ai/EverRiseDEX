@@ -111,8 +111,9 @@ This model draws from advancements in decentralized finance while providing a un
 export default function EnglishLitepaper() {
   return (
     <LitepaperLayout 
-      language="English" 
-      content={litepaperContent} 
+      title={litepaperContent.title}
+      sections={litepaperContent.sections}
+      languageCode="English"
     />
   );
 }

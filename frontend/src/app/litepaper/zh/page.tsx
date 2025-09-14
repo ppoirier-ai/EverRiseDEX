@@ -111,8 +111,9 @@ EverRise ($EVER) 作为一种创新替代方案出现——一种为永续上升
 export default function ChineseLitepaper() {
   return (
     <LitepaperLayout 
-      language="普通话" 
-      content={litepaperContent} 
+      title={litepaperContent.title}
+      sections={litepaperContent.sections}
+      languageCode="普通话"
     />
   );
 }

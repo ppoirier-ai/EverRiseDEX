@@ -111,8 +111,9 @@ Ce modèle s'inspire des avancées en finance décentralisée tout en fournissan
 export default function FrenchLitepaper() {
   return (
     <LitepaperLayout 
-      language="Français" 
-      content={litepaperContent} 
+      title={litepaperContent.title}
+      sections={litepaperContent.sections}
+      languageCode="Français"
     />
   );
 }

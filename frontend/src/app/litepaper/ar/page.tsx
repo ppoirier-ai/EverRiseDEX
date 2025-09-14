@@ -111,8 +111,9 @@ const litepaperContent = {
 export default function ArabicLitepaper() {
   return (
     <LitepaperLayout 
-      language="العربية" 
-      content={litepaperContent} 
+      title={litepaperContent.title}
+      sections={litepaperContent.sections}
+      languageCode="العربية"
     />
   );
 }

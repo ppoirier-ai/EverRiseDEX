@@ -111,8 +111,9 @@ EverRise ($EVER) एक नवाचारी विकल्प के रू�
 export default function HindiLitepaper() {
   return (
     <LitepaperLayout 
-      language="हिंदी" 
-      content={litepaperContent} 
+      title={litepaperContent.title}
+      sections={litepaperContent.sections}
+      languageCode="हिंदी"
     />
   );
 }

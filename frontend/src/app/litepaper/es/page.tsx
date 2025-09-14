@@ -111,8 +111,9 @@ Este modelo se basa en avances en finanzas descentralizadas mientras proporciona
 export default function SpanishLitepaper() {
   return (
     <LitepaperLayout 
-      language="Español" 
-      content={litepaperContent} 
+      title={litepaperContent.title}
+      sections={litepaperContent.sections}
+      languageCode="Español"
     />
   );
 }
