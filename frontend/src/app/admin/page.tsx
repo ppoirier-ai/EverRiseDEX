@@ -116,7 +116,6 @@ export default function AdminPage() {
             <p>Connection Object: {connection ? '✅ Available' : '❌ No'}</p>
             <p>Is Initializing: {isInitializing ? '⏳ Yes' : '✅ No'}</p>
             <p>Public Key Value: {walletContext.publicKey?.toString() || 'None'}</p>
-            <p>Wallet Public Key: {walletContext.wallet?.publicKey?.toString() || 'None'}</p>
             <div className="mt-2">
               <button
                 onClick={() => {
