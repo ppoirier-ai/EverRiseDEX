@@ -1,8 +1,7 @@
 import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
-import { PublicKey, Connection } from '@solana/web3.js';
+import { PublicKey, Connection, Transaction } from '@solana/web3.js';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import IDL from '../everrise_dex.json';
-import { SolanaTransaction } from '@solana/web3.js';
 
 // Contract configuration
 export const PROGRAM_ID = new PublicKey('9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy');
@@ -664,7 +663,7 @@ export class ContractService {
   }
 
   // A helper function to send transactions
-  private async sendTransaction(transaction: SolanaTransaction): Promise<string> {
+  private async sendTransaction(transaction: Transaction): Promise<string> {
     const { blockhash } = await this.connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = this.wallet.publicKey!;
