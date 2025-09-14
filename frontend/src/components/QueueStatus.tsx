@@ -14,18 +14,12 @@ interface SaleOrder {
 
 interface QueueStatusProps {
   sellQueueLength: number;
-  averageWaitTime: number;
-  lastProcessedTime: number;
-  queueVolume: number;
   contractService: ContractService | null;
   refreshTrigger?: number; // Optional trigger to force refresh
 }
 
 export const QueueStatus: React.FC<QueueStatusProps> = ({
   sellQueueLength,
-  // averageWaitTime,
-  // lastProcessedTime,
-  // queueVolume,
   contractService,
   refreshTrigger,
 }) => {

@@ -184,9 +184,6 @@ export default function Home() {
           <div>
             <QueueStatus
               sellQueueLength={sellQueueLength}
-              averageWaitTime={averageWaitTime}
-              lastProcessedTime={lastProcessedTime}
-              queueVolume={queueVolume}
               contractService={contractService}
               refreshTrigger={queueRefreshTrigger}
             />
