@@ -110,25 +110,25 @@ export default function AdminPage() {
           <div className="mt-4 p-4 bg-gray-100 rounded-lg text-sm">
             <h3 className="font-semibold mb-2">Debug Info:</h3>
             <p>Contract Service: {contractService ? '✅ Available' : '❌ Not Available'}</p>
-            <p>Wallet Connected: {connected ? '✅ Yes' : '❌ No'}</p>
-            <p>Public Key: {publicKey ? '✅ Available' : '❌ Not Available'}</p>
-            <p>Wallet Object: {wallet ? '✅ Available' : '❌ No'}</p>
+            <p>Wallet Connected: {walletContext.connected ? '✅ Yes' : '❌ No'}</p>
+            <p>Public Key: {walletContext.publicKey ? '✅ Available' : '❌ Not Available'}</p>
+            <p>Wallet Object: {walletContext.wallet ? '✅ Available' : '❌ No'}</p>
             <p>Connection Object: {connection ? '✅ Available' : '❌ No'}</p>
             <p>Is Initializing: {isInitializing ? '⏳ Yes' : '✅ No'}</p>
-            <p>Public Key Value: {publicKey?.toString() || 'None'}</p>
-            <p>Wallet Public Key: {wallet?.publicKey?.toString() || 'None'}</p>
+            <p>Public Key Value: {walletContext.publicKey?.toString() || 'None'}</p>
+            <p>Wallet Public Key: {walletContext.wallet?.publicKey?.toString() || 'None'}</p>
             <div className="mt-2">
               <button
                 onClick={() => {
                   console.log('Manual test - trying to create ContractService');
                   console.log('Connection:', connection);
-                  console.log('Wallet:', wallet);
-                  console.log('Connected:', connected);
-                  console.log('PublicKey:', publicKey);
+                  console.log('Wallet Context:', walletContext);
+                  console.log('Connected:', walletContext.connected);
+                  console.log('PublicKey:', walletContext.publicKey);
                   
-                  if (connection && wallet && connected && publicKey) {
+                  if (connection && walletContext.wallet && walletContext.connected && walletContext.publicKey) {
                     try {
-                      const service = new ContractService(connection, wallet);
+                      const service = new ContractService(connection, walletContext);
                       console.log('Manual creation successful:', service);
                       setContractService(service);
                     } catch (error) {
