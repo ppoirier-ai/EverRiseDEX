@@ -279,44 +279,41 @@ export class ContractService {
         throw new Error('Failed to fetch bonding curve data');
       }
 
-      // TEMPORARILY DISABLE SELL ORDER PROCESSING TO TEST REGULAR BUY
       // Always provide dummy accounts (Anchor requires all accounts to be provided)
       let sellOrderPDA = new PublicKey('11111111111111111111111111111111'); // SystemProgram.programId
       let sellerUsdcAccount = new PublicKey('11111111111111111111111111111111'); // SystemProgram.programId
 
-      console.log('🔍 TEMPORARILY DISABLED SELL ORDER PROCESSING - USING DUMMY ACCOUNTS');
-      console.log('🔍 Sell queue head:', bondingCurveData.sellQueueHead);
-      console.log('🔍 Sell queue tail:', bondingCurveData.sellQueueTail);
-
       // If there are sell orders, get the first one
-      // DISABLED FOR TESTING
-      // if (bondingCurveData.sellQueueHead < bondingCurveData.sellQueueTail) {
-      //   const firstSellOrderPosition = bondingCurveData.sellQueueHead;
-      //   const pdaSeed = firstSellOrderPosition + 1; // PDA was created with (position + 1)
-      //   sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, pdaSeed);
-      //   
-      //   // Fetch the sell order data to get the seller's address
-      //   try {
-      //     const sellOrderData = await this.getSellOrderData(pdaSeed);
-      //     if (sellOrderData) {
-      //       console.log('🔍 Sell order data:', sellOrderData);
-      //       const { getAssociatedTokenAddress } = await import('@solana/spl-token');
-      //       const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
-      //       sellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, new PublicKey(sellOrderData.seller));
-      //       
-      //       // Check if the seller's USDC account exists
-      //       const accountInfo = await this.connection.getAccountInfo(sellerUsdcAccount);
-      //       if (!accountInfo) {
-      //         console.warn('Seller USDC account does not exist, using dummy account');
-      //         sellerUsdcAccount = new PublicKey('11111111111111111111111111111111');
-      //       } else {
-      //         console.log('Seller USDC account exists:', sellerUsdcAccount.toString());
-      //       }
-      //     }
-      //   } catch (error) {
-      //     console.warn('Could not fetch sell order data, using dummy account:', error);
-      //   }
-      // }
+      if (bondingCurveData.sellQueueHead < bondingCurveData.sellQueueTail) {
+        console.log('🔍 Processing sell orders - head:', bondingCurveData.sellQueueHead, 'tail:', bondingCurveData.sellQueueTail);
+        const firstSellOrderPosition = bondingCurveData.sellQueueHead;
+        const pdaSeed = firstSellOrderPosition + 1; // PDA was created with (position + 1)
+        sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, pdaSeed);
+        
+        // Fetch the sell order data to get the seller's address
+        try {
+          const sellOrderData = await this.getSellOrderData(pdaSeed);
+          if (sellOrderData) {
+            console.log('🔍 Sell order data:', sellOrderData);
+            const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+            const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
+            sellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, new PublicKey(sellOrderData.seller));
+            
+            // Check if the seller's USDC account exists
+            const accountInfo = await this.connection.getAccountInfo(sellerUsdcAccount);
+            if (!accountInfo) {
+              console.warn('Seller USDC account does not exist, using dummy account');
+              sellerUsdcAccount = new PublicKey('11111111111111111111111111111111');
+            } else {
+              console.log('Seller USDC account exists:', sellerUsdcAccount.toString());
+            }
+          }
+        } catch (error) {
+          console.warn('Could not fetch sell order data, using dummy account:', error);
+        }
+      } else {
+        console.log('🔍 No sell orders to process - using dummy accounts');
+      }
 
       // Get referrer's USDC account if referrer is provided
       console.log('🔍 buyTokens called with referrer:', referrer);
@@ -388,7 +385,27 @@ export class ContractService {
         }
       }
       
-      return await this.sendTransaction(transaction);
+      const result = await this.sendTransaction(transaction);
+      
+      // Check sell queue status after transaction
+      console.log('🔍 Checking sell queue status after transaction...');
+      try {
+        const updatedBondingCurveData = await this.getBondingCurveData();
+        if (updatedBondingCurveData) {
+          console.log('🔍 Updated sell queue - head:', updatedBondingCurveData.sellQueueHead, 'tail:', updatedBondingCurveData.sellQueueTail);
+          
+          // Check if sell orders were processed
+          if (updatedBondingCurveData.sellQueueHead > bondingCurveData.sellQueueHead) {
+            console.log('🔍 Sell orders were processed! Head moved from', bondingCurveData.sellQueueHead, 'to', updatedBondingCurveData.sellQueueHead);
+          } else {
+            console.log('🔍 No sell orders were processed - head unchanged at', updatedBondingCurveData.sellQueueHead);
+          }
+        }
+      } catch (error) {
+        console.warn('Could not fetch updated bonding curve data:', error);
+      }
+      
+      return result;
     } catch (error) {
       console.error('Error in buyTokens:', error);
       throw error;
