@@ -67,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#trading" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <a href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
               Trading
             </a>
             <a href="/docs" className="text-gray-600 hover:text-gray-900 transition-colors">
@@ -183,7 +183,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="space-y-4">
-              <a href="#trading" className="block text-gray-600 hover:text-gray-900 transition-colors">
+              <a href="/" className="block text-gray-600 hover:text-gray-900 transition-colors">
                 Trading
               </a>
               <a href="/docs" className="block text-gray-600 hover:text-gray-900 transition-colors">
