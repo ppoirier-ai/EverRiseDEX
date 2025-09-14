@@ -58,12 +58,8 @@ export default function AdminPage() {
       console.log('useWallet publicKey:', publicKey);
       setIsInitializing(true);
       try {
-        // Create a wallet object with the correct publicKey
-        const walletWithPublicKey = {
-          ...wallet,
-          publicKey: publicKey
-        };
-        const service = new ContractService(connection, walletWithPublicKey);
+        // Use the wallet context state directly
+        const service = new ContractService(connection, wallet);
         setContractService(service);
         console.log('ContractService initialized successfully');
         console.log('Service object:', service);
