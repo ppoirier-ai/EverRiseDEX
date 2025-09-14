@@ -297,7 +297,8 @@
           "name": "sell_order"
         },
         {
-          "name": "seller_usdc_account"
+          "name": "seller_usdc_account",
+          "writable": true
         },
         {
           "name": "referrer"

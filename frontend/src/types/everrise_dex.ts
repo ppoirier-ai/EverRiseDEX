@@ -303,7 +303,8 @@ export type EverriseDex = {
           "name": "sellOrder"
         },
         {
-          "name": "sellerUsdcAccount"
+          "name": "sellerUsdcAccount",
+          "writable": true
         },
         {
           "name": "referrer"
