@@ -52,8 +52,8 @@ export default function Home() {
   // const [lastProcessedTime, setLastProcessedTime] = useState(0);
   // const [queueVolume, setQueueVolume] = useState(0);
   
-  // Treasury data from contract
-  const treasuryValueUSDC = dexData ? dexData.x / 1_000_000 : 0;
+  // Treasury data from contract (mock value for now)
+  const treasuryValueUSDC = 25000; // Mock treasury value
   const [treasuryBitcoin, setTreasuryBitcoin] = useState(0.5);
   const [treasuryLastUpdated, setTreasuryLastUpdated] = useState('Never');
 
