@@ -83,23 +83,42 @@ export class ContractService {
         console.log('Raw bonding curve data:', data);
         
         // Parse the data correctly - handle BN objects properly
+        const dataTyped = data as {
+          authority: PublicKey;
+          treasuryWallet: PublicKey;
+          x: { toString(): string };
+          y: { toString(): string };
+          k: { toString(): string };
+          currentPrice: { toString(): string };
+          sellQueueHead: { toString(): string };
+          sellQueueTail: { toString(): string };
+          buyQueueHead: { toString(): string };
+          buyQueueTail: { toString(): string };
+          cumulativeBonus: { toString(): string };
+          lastPriceUpdate: { toString(): string };
+          dailyBoostApplied: boolean;
+          circulatingSupply: { toString(): string };
+          lastDailyBoost: { toString(): string };
+          totalVolume24h: { toString(): string };
+        };
+        
         const parsedData = {
-          authority: data.authority,
-          treasuryWallet: data.treasuryWallet,
-          x: data.x ? parseInt(data.x.toString()) : 0,
-          y: data.y ? parseInt(data.y.toString()) : 0,
-          k: data.k ? data.k.toString() : "0",
-          currentPrice: data.currentPrice ? parseInt(data.currentPrice.toString()) : 0,
-          sellQueueHead: data.sellQueueHead ? parseInt(data.sellQueueHead.toString()) : 0,
-          sellQueueTail: data.sellQueueTail ? parseInt(data.sellQueueTail.toString()) : 0,
-          buyQueueHead: data.buyQueueHead ? parseInt(data.buyQueueHead.toString()) : 0,
-          buyQueueTail: data.buyQueueTail ? parseInt(data.buyQueueTail.toString()) : 0,
-          cumulativeBonus: data.cumulativeBonus ? parseInt(data.cumulativeBonus.toString()) : 0,
-          lastPriceUpdate: data.lastPriceUpdate ? parseInt(data.lastPriceUpdate.toString()) : 0,
-          dailyBoostApplied: data.dailyBoostApplied || false,
-          circulatingSupply: data.circulatingSupply ? parseInt(data.circulatingSupply.toString()) : 0,
-          lastDailyBoost: data.lastDailyBoost ? parseInt(data.lastDailyBoost.toString()) : 0,
-          totalVolume24h: data.totalVolume24h ? parseInt(data.totalVolume24h.toString()) : 0,
+          authority: dataTyped.authority,
+          treasuryWallet: dataTyped.treasuryWallet,
+          x: dataTyped.x ? parseInt(dataTyped.x.toString()) : 0,
+          y: dataTyped.y ? parseInt(dataTyped.y.toString()) : 0,
+          k: dataTyped.k ? dataTyped.k.toString() : "0",
+          currentPrice: dataTyped.currentPrice ? parseInt(dataTyped.currentPrice.toString()) : 0,
+          sellQueueHead: dataTyped.sellQueueHead ? parseInt(dataTyped.sellQueueHead.toString()) : 0,
+          sellQueueTail: dataTyped.sellQueueTail ? parseInt(dataTyped.sellQueueTail.toString()) : 0,
+          buyQueueHead: dataTyped.buyQueueHead ? parseInt(dataTyped.buyQueueHead.toString()) : 0,
+          buyQueueTail: dataTyped.buyQueueTail ? parseInt(dataTyped.buyQueueTail.toString()) : 0,
+          cumulativeBonus: dataTyped.cumulativeBonus ? parseInt(dataTyped.cumulativeBonus.toString()) : 0,
+          lastPriceUpdate: dataTyped.lastPriceUpdate ? parseInt(dataTyped.lastPriceUpdate.toString()) : 0,
+          dailyBoostApplied: dataTyped.dailyBoostApplied || false,
+          circulatingSupply: dataTyped.circulatingSupply ? parseInt(dataTyped.circulatingSupply.toString()) : 0,
+          lastDailyBoost: dataTyped.lastDailyBoost ? parseInt(dataTyped.lastDailyBoost.toString()) : 0,
+          totalVolume24h: dataTyped.totalVolume24h ? parseInt(dataTyped.totalVolume24h.toString()) : 0,
         };
         
         console.log('Parsed bonding curve data:', parsedData);
