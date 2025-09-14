@@ -1,0 +1,59 @@
+# Multi-stage build to handle problematic native dependencies
+FROM node:20-alpine AS base
+
+# Install system dependencies
+RUN apk add --no-cache python3 make g++ linux-headers libusb-dev eudev-dev
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY frontend/package*.json ./
+
+# Install dependencies with legacy peer deps
+RUN npm ci --legacy-peer-deps
+
+# Copy source code
+COPY frontend/ .
+
+# Build the application
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine AS production
+
+# Install only runtime dependencies
+RUN apk add --no-cache libusb eudev
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY frontend/package*.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production --legacy-peer-deps
+
+# Copy built application from base stage
+COPY --from=base /app/.next ./.next
+COPY --from=base /app/public ./public
+COPY --from=base /app/next.config.js ./
+COPY --from=base /app/tsconfig.json ./
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# Change ownership
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Start the application
+CMD ["npm", "start"]

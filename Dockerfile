@@ -1,17 +1,23 @@
-# Use Node.js 20 as base image
-FROM node:20-alpine
+# Use Node.js 20 with Debian base for better native compilation support
+FROM node:20-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install Python and build tools for native dependencies
-RUN apk add --no-cache python3 make g++
+# Install system dependencies for native compilation
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    libusb-1.0-0-dev \
+    libudev-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY frontend/package*.json ./
 
-# Install all dependencies (including dev dependencies for build)
-RUN npm ci
+# Install dependencies with legacy peer deps to handle React version conflicts
+RUN npm ci --legacy-peer-deps
 
 # Copy source code
 COPY frontend/ .
@@ -23,8 +29,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Create non-root user for security
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
+RUN groupadd -r nodejs && useradd -r -g nodejs nextjs
 
 # Change ownership of the app directory
 RUN chown -R nextjs:nodejs /app
