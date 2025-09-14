@@ -296,6 +296,15 @@ export class ContractService {
             const { getAssociatedTokenAddress } = await import('@solana/spl-token');
             const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
             sellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, new PublicKey(sellOrderData.seller));
+            
+            // Check if the seller's USDC account exists
+            const accountInfo = await this.connection.getAccountInfo(sellerUsdcAccount);
+            if (!accountInfo) {
+              console.warn('Seller USDC account does not exist, using dummy account');
+              sellerUsdcAccount = new PublicKey('11111111111111111111111111111111');
+            } else {
+              console.log('Seller USDC account exists:', sellerUsdcAccount.toString());
+            }
           }
         } catch (error) {
           console.warn('Could not fetch sell order data, using dummy account:', error);
