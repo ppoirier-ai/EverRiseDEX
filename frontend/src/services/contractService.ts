@@ -48,13 +48,13 @@ export class ContractService {
       if (!wallet.signTransaction) {
         throw new Error('Wallet does not support signing transactions');
       }
-      return await wallet.signTransaction(tx);
+      return await wallet.signTransaction(tx as Transaction);
     },
     signAllTransactions: async (txs: unknown[]) => {
       if (!wallet.signAllTransactions) {
         throw new Error('Wallet does not support signing multiple transactions');
       }
-      return await wallet.signAllTransactions(txs);
+      return await wallet.signAllTransactions(txs as Transaction[]);
     }
   };
     
