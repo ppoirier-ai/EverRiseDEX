@@ -12,7 +12,7 @@ interface ContractContextType {
   isLoading: boolean;
   error: string | null;
   refreshData: () => Promise<void>;
-  buyTokens: (usdcAmount: number) => Promise<string>;
+  buyTokens: (usdcAmount: number, referrer?: string) => Promise<string>;
   sellTokens: (everAmount: number) => Promise<string>;
   dexData: {
     currentPrice: number;
