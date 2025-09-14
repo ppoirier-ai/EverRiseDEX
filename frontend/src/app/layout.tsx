@@ -24,9 +24,16 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const isStaging = process.env.NEXT_PUBLIC_APP_ENV === 'staging'
+  
   return (
     <html lang="en">
       <body className={inter.className}>
+        {isStaging && (
+          <div className="bg-yellow-500 text-black text-center py-2 text-sm font-bold">
+            🚧 STAGING ENVIRONMENT - FOR TESTING ONLY 🚧
+          </div>
+        )}
         <WalletContextProvider>
           <ContractProvider>
             <Navbar />
