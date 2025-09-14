@@ -44,17 +44,17 @@ export class ContractService {
   // Create a proper wallet interface for Anchor
   const anchorWallet = {
     publicKey: wallet.publicKey,
-    signTransaction: async (tx: unknown) => {
+    signTransaction: async <T extends Transaction | VersionedTransaction>(tx: T): Promise<T> => {
       if (!wallet.signTransaction) {
         throw new Error('Wallet does not support signing transactions');
       }
-      return await wallet.signTransaction(tx as Transaction);
+      return await wallet.signTransaction(tx) as T;
     },
-    signAllTransactions: async (txs: unknown[]) => {
+    signAllTransactions: async <T extends Transaction | VersionedTransaction>(txs: T[]): Promise<T[]> => {
       if (!wallet.signAllTransactions) {
         throw new Error('Wallet does not support signing multiple transactions');
       }
-      return await wallet.signAllTransactions(txs as Transaction[]);
+      return await wallet.signAllTransactions(txs) as T[];
     }
   };
     
