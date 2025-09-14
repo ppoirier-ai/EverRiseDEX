@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ContractService } from '../services/contractService';
 
 interface SaleOrder {
@@ -23,9 +23,9 @@ interface QueueStatusProps {
 
 export const QueueStatus: React.FC<QueueStatusProps> = ({
   sellQueueLength,
-  averageWaitTime,
-  lastProcessedTime,
-  queueVolume,
+  // averageWaitTime,
+  // lastProcessedTime,
+  // queueVolume,
   contractService,
   refreshTrigger,
 }) => {

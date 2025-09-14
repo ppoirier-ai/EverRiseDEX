@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { Wallet, Copy, ExternalLink, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
+import { Copy, RefreshCw, CheckCircle } from 'lucide-react';
 
 interface WalletStatusProps {
   className?: string;

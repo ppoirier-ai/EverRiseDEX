@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Wallet, Copy, ExternalLink, CheckCircle, Menu, X } from 'lucide-react';
@@ -67,12 +68,12 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
               Trading
-            </a>
-            <a href="/docs" className="text-gray-600 hover:text-gray-900 transition-colors">
+            </Link>
+            <Link href="/docs" className="text-gray-600 hover:text-gray-900 transition-colors">
               Docs
-            </a>
+            </Link>
             {connected && publicKey?.toString() === 'FEVyge83aMu6gP2uSXUFFH7ujVs2SQqfA425S7mJJGqA' && (
               <a href="/admin" className="text-blue-600 hover:text-blue-800 transition-colors font-medium">
                 Admin
@@ -183,9 +184,9 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="space-y-4">
-              <a href="/" className="block text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/" className="block text-gray-600 hover:text-gray-900 transition-colors">
                 Trading
-              </a>
+              </Link>
               <a href="/docs" className="block text-gray-600 hover:text-gray-900 transition-colors">
                 Docs
               </a>

@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function DocsPage() {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
 
-  const handleLanguageChange = (languageCode: string) => {
-    setSelectedLanguage(languageCode);
-  };
+  // Language change handler (currently unused but kept for future functionality)
+  // const handleLanguageChange = (languageCode: string) => {
+  //   setSelectedLanguage(languageCode);
+  // };
 
   const getTranslations = (lang: string) => ({
     en: {
@@ -1101,7 +1103,7 @@ export default function DocsPage() {
             {currentLang.videos.items.map((video, index) => (
               <div key={index} className="bg-white rounded-lg shadow-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{video.title}</h3>
-                <p className="text-gray-600 text-sm mb-4">{(video as any).description || ''}</p>
+                <p className="text-gray-600 text-sm mb-4">{(video as { description?: string }).description || ''}</p>
                 
                 {/* Embedded YouTube Video */}
                 <div className="aspect-video rounded-lg overflow-hidden mb-4">
@@ -1121,7 +1123,7 @@ export default function DocsPage() {
                 {video.videoId === 'bStvWbUdsMw' && (
                   <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
                     <p className="text-sm text-blue-800">
-                      <strong>💡 Important:</strong> After installing Phantom wallet, you'll need to purchase a few dollars worth of Solana (SOL) for transaction fees and the rest in USDC (USD Coin) which will be used to purchase EverRise tokens. You can buy these cryptocurrencies on exchanges like Coinbase, Binance, or directly through Phantom's built-in swap feature.
+                      <strong>💡 Important:</strong> After installing Phantom wallet, you&apos;ll need to purchase a few dollars worth of Solana (SOL) for transaction fees and the rest in USDC (USD Coin) which will be used to purchase EverRise tokens. You can buy these cryptocurrencies on exchanges like Coinbase, Binance, or directly through Phantom&apos;s built-in swap feature.
                     </p>
                   </div>
                 )}
@@ -1134,7 +1136,7 @@ export default function DocsPage() {
         <div className="mt-8 bg-blue-50 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Resources</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a
+            <Link
               href="/"
               className="flex items-center p-4 bg-white rounded-lg hover:shadow-md transition-shadow"
             >
@@ -1147,7 +1149,7 @@ export default function DocsPage() {
                 <h4 className="font-medium text-gray-900">Live Trading</h4>
                 <p className="text-sm text-gray-600">Start trading EVER tokens</p>
               </div>
-            </a>
+            </Link>
             
             <a
               href="mailto:support@everrise.com"

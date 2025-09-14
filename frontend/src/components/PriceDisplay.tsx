@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { TrendingUp, DollarSign, Activity, Coins, Clock } from 'lucide-react';
+import { TrendingUp, DollarSign, Coins, Clock } from 'lucide-react';
 
 interface PriceDisplayProps {
   currentPrice: number;

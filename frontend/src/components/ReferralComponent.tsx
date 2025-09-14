@@ -67,7 +67,7 @@ export default function ReferralComponent() {
       </div>
       
       <p className="text-purple-100 mb-4">
-        Share this link to earn 5% commission on your friends' EVER token purchases from reserves.
+        Share this link to earn 5% commission on your friends&apos; EVER token purchases from reserves.
       </p>
       
       <div className="bg-white/10 rounded-lg p-4 mb-4">

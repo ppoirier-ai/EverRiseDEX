@@ -55,7 +55,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       
       onUpdateTreasury(bitcoin, usdc);
       setMessage({ type: 'success', text: 'Treasury values updated successfully!' });
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to update treasury values' });
     } finally {
       setIsLoading(false);

@@ -84,8 +84,8 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
         setContractService(service);
         // Expose for console debugging
         try { 
-          (window as any).contractService = service;
-          (window as any).debugSellOrders = () => service.debugSellOrders();
+          (window as unknown as { contractService: unknown; debugSellOrders: () => unknown }).contractService = service;
+          (window as unknown as { contractService: unknown; debugSellOrders: () => unknown }).debugSellOrders = () => service.debugSellOrders();
         } catch {}
         setError(null);
       } catch (err) {

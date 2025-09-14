@@ -1,5 +1,5 @@
 import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
-import { PublicKey, Connection, SystemProgram } from '@solana/web3.js';
+import { PublicKey, Connection } from '@solana/web3.js';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import IDL from '../everrise_dex.json';
 import { SolanaTransaction } from '@solana/web3.js';
@@ -42,25 +42,25 @@ export class ContractService {
       throw new Error('Wallet must be connected to create ContractService');
     }
     
-    // Create a proper wallet interface for Anchor
-    const anchorWallet = {
-      publicKey: wallet.publicKey,
-      signTransaction: async (tx: any) => {
-        if (!wallet.signTransaction) {
-          throw new Error('Wallet does not support signing transactions');
-        }
-        return await wallet.signTransaction(tx);
-      },
-      signAllTransactions: async (txs: any[]) => {
-        if (!wallet.signAllTransactions) {
-          throw new Error('Wallet does not support signing multiple transactions');
-        }
-        return await wallet.signAllTransactions(txs);
+  // Create a proper wallet interface for Anchor
+  const anchorWallet = {
+    publicKey: wallet.publicKey,
+    signTransaction: async (tx: unknown) => {
+      if (!wallet.signTransaction) {
+        throw new Error('Wallet does not support signing transactions');
       }
-    };
+      return await wallet.signTransaction(tx);
+    },
+    signAllTransactions: async (txs: unknown[]) => {
+      if (!wallet.signAllTransactions) {
+        throw new Error('Wallet does not support signing multiple transactions');
+      }
+      return await wallet.signAllTransactions(txs);
+    }
+  };
     
     const provider = new AnchorProvider(connection, anchorWallet, {});
-    this.program = new Program(IDL as any, provider);
+    this.program = new Program(IDL as unknown, provider);
   }
 
   // Get bonding curve PDA
@@ -339,7 +339,7 @@ export class ContractService {
         }
       }
 
-      const accounts: any = {
+      const accounts: Record<string, unknown> = {
         bondingCurve: bondingCurvePDA,
         user: this.wallet.publicKey!,
         userUsdcAccount: await this.getUserUsdcAccount(),
@@ -677,7 +677,7 @@ export class ContractService {
   }
 
   // Get sell order data by position
-  async getSellOrderData(queuePosition: number): Promise<any | null> {
+  async getSellOrderData(queuePosition: number): Promise<unknown | null> {
     try {
       const bondingCurvePDA = this.getBondingCurvePDA();
       const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, queuePosition);
@@ -693,7 +693,7 @@ export class ContractService {
   }
 
   // Get all active sell orders
-  async getAllSellOrders(): Promise<any[]> {
+  async getAllSellOrders(): Promise<unknown[]> {
     try {
       const bondingCurveData = await this.getBondingCurveData();
       if (!bondingCurveData) return [];
