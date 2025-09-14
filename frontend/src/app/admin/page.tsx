@@ -6,7 +6,7 @@ import { ContractService } from '@/services/contractService';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 
 export default function AdminPage() {
-  const { connected, publicKey, wallet } = useWallet();
+  const walletContext = useWallet();
   const { connection } = useConnection();
   const [treasuryBitcoin, setTreasuryBitcoin] = useState(0.5);
   const [treasuryValueUSDC, setTreasuryValueUSDC] = useState(25000);
@@ -40,13 +40,13 @@ export default function AdminPage() {
 
   // Initialize contract service only when wallet is connected
   useEffect(() => {
-    console.log('Admin page useEffect triggered:', { connected, publicKey: !!publicKey, wallet: !!wallet, connection: !!connection });
+    console.log('Admin page useEffect triggered:', { connected: walletContext.connected, publicKey: !!walletContext.publicKey, wallet: !!walletContext.wallet, connection: !!connection });
     
     const initContractService = async () => {
       // Only proceed if wallet is fully connected and ready
-      if (!connected || !publicKey || !wallet) {
+      if (!walletContext.connected || !walletContext.publicKey || !walletContext.wallet) {
         console.log('Wallet not ready, skipping ContractService initialization');
-        console.log('Debug - connected:', connected, 'publicKey:', !!publicKey, 'wallet:', !!wallet);
+        console.log('Debug - connected:', walletContext.connected, 'publicKey:', !!walletContext.publicKey, 'wallet:', !!walletContext.wallet);
         setContractService(null);
         setIsInitializing(false);
         return;
@@ -54,12 +54,12 @@ export default function AdminPage() {
 
       console.log('Initializing ContractService...');
       console.log('Connection:', connection);
-      console.log('Wallet:', wallet);
-      console.log('useWallet publicKey:', publicKey);
+      console.log('Wallet Context:', walletContext);
+      console.log('useWallet publicKey:', walletContext.publicKey);
       setIsInitializing(true);
       try {
         // Use the wallet context state directly
-        const service = new ContractService(connection, wallet);
+        const service = new ContractService(connection, walletContext);
         setContractService(service);
         console.log('ContractService initialized successfully');
         console.log('Service object:', service);
@@ -73,14 +73,14 @@ export default function AdminPage() {
     };
 
     // Only run if we have all required values and wallet is connected
-    if (connection && wallet && connected && publicKey) {
+    if (connection && walletContext.wallet && walletContext.connected && walletContext.publicKey) {
       initContractService();
     } else {
       // Reset state if wallet is not connected
       setContractService(null);
       setIsInitializing(false);
     }
-  }, [connected, publicKey, wallet, connection]);
+  }, [connection, walletContext]);
 
   return (
     <div className="min-h-screen bg-gray-50">
