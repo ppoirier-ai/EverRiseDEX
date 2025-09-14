@@ -10,13 +10,13 @@ import { useContract } from '@/contexts/ContractContext';
 
 // Mock data - in real implementation, this would come from the smart contract
 // const mockPriceData = [
-  { timestamp: Date.now() - 3600000, price: 0.000100, volume: 1000 },
-  { timestamp: Date.now() - 3000000, price: 0.000102, volume: 1500 },
-  { timestamp: Date.now() - 2400000, price: 0.000105, volume: 2000 },
-  { timestamp: Date.now() - 1800000, price: 0.000108, volume: 1200 },
-  { timestamp: Date.now() - 1200000, price: 0.000110, volume: 1800 },
-  { timestamp: Date.now() - 600000, price: 0.000112, volume: 2200 },
-  { timestamp: Date.now(), price: 0.000115, volume: 2500 },
+//   { timestamp: Date.now() - 3600000, price: 0.000100, volume: 1000 },
+//   { timestamp: Date.now() - 3000000, price: 0.000102, volume: 1500 },
+//   { timestamp: Date.now() - 2400000, price: 0.000105, volume: 2000 },
+//   { timestamp: Date.now() - 1800000, price: 0.000108, volume: 1200 },
+//   { timestamp: Date.now() - 1200000, price: 0.000110, volume: 1800 },
+//   { timestamp: Date.now() - 600000, price: 0.000112, volume: 2200 },
+//   { timestamp: Date.now(), price: 0.000115, volume: 2500 },
 // ];
 
 export default function Home() {
