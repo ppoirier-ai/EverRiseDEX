@@ -272,11 +272,17 @@ export class ContractService {
       
       // Verify the queues are cleared
       const bondingCurve = await (this.program.account as unknown as { BondingCurve: { fetch: (pda: PublicKey) => Promise<unknown> } }).BondingCurve.fetch(bondingCurvePDA);
+      const bondingCurveTyped = bondingCurve as {
+        buyQueueHead: { toString(): string };
+        buyQueueTail: { toString(): string };
+        sellQueueHead: { toString(): string };
+        sellQueueTail: { toString(): string };
+      };
       console.log('\n📊 Updated queue status:');
-      console.log('Buy Queue Head:', bondingCurve.buyQueueHead.toString());
-      console.log('Buy Queue Tail:', bondingCurve.buyQueueTail.toString());
-      console.log('Sell Queue Head:', bondingCurve.sellQueueHead.toString());
-      console.log('Sell Queue Tail:', bondingCurve.sellQueueTail.toString());
+      console.log('Buy Queue Head:', bondingCurveTyped.buyQueueHead.toString());
+      console.log('Buy Queue Tail:', bondingCurveTyped.buyQueueTail.toString());
+      console.log('Sell Queue Head:', bondingCurveTyped.sellQueueHead.toString());
+      console.log('Sell Queue Tail:', bondingCurveTyped.sellQueueTail.toString());
       
       return tx;
     } catch (error) {
@@ -313,9 +319,10 @@ export class ContractService {
           const sellOrderData = await this.getSellOrderData(pdaSeed);
           if (sellOrderData) {
             console.log('🔍 Sell order data:', sellOrderData);
+            const sellOrderTyped = sellOrderData as { seller: string };
             const { getAssociatedTokenAddress } = await import('@solana/spl-token');
             const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
-            sellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, new PublicKey(sellOrderData.seller));
+            sellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, new PublicKey(sellOrderTyped.seller));
             
             // Check if the seller's USDC account exists
             const accountInfo = await this.connection.getAccountInfo(sellerUsdcAccount);
@@ -357,7 +364,7 @@ export class ContractService {
         }
       }
 
-      const accounts: Record<string, unknown> = {
+      const accounts = {
         bondingCurve: bondingCurvePDA,
         user: this.wallet.publicKey!,
         userUsdcAccount: await this.getUserUsdcAccount(),
@@ -656,7 +663,8 @@ export class ContractService {
       return Number(account.amount) / 1_000_000_000; // Convert from 9 decimals
     } catch (error) {
       // Account doesn't exist yet - this is normal for new users
-      if (error.message?.includes('Account does not exist') || error.message?.includes('AbortError')) {
+      const errorTyped = error as { message?: string };
+      if (errorTyped.message?.includes('Account does not exist') || errorTyped.message?.includes('AbortError')) {
         return 0;
       }
       console.error('Error getting user EVER balance:', error);
@@ -673,7 +681,8 @@ export class ContractService {
       return Number(account.amount) / 1_000_000; // Convert from 6 decimals
     } catch (error) {
       // Account doesn't exist yet - this is normal for new users
-      if (error.message?.includes('Account does not exist') || error.message?.includes('AbortError')) {
+      const errorTyped = error as { message?: string };
+      if (errorTyped.message?.includes('Account does not exist') || errorTyped.message?.includes('AbortError')) {
         return 0;
       }
       console.error('Error getting user USDC balance:', error);
@@ -702,7 +711,7 @@ export class ContractService {
       
       console.log(`Fetching sell order at position ${queuePosition}:`, sellOrderPDA.toString());
       
-      const sellOrderData = await this.program.account.sellOrder.fetch(sellOrderPDA);
+      const sellOrderData = await (this.program.account as unknown as { sellOrder: { fetch: (pda: PublicKey) => Promise<unknown> } }).sellOrder.fetch(sellOrderPDA);
       return sellOrderData;
     } catch (error) {
       console.error(`Error fetching sell order at position ${queuePosition}:`, error);
@@ -730,15 +739,26 @@ export class ContractService {
         console.log(`🔍 Fetching order at queue position ${i}, PDA seed ${pdaSeed}`);
         const orderData = await this.getSellOrderData(pdaSeed);
         if (orderData) {
+          const orderTyped = orderData as {
+            seller: { toString(): string };
+            remaining_amount?: { toString(): string };
+            remainingAmount?: { toString(): string };
+            locked_price?: { toString(): string };
+            lockedPrice?: { toString(): string };
+            processed: boolean;
+          };
           console.log(`✅ Found order at position ${i}:`, {
-            seller: orderData.seller.toString(),
-            remainingAmount: orderData.remaining_amount?.toString() || orderData.remainingAmount?.toString(),
-            lockedPrice: orderData.locked_price?.toString() || orderData.lockedPrice?.toString(),
-            processed: orderData.processed
+            seller: orderTyped.seller.toString(),
+            remainingAmount: orderTyped.remaining_amount?.toString() || orderTyped.remainingAmount?.toString(),
+            lockedPrice: orderTyped.locked_price?.toString() || orderTyped.lockedPrice?.toString(),
+            processed: orderTyped.processed
           });
           sellOrders.push({
             position: i,
-            ...orderData,
+            seller: orderTyped.seller.toString(),
+            remainingAmount: orderTyped.remaining_amount?.toString() || orderTyped.remainingAmount?.toString(),
+            lockedPrice: orderTyped.locked_price?.toString() || orderTyped.lockedPrice?.toString(),
+            processed: orderTyped.processed
           });
         } else {
           console.log(`❌ No order found at position ${i}`);
