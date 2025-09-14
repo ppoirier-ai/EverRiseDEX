@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { Copy, RefreshCw, CheckCircle } from 'lucide-react';
@@ -16,13 +16,7 @@ export const WalletStatus: React.FC<WalletStatusProps> = ({ className }) => {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    if (connected && publicKey) {
-      fetchBalance();
-    }
-  }, [connected, publicKey, connection]);
-
-  const fetchBalance = async () => {
+  const fetchBalance = useCallback(async () => {
     if (!publicKey || !connection) return;
     
     setLoading(true);
@@ -34,7 +28,13 @@ export const WalletStatus: React.FC<WalletStatusProps> = ({ className }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [publicKey, connection]);
+
+  useEffect(() => {
+    if (connected && publicKey) {
+      fetchBalance();
+    }
+  }, [connected, publicKey, connection, fetchBalance]);
 
   const copyAddress = async () => {
     if (publicKey) {

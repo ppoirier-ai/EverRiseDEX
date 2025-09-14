@@ -55,7 +55,6 @@ export default function AdminPage() {
       console.log('Initializing ContractService...');
       console.log('Connection:', connection);
       console.log('Wallet:', wallet);
-      console.log('Wallet publicKey:', wallet.publicKey);
       console.log('useWallet publicKey:', publicKey);
       setIsInitializing(true);
       try {

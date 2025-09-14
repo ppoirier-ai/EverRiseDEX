@@ -96,7 +96,7 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
       setContractService(null);
       setBondingCurveData(null);
     }
-  }, [connection, wallet.connected, wallet.publicKey]);
+  }, [connection, wallet]);
 
   // Fetch bonding curve data and user balances
   const refreshData = useCallback(async () => {
@@ -187,7 +187,7 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
     } finally {
       setIsLoading(false);
     }
-  }, [contractService, refreshData]);
+  }, [contractService, refreshData, dexData.currentPrice]);
 
   // Sell tokens function
   const sellTokens = useCallback(async (everAmount: number): Promise<string> => {

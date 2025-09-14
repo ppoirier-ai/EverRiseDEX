@@ -37,7 +37,7 @@ export const WalletContextProvider: React.FC<WalletContextProviderProps> = ({ ch
   const endpoint = useMemo(() => {
     // Use the original Solana devnet endpoint
     return 'https://api.devnet.solana.com';
-  }, [network]);
+  }, []);
 
   const wallets = useMemo(
     () => [
