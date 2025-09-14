@@ -293,6 +293,7 @@ export class ContractService {
         try {
           const sellOrderData = await this.getSellOrderData(pdaSeed);
           if (sellOrderData) {
+            console.log('🔍 Sell order data:', sellOrderData);
             const { getAssociatedTokenAddress } = await import('@solana/spl-token');
             const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
             sellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, new PublicKey(sellOrderData.seller));
