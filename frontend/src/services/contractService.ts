@@ -343,6 +343,8 @@ export class ContractService {
       console.log('🔍 Accounts being passed to instruction:', Object.keys(accounts));
       console.log('🔍 referrerUsdcAccount:', referrerUsdcAccount?.toString() || 'null');
       console.log('🔍 referrer:', referrer || 'null');
+      console.log('🔍 sellerUsdcAccount:', sellerUsdcAccount.toString());
+      console.log('🔍 sellOrderPDA:', sellOrderPDA.toString());
 
       const instruction = await this.program.methods
         .buySmart(amount)
@@ -352,11 +354,21 @@ export class ContractService {
       const { Transaction } = await import('@solana/web3.js');
       const transaction = new Transaction().add(instruction);
       
+      // Debug: Log instruction keys to see their writable status
+      console.log('🔍 Instruction keys:');
+      instruction.keys.forEach((key, index) => {
+        console.log(`  ${index}: ${key.pubkey.toString()} - writable: ${key.isWritable}, signer: ${key.isSigner}`);
+      });
+      
       // Explicitly mark seller's USDC account as writable if it's not a dummy account
       if (sellerUsdcAccount.toString() !== '11111111111111111111111111111111') {
         const accountIndex = instruction.keys.findIndex(key => key.pubkey.equals(sellerUsdcAccount));
+        console.log('🔍 Seller USDC account index:', accountIndex);
         if (accountIndex !== -1) {
           instruction.keys[accountIndex].isWritable = true;
+          console.log('🔍 Marked seller USDC account as writable');
+        } else {
+          console.log('🔍 Seller USDC account not found in instruction keys');
         }
       }
       
