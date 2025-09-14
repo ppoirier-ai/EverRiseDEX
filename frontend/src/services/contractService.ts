@@ -698,20 +698,36 @@ export class ContractService {
       const bondingCurveData = await this.getBondingCurveData();
       if (!bondingCurveData) return [];
 
+      console.log('🔍 getAllSellOrders - Queue status:', {
+        head: bondingCurveData.sellQueueHead,
+        tail: bondingCurveData.sellQueueTail,
+        length: bondingCurveData.sellQueueTail - bondingCurveData.sellQueueHead
+      });
+
       const sellOrders = [];
       // The sell orders are created with PDA seed (i + 1), where i is the queue position
       // So for queue positions 0, 1, 2... the PDAs use seeds 1, 2, 3...
       for (let i = bondingCurveData.sellQueueHead; i < bondingCurveData.sellQueueTail; i++) {
         const pdaSeed = i + 1; // PDA was created with (queue_position + 1)
+        console.log(`🔍 Fetching order at queue position ${i}, PDA seed ${pdaSeed}`);
         const orderData = await this.getSellOrderData(pdaSeed);
         if (orderData) {
+          console.log(`✅ Found order at position ${i}:`, {
+            seller: orderData.seller.toString(),
+            remainingAmount: orderData.remaining_amount?.toString() || orderData.remainingAmount?.toString(),
+            lockedPrice: orderData.locked_price?.toString() || orderData.lockedPrice?.toString(),
+            processed: orderData.processed
+          });
           sellOrders.push({
             position: i,
             ...orderData,
           });
+        } else {
+          console.log(`❌ No order found at position ${i}`);
         }
       }
       
+      console.log('🔍 Total sell orders fetched:', sellOrders.length);
       console.log('Fetched sell orders:', sellOrders);
       return sellOrders;
     } catch (error) {
