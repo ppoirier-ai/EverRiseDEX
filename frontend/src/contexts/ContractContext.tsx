@@ -74,6 +74,10 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
     marketCap: 0,
     circulatingSupply: 0,
     reserveSupply: 0,
+    sellQueueHead: 0,
+    sellQueueTail: 0,
+    buyQueueHead: 0,
+    buyQueueTail: 0,
   });
 
   // Initialize contract service when wallet connects
