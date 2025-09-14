@@ -38,14 +38,26 @@ export const QueueStatus: React.FC<QueueStatusProps> = ({
     setIsLoading(true);
     try {
       const orders = await contractService.getAllSellOrders();
-      const formattedOrders: SaleOrder[] = orders.map((order: any, index) => ({
-        orderNumber: index + 1,
-        seller: order.seller.toString(),
-        quantity: parseInt(order.remaining_amount?.toString() || order.remainingAmount?.toString() || '0') / 1_000_000_000, // Convert from 9 decimals - use remaining amount, not original
-        price: parseInt(order.locked_price?.toString() || order.lockedPrice?.toString() || '0') / 1_000_000, // Convert from 6 decimals
-        timestamp: parseInt(order.timestamp?.toString() || '0'),
-        processed: order.processed || false,
-      }));
+      const formattedOrders: SaleOrder[] = orders.map((order: unknown, index) => {
+        const orderData = order as {
+          seller: { toString: () => string };
+          remaining_amount?: { toString: () => string };
+          remainingAmount?: { toString: () => string };
+          locked_price?: { toString: () => string };
+          lockedPrice?: { toString: () => string };
+          timestamp?: { toString: () => string };
+          processed?: boolean;
+        };
+        
+        return {
+          orderNumber: index + 1,
+          seller: orderData.seller.toString(),
+          quantity: parseInt(orderData.remaining_amount?.toString() || orderData.remainingAmount?.toString() || '0') / 1_000_000_000, // Convert from 9 decimals - use remaining amount, not original
+          price: parseInt(orderData.locked_price?.toString() || orderData.lockedPrice?.toString() || '0') / 1_000_000, // Convert from 6 decimals
+          timestamp: parseInt(orderData.timestamp?.toString() || '0'),
+          processed: orderData.processed || false,
+        };
+      });
       setSellOrders(formattedOrders);
       console.log('🔄 QueueStatus: Refreshed sell orders data');
     } catch (error) {
