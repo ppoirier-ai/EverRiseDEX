@@ -78,7 +78,7 @@ export class ContractService {
       
       // Try to fetch the account data using the program
       try {
-        const data = await (this.program.account as any).bondingCurve.fetch(bondingCurvePDA);
+        const data = await (this.program.account as { bondingCurve: { fetch: (pda: PublicKey) => Promise<unknown> } }).bondingCurve.fetch(bondingCurvePDA);
         
         console.log('Raw bonding curve data:', data);
         
@@ -847,7 +847,7 @@ export class ContractService {
       
       // Try to fetch using program
       try {
-        const data = await (this.program.account as any).bondingCurve.fetch(bondingCurvePDA);
+        const data = await (this.program.account as { bondingCurve: { fetch: (pda: PublicKey) => Promise<unknown> } }).bondingCurve.fetch(bondingCurvePDA);
         console.log('Successfully fetched data:', data);
       } catch (fetchError) {
         console.error('Failed to fetch with program:', fetchError);
