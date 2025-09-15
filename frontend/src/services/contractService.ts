@@ -78,7 +78,7 @@ export class ContractService {
       
       // Try to fetch the account data using the program
       try {
-        const data = await (this.program.account as unknown as { BondingCurve: { fetch: (pda: PublicKey) => Promise<unknown> } }).BondingCurve.fetch(bondingCurvePDA);
+        const data = await this.program.account.bondingCurve.fetch(bondingCurvePDA);
         
         console.log('Raw bonding curve data:', data);
         
@@ -588,8 +588,13 @@ export class ContractService {
   getSellOrderPDA(bondingCurvePDA: PublicKey, pdaSeed: number): PublicKey {
     // Convert number to little-endian bytes (8 bytes for u64) to match to_le_bytes()
     const buffer = Buffer.alloc(8);
-    buffer.writeUInt32LE(pdaSeed, 0);
-    buffer.writeUInt32LE(0, 4); // High 32 bits are 0 for small numbers
+    
+    // Manual little-endian encoding for u64 (8 bytes)
+    let value = pdaSeed;
+    for (let i = 0; i < 8; i++) {
+      buffer[i] = value & 0xff;
+      value = Math.floor(value / 256);
+    }
     
     console.log(`Generating sell order PDA with seed: ${pdaSeed}, buffer: ${Array.from(buffer).map(b => b.toString(16).padStart(2, '0')).join('')}`);
     
@@ -613,7 +618,20 @@ export class ContractService {
         throw new Error('Failed to fetch bonding curve data');
       }
       
+      console.log('🔍 Bonding Curve Data Debug:');
+      console.log('  Sell Queue Head:', bondingCurveData.sellQueueHead);
+      console.log('  Sell Queue Tail:', bondingCurveData.sellQueueTail);
+      console.log('  Buy Queue Head:', bondingCurveData.buyQueueHead);
+      console.log('  Buy Queue Tail:', bondingCurveData.buyQueueTail);
+      
+      // Use sell_queue_tail + 1 as the seed (matches smart contract)
       const sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, bondingCurveData.sellQueueTail + 1);
+      
+      console.log('🔍 Sell Order PDA Debug:');
+      console.log('  Bonding Curve PDA:', bondingCurvePDA.toString());
+      console.log('  Sell Queue Tail:', bondingCurveData.sellQueueTail);
+      console.log('  Sell Order Seed (tail + 1):', bondingCurveData.sellQueueTail + 1);
+      console.log('  Generated Sell Order PDA:', sellOrderPDA.toString());
 
       // Get required token accounts (sell only needs EVER accounts)
       const userEverAccount = await this.getUserEverAccount();
@@ -829,7 +847,7 @@ export class ContractService {
       
       // Try to fetch using program
       try {
-        const data = await (this.program.account as unknown as { BondingCurve: { fetch: (pda: PublicKey) => Promise<unknown> } }).BondingCurve.fetch(bondingCurvePDA);
+        const data = await this.program.account.bondingCurve.fetch(bondingCurvePDA);
         console.log('Successfully fetched data:', data);
       } catch (fetchError) {
         console.error('Failed to fetch with program:', fetchError);
