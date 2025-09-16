@@ -4,27 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { PriceDisplay } from '@/components/PriceDisplay';
 import { TradingInterface } from '@/components/TradingInterface';
 import { QueueStatus } from '@/components/QueueStatus';
-// import { PriceChart } from '@/components/PriceChart';
 import ReferralComponent from '@/components/ReferralComponent';
 import { useContract } from '@/contexts/ContractContext';
-
-// Mock data - in real implementation, this would come from the smart contract
-// const mockPriceData = [
-//   { timestamp: Date.now() - 3600000, price: 0.000100, volume: 1000 },
-//   { timestamp: Date.now() - 3000000, price: 0.000102, volume: 1500 },
-//   { timestamp: Date.now() - 2400000, price: 0.000105, volume: 2000 },
-//   { timestamp: Date.now() - 1800000, price: 0.000108, volume: 1200 },
-//   { timestamp: Date.now() - 1200000, price: 0.000110, volume: 1800 },
-//   { timestamp: Date.now() - 600000, price: 0.000112, volume: 2200 },
-//   { timestamp: Date.now(), price: 0.000115, volume: 2500 },
-// ];
 
 export default function Home() {
   const { 
     contractService,
     userUsdcBalance, 
     userEverBalance, 
-    // isLoading: contractLoading, 
     error, 
     buyTokens, 
     sellTokens,
@@ -47,10 +34,6 @@ export default function Home() {
   
   // Queue data from contract
   const sellQueueLength = dexData ? dexData.sellQueueTail - dexData.sellQueueHead : 0;
-  // const buyQueueLength = dexData ? dexData.buyQueueTail - dexData.buyQueueHead : 0;
-  // const [averageWaitTime, setAverageWaitTime] = useState(0);
-  // const [lastProcessedTime, setLastProcessedTime] = useState(0);
-  // const [queueVolume, setQueueVolume] = useState(0);
   
   // Treasury data from contract (mock value for now)
   const treasuryValueUSDC = 25000; // Mock treasury value
