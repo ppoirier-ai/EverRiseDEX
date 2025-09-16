@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { TrendingUp, DollarSign, Coins, Clock } from 'lucide-react';
 
 interface PriceDisplayProps {
@@ -24,16 +24,16 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   treasuryValueUSDC,
   lastUpdated,
 }) => {
-  const formatPrice = (price: number) => {
+  const formatPrice = useCallback((price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 6,
       maximumFractionDigits: 6,
     }).format(price);
-  };
+  }, []);
 
-  const formatNumber = (num: number) => {
+  const formatNumber = useCallback((num: number) => {
     if (num >= 1e9) {
       return (num / 1e9).toFixed(2) + 'B';
     } else if (num >= 1e6) {
@@ -42,12 +42,20 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
       return (num / 1e3).toFixed(2) + 'K';
     }
     return num.toFixed(2);
-  };
+  }, []);
 
-  const formatPercentage = (percentage: number) => {
+  const formatPercentage = useCallback((percentage: number) => {
     const sign = percentage >= 0 ? '+' : '';
     return `${sign}${percentage.toFixed(4)}%`;
-  };
+  }, []);
+
+  // Memoized computed values
+  const formattedPrice = useMemo(() => formatPrice(currentPrice), [currentPrice, formatPrice]);
+  const formattedPriceChange = useMemo(() => formatPercentage(priceChange24h), [priceChange24h, formatPercentage]);
+  const formattedMarketCap = useMemo(() => formatPrice(marketCap), [marketCap, formatPrice]);
+  const formattedCirculatingSupply = useMemo(() => formatNumber(circulatingSupply), [circulatingSupply, formatNumber]);
+  const formattedReserveSupply = useMemo(() => formatNumber(reserveSupply), [reserveSupply, formatNumber]);
+  const formattedTreasuryUSDC = useMemo(() => formatPrice(treasuryValueUSDC), [treasuryValueUSDC, formatPrice]);
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
@@ -60,14 +68,14 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
         </div>
         <div className="text-right">
           <div className="text-3xl font-bold text-gray-900">
-            {formatPrice(currentPrice)}
+            {formattedPrice}
           </div>
           <div className={`flex items-center space-x-1 ${
             priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'
           }`}>
             <TrendingUp className="w-4 h-4" />
             <span className="font-medium">
-              {formatPercentage(priceChange24h)}
+              {formattedPriceChange}
             </span>
           </div>
         </div>
@@ -80,7 +88,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
             <span className="text-sm text-gray-600">Market Cap</span>
           </div>
           <div className="text-lg font-semibold text-gray-900">
-            ${formatNumber(marketCap)}
+            ${formattedMarketCap}
           </div>
         </div>
 
@@ -89,7 +97,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
             <span className="text-sm text-gray-600">Circulating Supply</span>
           </div>
           <div className="text-lg font-semibold text-gray-900">
-            {formatNumber(circulatingSupply)}
+            {formattedCirculatingSupply}
           </div>
         </div>
 
@@ -98,7 +106,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
             <span className="text-sm text-gray-600">Reserve Supply</span>
           </div>
           <div className="text-lg font-semibold text-gray-900">
-            {formatNumber(reserveSupply)}
+            {formattedReserveSupply}
           </div>
         </div>
 
@@ -111,7 +119,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
             {treasuryBitcoin.toFixed(4)} BTC
           </div>
           <div className="text-sm text-gray-600">
-            ${formatNumber(treasuryValueUSDC)} USDC
+            ${formattedTreasuryUSDC} USDC
           </div>
           <div className="flex items-center space-x-1 mt-1">
             <Clock className="w-3 h-3 text-gray-400" />

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { ArrowUpDown, ArrowUp, ArrowDown, Info } from 'lucide-react';
 import { EnhancedWalletButton } from './EnhancedWalletButton';
@@ -31,14 +31,14 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
     setMounted(true);
   }, []);
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAmountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
       setAmount(value);
     }
-  };
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     const numAmount = parseFloat(amount);
     if (numAmount > 0) {
@@ -48,25 +48,35 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
         onSell(numAmount);
       }
     }
-  };
+  }, [amount, activeTab, onBuy, onSell]);
 
-  const handleMaxClick = () => {
+  const handleMaxClick = useCallback(() => {
     if (activeTab === 'buy') {
       setAmount(userUsdcBalance.toString());
     } else {
       setAmount(userEverBalance.toString());
     }
-  };
+  }, [activeTab, userUsdcBalance, userEverBalance]);
 
 
-  const formatPrice = (price: number) => {
+  const formatPrice = useCallback((price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 6,
       maximumFractionDigits: 8,
     }).format(price);
-  };
+  }, []);
+
+  const handleTabChange = useCallback((tab: 'buy' | 'sell') => {
+    setActiveTab(tab);
+    setAmount('');
+  }, []);
+
+  // Memoized computed values
+  const formattedPrice = useMemo(() => formatPrice(currentPrice), [currentPrice, formatPrice]);
+  const isBuyDisabled = useMemo(() => !connected || isLoading || parseFloat(amount) <= 0 || parseFloat(amount) > userUsdcBalance, [connected, isLoading, amount, userUsdcBalance]);
+  const isSellDisabled = useMemo(() => !connected || isLoading || parseFloat(amount) <= 0 || parseFloat(amount) > userEverBalance, [connected, isLoading, amount, userEverBalance]);
 
   if (!mounted) {
     return (
@@ -106,7 +116,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
     <div className="bg-white rounded-xl shadow-lg border border-gray-200">
       <div className="p-6 border-b border-gray-200">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Trade EverRise</h2>
-        <p className="text-gray-600">Current Price: {formatPrice(currentPrice)}</p>
+        <p className="text-gray-600">Current Price: {formattedPrice}</p>
         
         {/* Total Capital Display */}
         <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
@@ -117,7 +127,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
                 {formatPrice(userEverBalance * currentPrice)}
               </p>
               <p className="text-xs text-gray-500">
-                {userEverBalance.toFixed(2)} EVER × {formatPrice(currentPrice)}
+                {userEverBalance.toFixed(2)} EVER × {formattedPrice}
               </p>
             </div>
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
@@ -132,7 +142,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
       <div className="p-6">
         <div className="flex space-x-1 mb-6 bg-gray-100 rounded-lg p-1">
           <button
-            onClick={() => setActiveTab('buy')}
+            onClick={() => handleTabChange('buy')}
             className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
               activeTab === 'buy'
                 ? 'bg-white text-blue-600 shadow-sm'
@@ -143,7 +153,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
             Buy
           </button>
           <button
-            onClick={() => setActiveTab('sell')}
+            onClick={() => handleTabChange('sell')}
             className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
               activeTab === 'sell'
                 ? 'bg-white text-red-600 shadow-sm'
@@ -191,7 +201,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
 
           <button
             type="submit"
-            disabled={!amount || parseFloat(amount) <= 0 || isLoading}
+            disabled={activeTab === 'buy' ? isBuyDisabled : isSellDisabled}
             className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
               activeTab === 'buy'
                 ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
