@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Settings, Save, AlertCircle, CheckCircle, Coins, DollarSign } from 'lucide-react';
 import { TREASURY_WALLET_ADDRESS } from '@/constants';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useLoadingState } from '@/hooks/useLoadingState';
 
 interface AdminPanelProps {
   treasuryBitcoin: number;
@@ -19,10 +21,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onUpdateTreasury,
 }) => {
   const { connected, publicKey } = useWallet();
+  const { message, showError, showSuccess, clearMessage } = useErrorHandler();
+  const { isLoading, withLoading } = useLoadingState();
   const [bitcoinAmount, setBitcoinAmount] = useState(treasuryBitcoin.toString());
   const [usdcValue, setUsdcValue] = useState(treasuryValueUSDC.toString());
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const isTreasuryWallet = connected && publicKey?.toString() === TREASURY_WALLET_ADDRESS;
 
@@ -33,7 +35,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const handleSave = async () => {
     if (!isTreasuryWallet) {
-      setMessage({ type: 'error', text: 'Only the treasury wallet can update these values' });
+      showError('Only the treasury wallet can update these values');
       return;
     }
 
@@ -41,24 +43,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     const usdc = parseFloat(usdcValue);
 
     if (isNaN(bitcoin) || isNaN(usdc) || bitcoin < 0 || usdc < 0) {
-      setMessage({ type: 'error', text: 'Please enter valid positive numbers' });
+      showError('Please enter valid positive numbers');
       return;
     }
 
-    setIsLoading(true);
-    setMessage(null);
+    clearMessage();
 
-    try {
-      // Simulate API call - in real implementation, this would call your backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      onUpdateTreasury(bitcoin, usdc);
-      setMessage({ type: 'success', text: 'Treasury values updated successfully!' });
-    } catch {
-      setMessage({ type: 'error', text: 'Failed to update treasury values' });
-    } finally {
-      setIsLoading(false);
-    }
+    await withLoading(async () => {
+      try {
+        // Simulate API call - in real implementation, this would call your backend
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        onUpdateTreasury(bitcoin, usdc);
+        showSuccess('Treasury values updated successfully!');
+      } catch {
+        showError('Failed to update treasury values');
+      }
+    });
   };
 
 

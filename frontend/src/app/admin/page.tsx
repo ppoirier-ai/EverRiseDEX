@@ -4,40 +4,19 @@ import React, { useState, useEffect } from 'react';
 import { AdminPanel } from '@/components/AdminPanel';
 import { ContractService } from '@/services/contractService';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { DEFAULT_TREASURY_USDC, DEFAULT_TREASURY_BITCOIN, DEFAULT_LAST_UPDATED } from '@/constants';
+import { useTreasuryState } from '@/hooks/useTreasuryState';
 
 export default function AdminPage() {
   const walletContext = useWallet();
   const { connection } = useConnection();
-  const [treasuryBitcoin, setTreasuryBitcoin] = useState(DEFAULT_TREASURY_BITCOIN);
-  const [treasuryValueUSDC, setTreasuryValueUSDC] = useState(DEFAULT_TREASURY_USDC);
-  const [lastUpdated, setLastUpdated] = useState(DEFAULT_LAST_UPDATED);
+  const { 
+    treasuryBitcoin, 
+    treasuryValueUSDC, 
+    lastUpdated, 
+    updateTreasury 
+  } = useTreasuryState();
   const [contractService, setContractService] = useState<ContractService | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
-
-  const handleUpdateTreasury = (bitcoin: number, usdc: number) => {
-    setTreasuryBitcoin(bitcoin);
-    setTreasuryValueUSDC(usdc);
-    setLastUpdated(new Date().toLocaleString());
-    
-    // In real implementation, this would save to your backend/database
-    localStorage.setItem('treasuryBitcoin', bitcoin.toString());
-    localStorage.setItem('treasuryValueUSDC', usdc.toString());
-    localStorage.setItem('treasuryLastUpdated', new Date().toISOString());
-  };
-
-  // Load saved values from localStorage on component mount
-  useEffect(() => {
-    const savedBitcoin = localStorage.getItem('treasuryBitcoin');
-    const savedUSDC = localStorage.getItem('treasuryValueUSDC');
-    const savedLastUpdated = localStorage.getItem('treasuryLastUpdated');
-
-    if (savedBitcoin) setTreasuryBitcoin(parseFloat(savedBitcoin));
-    if (savedUSDC) setTreasuryValueUSDC(parseFloat(savedUSDC));
-    if (savedLastUpdated) {
-      setLastUpdated(new Date(savedLastUpdated).toLocaleString());
-    }
-  }, []);
 
   // Initialize contract service only when wallet is connected
   useEffect(() => {
@@ -102,7 +81,7 @@ export default function AdminPage() {
           treasuryBitcoin={treasuryBitcoin}
           treasuryValueUSDC={treasuryValueUSDC}
           lastUpdated={lastUpdated}
-          onUpdateTreasury={handleUpdateTreasury}
+          onUpdateTreasury={updateTreasury}
         />
         )}
         

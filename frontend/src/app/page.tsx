@@ -6,7 +6,7 @@ import { TradingInterface } from '@/components/TradingInterface';
 import { QueueStatus } from '@/components/QueueStatus';
 import ReferralComponent from '@/components/ReferralComponent';
 import { useContract } from '@/contexts/ContractContext';
-import { DEFAULT_TREASURY_USDC, DEFAULT_TREASURY_BITCOIN, DEFAULT_LAST_UPDATED } from '@/constants';
+import { useTreasuryState } from '@/hooks/useTreasuryState';
 
 export default function Home() {
   const { 
@@ -36,21 +36,12 @@ export default function Home() {
   // Queue data from contract
   const sellQueueLength = dexData ? dexData.sellQueueTail - dexData.sellQueueHead : 0;
   
-  // Treasury data from contract (mock value for now)
-  const treasuryValueUSDC = DEFAULT_TREASURY_USDC; // Mock treasury value
-  const [treasuryBitcoin, setTreasuryBitcoin] = useState(DEFAULT_TREASURY_BITCOIN);
-  const [treasuryLastUpdated, setTreasuryLastUpdated] = useState(DEFAULT_LAST_UPDATED);
-
-  // Load treasury data from localStorage (only for Bitcoin, USDC comes from contract)
-  useEffect(() => {
-    const savedBitcoin = localStorage.getItem('treasuryBitcoin');
-    const savedLastUpdated = localStorage.getItem('treasuryLastUpdated');
-
-    if (savedBitcoin) setTreasuryBitcoin(parseFloat(savedBitcoin));
-    if (savedLastUpdated) {
-      setTreasuryLastUpdated(new Date(savedLastUpdated).toLocaleString());
-    }
-  }, []);
+  // Treasury state management
+  const { 
+    treasuryBitcoin, 
+    treasuryValueUSDC, 
+    lastUpdated: treasuryLastUpdated
+  } = useTreasuryState();
 
   // Price updates are now handled by the contract context
   // No need for simulation since we're using real contract data
