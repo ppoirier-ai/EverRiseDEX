@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { Copy, Check, Users, DollarSign } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 export default function ReferralComponent() {
   const { publicKey, connected } = useWallet();
-  const [copied, setCopied] = useState(false);
+  const { copied, copyToClipboard } = useCopyToClipboard();
   const [referralCode, setReferralCode] = useState<string>('');
 
   // Generate referral link when wallet connects
@@ -18,15 +19,9 @@ export default function ReferralComponent() {
     }
   }, [connected, publicKey]);
 
-  const copyToClipboard = async () => {
+  const handleCopyToClipboard = () => {
     if (referralCode) {
-      try {
-        await navigator.clipboard.writeText(referralCode);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch (err) {
-        console.error('Failed to copy: ', err);
-      }
+      copyToClipboard(referralCode);
     }
   };
 
@@ -79,7 +74,7 @@ export default function ReferralComponent() {
             </p>
           </div>
           <button
-            onClick={copyToClipboard}
+            onClick={handleCopyToClipboard}
             className="flex-shrink-0 p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
             title="Copy referral link"
           >

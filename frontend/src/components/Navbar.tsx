@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Wallet, Copy, ExternalLink, CheckCircle, Menu, X } from 'lucide-react';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 interface NavbarProps {
   className?: string;
@@ -12,8 +13,8 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ className }) => {
   const { connected, publicKey, wallet, disconnect } = useWallet();
+  const { copied, copyToClipboard } = useCopyToClipboard();
   const [mounted, setMounted] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [showWalletDetails, setShowWalletDetails] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -21,11 +22,9 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
     setMounted(true);
   }, []);
 
-  const copyAddress = async () => {
+  const handleCopyAddress = () => {
     if (publicKey) {
-      await navigator.clipboard.writeText(publicKey.toString());
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      copyToClipboard(publicKey.toString());
     }
   };
 
@@ -137,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-600">Address:</span>
                           <button
-                            onClick={copyAddress}
+                            onClick={handleCopyAddress}
                             className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
                           >
                             {copied ? (

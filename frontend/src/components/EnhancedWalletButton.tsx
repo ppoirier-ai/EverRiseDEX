@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Wallet, Copy, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 interface EnhancedWalletButtonProps {
   className?: string;
@@ -11,19 +12,17 @@ interface EnhancedWalletButtonProps {
 
 export const EnhancedWalletButton: React.FC<EnhancedWalletButtonProps> = ({ className }) => {
   const { connected, publicKey, wallet, disconnect } = useWallet();
+  const { copied, copyToClipboard } = useCopyToClipboard();
   const [mounted, setMounted] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const copyAddress = async () => {
+  const handleCopyAddress = () => {
     if (publicKey) {
-      await navigator.clipboard.writeText(publicKey.toString());
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      copyToClipboard(publicKey.toString());
     }
   };
 
@@ -115,7 +114,7 @@ export const EnhancedWalletButton: React.FC<EnhancedWalletButtonProps> = ({ clas
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Address:</span>
                 <button
-                  onClick={copyAddress}
+                  onClick={handleCopyAddress}
                   className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
                 >
                   {copied ? (

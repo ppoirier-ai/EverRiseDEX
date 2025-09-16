@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Settings, Save, AlertCircle, CheckCircle, Coins, DollarSign } from 'lucide-react';
+import { TREASURY_WALLET_ADDRESS } from '@/constants';
 
 interface AdminPanelProps {
   treasuryBitcoin: number;
@@ -10,8 +11,6 @@ interface AdminPanelProps {
   lastUpdated: string;
   onUpdateTreasury: (bitcoin: number, usdc: number) => void;
 }
-
-const TREASURY_WALLET_ADDRESS = 'FEVyge83aMu6gP2uSXUFFH7ujVs2SQqfA425S7mJJGqA';
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({
   treasuryBitcoin,

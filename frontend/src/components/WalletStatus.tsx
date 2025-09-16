@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { Copy, RefreshCw, CheckCircle } from 'lucide-react';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 interface WalletStatusProps {
   className?: string;
@@ -12,9 +13,9 @@ interface WalletStatusProps {
 export const WalletStatus: React.FC<WalletStatusProps> = ({ className }) => {
   const { connected, publicKey, wallet } = useWallet();
   const { connection } = useConnection();
+  const { copied, copyToClipboard } = useCopyToClipboard();
   const [balance, setBalance] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   const fetchBalance = useCallback(async () => {
     if (!publicKey || !connection) return;
@@ -36,11 +37,9 @@ export const WalletStatus: React.FC<WalletStatusProps> = ({ className }) => {
     }
   }, [connected, publicKey, connection, fetchBalance]);
 
-  const copyAddress = async () => {
+  const handleCopyAddress = () => {
     if (publicKey) {
-      await navigator.clipboard.writeText(publicKey.toString());
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      copyToClipboard(publicKey.toString());
     }
   };
 
@@ -114,7 +113,7 @@ export const WalletStatus: React.FC<WalletStatusProps> = ({ className }) => {
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">Address:</span>
             <button
-              onClick={copyAddress}
+                onClick={handleCopyAddress}
               className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
             >
               {copied ? (

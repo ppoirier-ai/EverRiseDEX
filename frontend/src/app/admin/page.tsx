@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { AdminPanel } from '@/components/AdminPanel';
 import { ContractService } from '@/services/contractService';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { DEFAULT_TREASURY_USDC, DEFAULT_TREASURY_BITCOIN, DEFAULT_LAST_UPDATED } from '@/constants';
 
 export default function AdminPage() {
   const walletContext = useWallet();
   const { connection } = useConnection();
-  const [treasuryBitcoin, setTreasuryBitcoin] = useState(0.5);
-  const [treasuryValueUSDC, setTreasuryValueUSDC] = useState(25000);
-  const [lastUpdated, setLastUpdated] = useState('Never');
+  const [treasuryBitcoin, setTreasuryBitcoin] = useState(DEFAULT_TREASURY_BITCOIN);
+  const [treasuryValueUSDC, setTreasuryValueUSDC] = useState(DEFAULT_TREASURY_USDC);
+  const [lastUpdated, setLastUpdated] = useState(DEFAULT_LAST_UPDATED);
   const [contractService, setContractService] = useState<ContractService | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
 

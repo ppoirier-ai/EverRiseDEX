@@ -6,6 +6,7 @@ import { TradingInterface } from '@/components/TradingInterface';
 import { QueueStatus } from '@/components/QueueStatus';
 import ReferralComponent from '@/components/ReferralComponent';
 import { useContract } from '@/contexts/ContractContext';
+import { DEFAULT_TREASURY_USDC, DEFAULT_TREASURY_BITCOIN, DEFAULT_LAST_UPDATED } from '@/constants';
 
 export default function Home() {
   const { 
@@ -36,9 +37,9 @@ export default function Home() {
   const sellQueueLength = dexData ? dexData.sellQueueTail - dexData.sellQueueHead : 0;
   
   // Treasury data from contract (mock value for now)
-  const treasuryValueUSDC = 25000; // Mock treasury value
-  const [treasuryBitcoin, setTreasuryBitcoin] = useState(0.5);
-  const [treasuryLastUpdated, setTreasuryLastUpdated] = useState('Never');
+  const treasuryValueUSDC = DEFAULT_TREASURY_USDC; // Mock treasury value
+  const [treasuryBitcoin, setTreasuryBitcoin] = useState(DEFAULT_TREASURY_BITCOIN);
+  const [treasuryLastUpdated, setTreasuryLastUpdated] = useState(DEFAULT_LAST_UPDATED);
 
   // Load treasury data from localStorage (only for Bitcoin, USDC comes from contract)
   useEffect(() => {
