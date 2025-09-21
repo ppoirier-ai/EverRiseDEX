@@ -348,38 +348,61 @@ export class ContractService {
         throw new Error('Failed to fetch bonding curve data');
       }
 
-      // Always provide dummy accounts (Anchor requires all accounts to be provided)
-      let sellOrderPDA = new PublicKey('11111111111111111111111111111111'); // SystemProgram.programId
-      let sellerUsdcAccount = new PublicKey('11111111111111111111111111111111'); // SystemProgram.programId
+      // Initialize sell order accounts (up to 3)
+      const dummyAccount = new PublicKey('11111111111111111111111111111111'); // SystemProgram.programId
+      let sellOrderPDA = dummyAccount;
+      let sellerUsdcAccount = dummyAccount;
+      let sellOrderPDA2: PublicKey | null = null;
+      let sellerUsdcAccount2: PublicKey | null = null;
+      let sellOrderPDA3: PublicKey | null = null;
+      let sellerUsdcAccount3: PublicKey | null = null;
 
-      // If there are sell orders, get the first one (smart contract will handle the rest)
+      // Get up to 3 sell orders for multi-order processing
       if (bondingCurveData.sellQueueHead < bondingCurveData.sellQueueTail) {
         console.log('🔍 Processing sell orders - head:', bondingCurveData.sellQueueHead, 'tail:', bondingCurveData.sellQueueTail);
-        const firstSellOrderPosition = bondingCurveData.sellQueueHead;
-        const pdaSeed = firstSellOrderPosition + 1; // PDA was created with (position + 1)
-        sellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, pdaSeed);
+        const queueLength = bondingCurveData.sellQueueTail - bondingCurveData.sellQueueHead;
+        const ordersToProcess = Math.min(queueLength, 3); // Process up to 3 orders
         
-        // Fetch the sell order data to get the seller's address
-        try {
-          const sellOrderData = await this.getSellOrderData(pdaSeed);
-          if (sellOrderData) {
-            console.log('🔍 Sell order data:', sellOrderData);
-            const sellOrderTyped = sellOrderData as { seller: string };
-            const { getAssociatedTokenAddress } = await import('@solana/spl-token');
-            const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
-            sellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, new PublicKey(sellOrderTyped.seller));
-            
-            // Check if the seller's USDC account exists
-            const accountInfo = await this.connection.getAccountInfo(sellerUsdcAccount);
-            if (!accountInfo) {
-              console.warn('Seller USDC account does not exist, using dummy account');
-              sellerUsdcAccount = new PublicKey('11111111111111111111111111111111');
-            } else {
-              console.log('Seller USDC account exists:', sellerUsdcAccount.toString());
+        console.log(`🔍 Processing ${ordersToProcess} sell orders out of ${queueLength} available`);
+
+        for (let i = 0; i < ordersToProcess; i++) {
+          const sellOrderPosition = bondingCurveData.sellQueueHead + i;
+          const pdaSeed = sellOrderPosition + 1; // PDA was created with (position + 1)
+          const currentSellOrderPDA = this.getSellOrderPDA(bondingCurvePDA, pdaSeed);
+          
+          try {
+            const sellOrderData = await this.getSellOrderData(pdaSeed);
+            if (sellOrderData) {
+              console.log(`🔍 Sell order ${i + 1} data:`, sellOrderData);
+              const sellOrderTyped = sellOrderData as { seller: string };
+              const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+              const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
+              const currentSellerUsdcAccount = await getAssociatedTokenAddress(USDC_MINT, new PublicKey(sellOrderTyped.seller));
+              
+              // Check if the seller's USDC account exists
+              const accountInfo = await this.connection.getAccountInfo(currentSellerUsdcAccount);
+              if (!accountInfo) {
+                console.warn(`Seller USDC account ${i + 1} does not exist, using dummy account`);
+                continue; // Skip this order if seller account doesn't exist
+              } else {
+                console.log(`Seller USDC account ${i + 1} exists:`, currentSellerUsdcAccount.toString());
+                
+                // Assign to the appropriate variable based on order
+                if (i === 0) {
+                  sellOrderPDA = currentSellOrderPDA;
+                  sellerUsdcAccount = currentSellerUsdcAccount;
+                } else if (i === 1) {
+                  sellOrderPDA2 = currentSellOrderPDA;
+                  sellerUsdcAccount2 = currentSellerUsdcAccount;
+                } else if (i === 2) {
+                  sellOrderPDA3 = currentSellOrderPDA;
+                  sellerUsdcAccount3 = currentSellerUsdcAccount;
+                }
+              }
             }
+          } catch (error) {
+            console.warn(`Could not fetch sell order ${i + 1} data:`, error);
           }
-        } catch (error) {
-          console.warn('Could not fetch sell order data, using dummy account:', error);
         }
       } else {
         console.log('🔍 No sell orders to process - using dummy accounts');
@@ -426,6 +449,10 @@ export class ContractService {
         programEverAccount: await this.getProgramEverAccount(),
         sellOrder: sellOrderPDA,
         sellerUsdcAccount: sellerUsdcAccount,
+        sellOrder2: sellOrderPDA2 || dummyAccount,
+        sellerUsdcAccount2: sellerUsdcAccount2 || dummyAccount,
+        sellOrder3: sellOrderPDA3 || dummyAccount,
+        sellerUsdcAccount3: sellerUsdcAccount3 || dummyAccount,
         referrer: referrer ? new PublicKey(referrer) : new PublicKey('11111111111111111111111111111111'), // Use dummy account if no referrer
         referrerUsdcAccount: referrerUsdcAccount || await this.getTreasuryUsdcAccount(), // Use treasury account if no referrer
         tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
@@ -434,8 +461,12 @@ export class ContractService {
       console.log('🔍 Accounts being passed to instruction:', Object.keys(accounts));
       console.log('🔍 referrerUsdcAccount:', referrerUsdcAccount?.toString() || 'null');
       console.log('🔍 referrer:', referrer || 'null');
-      console.log('🔍 sellOrderPDA:', sellOrderPDA.toString());
-      console.log('🔍 sellerUsdcAccount:', sellerUsdcAccount.toString());
+      console.log('🔍 sellOrder1:', sellOrderPDA.toString());
+      console.log('🔍 sellerUsdcAccount1:', sellerUsdcAccount.toString());
+      console.log('🔍 sellOrder2:', sellOrderPDA2?.toString() || 'null');
+      console.log('🔍 sellerUsdcAccount2:', sellerUsdcAccount2?.toString() || 'null');
+      console.log('🔍 sellOrder3:', sellOrderPDA3?.toString() || 'null');
+      console.log('🔍 sellerUsdcAccount3:', sellerUsdcAccount3?.toString() || 'null');
 
       const instruction = await this.program.methods
         .buySmart(amount)
