@@ -117,176 +117,104 @@ pub mod everrise_dex {
         Ok(())
     }
 
-    /// Smart buy that processes sell orders first, then buys from reserves if needed
+    /// Smart buy that processes up to 3 sell orders first, then buys from reserves if needed
+    /// FIXED: Now processes multiple sell orders in a single transaction for better UX
     pub fn buy_smart(ctx: Context<BuyWithSellProcessing>, usdc_amount: u64) -> Result<()> {
         // Validate input parameters
         require!(usdc_amount > 0, ErrorCode::InvalidAmount);
         require!(usdc_amount <= 10_000_000_000_000, ErrorCode::AmountTooLarge); // Max 10M USDC per transaction
 
-        let bonding_curve = &mut ctx.accounts.bonding_curve;
         let clock = Clock::get()?;
-
+        let bonding_curve_account_info = ctx.accounts.bonding_curve.to_account_info();
+        
         // Apply daily boost if needed
-        apply_daily_boost(bonding_curve, clock.unix_timestamp)?;
+        apply_daily_boost(&mut ctx.accounts.bonding_curve, clock.unix_timestamp)?;
 
         let mut remaining_usdc = usdc_amount;
         let mut total_ever_received = 0u64;
+        let mut queue_usdc_used = 0u64;
 
-        // First, try to fulfill from sell orders if any exist
-        msg!("DEBUG: Checking sell queue - Head: {}, Tail: {}", bonding_curve.sell_queue_head, bonding_curve.sell_queue_tail);
-        if bonding_curve.sell_queue_head < bonding_curve.sell_queue_tail {
-            msg!("DEBUG: Found sell orders in queue, processing...");
-            // Process sell orders (similar logic to process_buy_queue)
-            let sell_order_info = ctx.accounts.sell_order.to_account_info();
-            msg!("DEBUG: Sell order account: {}", sell_order_info.key());
-            msg!("DEBUG: Sell order data length: {}", sell_order_info.data_len());
-            if sell_order_info.data_len() > 0 {
-                msg!("DEBUG: Attempting to deserialize and process sell order...");
-                
-                // Use a single mutable borrow to avoid conflicts
-                let mut sell_order_data = sell_order_info.try_borrow_mut_data()?;
-                if let Ok(mut sell_order) = SellOrder::try_deserialize(&mut sell_order_data.as_ref()) {
-                    msg!("DEBUG: Successfully deserialized sell order - processed: {}, remaining: {}", sell_order.processed, sell_order.remaining_amount);
-                    
-                    if !sell_order.processed && sell_order.remaining_amount > 0 {
-                        // Calculate how much USDC we can spend on this sell order
-                        let usdc_for_this_sell = sell_order.remaining_amount
-                            .checked_mul(sell_order.locked_price)
-                            .unwrap_or(0)
-                            .checked_div(1_000_000_000) // Convert from 9 decimals to 6
-                            .unwrap_or(0);
-
-                        msg!("DEBUG: USDC for this sell: {}, remaining USDC: {}", usdc_for_this_sell, remaining_usdc);
-                        
-                        let mut sell_order_updated = false;
-                        
-                        if usdc_for_this_sell > 0 && usdc_for_this_sell <= remaining_usdc {
-                            msg!("DEBUG: Processing sell order - transferring {} USDC for {} EVER", usdc_for_this_sell, sell_order.remaining_amount);
-                            // Full fill of this sell order
-                            let ever_from_sell = sell_order.remaining_amount;
-                            
-                            // Release the borrow before making transfers
-                            drop(sell_order_data);
-                            
-                            // Transfer USDC from buyer to seller
-                            let cpi_accounts_usdc = token::Transfer {
-                                from: ctx.accounts.user_usdc_account.to_account_info(),
-                                to: ctx.accounts.seller_usdc_account.to_account_info(),
-                                authority: ctx.accounts.user.to_account_info(),
-                            };
-                            let cpi_program_usdc = ctx.accounts.token_program.to_account_info();
-                            let cpi_ctx_usdc = CpiContext::new(cpi_program_usdc, cpi_accounts_usdc);
-                            token::transfer(cpi_ctx_usdc, usdc_for_this_sell)?;
-
-                            // Transfer EVER tokens from program to buyer
-                            let seeds = &[&b"bonding_curve"[..], &[bonding_curve.bump]];
-                            let signer_seeds = &[&seeds[..]];
-                            let cpi_accounts_ever = token::Transfer {
-                                from: ctx.accounts.program_ever_account.to_account_info(),
-                                to: ctx.accounts.user_ever_account.to_account_info(),
-                                authority: bonding_curve.to_account_info(),
-                            };
-                            let cpi_program_ever = ctx.accounts.token_program.to_account_info();
-                            let cpi_ctx_ever = CpiContext::new_with_signer(cpi_program_ever, cpi_accounts_ever, signer_seeds);
-                            token::transfer(cpi_ctx_ever, ever_from_sell)?;
-
-                            // Update tracking
-                            remaining_usdc = remaining_usdc.checked_sub(usdc_for_this_sell).unwrap();
-                            total_ever_received = total_ever_received.checked_add(ever_from_sell).unwrap();
-
-                            // Mark sell order as processed and advance queue
-                            sell_order.processed = true;
-                            sell_order.remaining_amount = 0;
-                            bonding_curve.sell_queue_head = bonding_curve.sell_queue_head.checked_add(1).unwrap();
-                            sell_order_updated = true;
-                            
-                        } else if remaining_usdc > 0 {
-                            // Partial fill of this sell order
-                            msg!("DEBUG: Partial fill - using all remaining USDC: {}", remaining_usdc);
-                            let ever_for_partial = remaining_usdc
-                                .checked_mul(1_000_000_000) // Convert to 9 decimals
-                                .unwrap_or(0)
-                                .checked_div(sell_order.locked_price)
-                                .unwrap_or(0);
-
-                            if ever_for_partial > 0 && ever_for_partial <= sell_order.remaining_amount {
-                                msg!("DEBUG: Processing partial sell - transferring {} USDC for {} EVER", remaining_usdc, ever_for_partial);
-                                
-                                // Release the borrow before making transfers
-                                drop(sell_order_data);
-                                
-                                // Transfer USDC from buyer to seller
-                                let cpi_accounts_usdc = token::Transfer {
-                                    from: ctx.accounts.user_usdc_account.to_account_info(),
-                                    to: ctx.accounts.seller_usdc_account.to_account_info(),
-                                    authority: ctx.accounts.user.to_account_info(),
-                                };
-                                let cpi_program_usdc = ctx.accounts.token_program.to_account_info();
-                                let cpi_ctx_usdc = CpiContext::new(cpi_program_usdc, cpi_accounts_usdc);
-                                token::transfer(cpi_ctx_usdc, remaining_usdc)?;
-
-                                // Transfer EVER tokens from program to buyer
-                                let seeds = &[&b"bonding_curve"[..], &[bonding_curve.bump]];
-                                let signer_seeds = &[&seeds[..]];
-                                let cpi_accounts_ever = token::Transfer {
-                                    from: ctx.accounts.program_ever_account.to_account_info(),
-                                    to: ctx.accounts.user_ever_account.to_account_info(),
-                                    authority: bonding_curve.to_account_info(),
-                                };
-                                let cpi_program_ever = ctx.accounts.token_program.to_account_info();
-                                let cpi_ctx_ever = CpiContext::new_with_signer(cpi_program_ever, cpi_accounts_ever, signer_seeds);
-                                token::transfer(cpi_ctx_ever, ever_for_partial)?;
-
-                                // Update tracking
-                                total_ever_received = total_ever_received.checked_add(ever_for_partial).unwrap();
-
-                                // Update sell order remaining amount (partial fill)
-                                sell_order.remaining_amount = sell_order.remaining_amount.checked_sub(ever_for_partial).unwrap();
-                                
-                                // If sell order is completely filled, mark as processed and advance queue
-                                if sell_order.remaining_amount == 0 {
-                                    sell_order.processed = true;
-                                    bonding_curve.sell_queue_head = bonding_curve.sell_queue_head.checked_add(1).unwrap();
-                                }
-
-                                remaining_usdc = 0; // All USDC used for this sell order
-                                msg!("DEBUG: Partial fill completed - remaining sell order amount: {}", sell_order.remaining_amount);
-                                sell_order_updated = true;
-                            } else {
-                                msg!("DEBUG: Invalid partial fill calculation - ever_for_partial: {}, sell_remaining: {}", ever_for_partial, sell_order.remaining_amount);
-                            }
-                        } else {
-                            msg!("DEBUG: Sell order not processed - usdc_for_this_sell: {}, remaining_usdc: {}", usdc_for_this_sell, remaining_usdc);
-                        }
-                        
-                        // Persist the updated sell order back to the account if it was modified
-                        if sell_order_updated {
-                            // Re-borrow and update the sell order account data
-                            let mut final_sell_order_data = sell_order_info.try_borrow_mut_data()?;
-                            sell_order.try_serialize(&mut final_sell_order_data.as_mut())?;
-                            msg!("DEBUG: Sell order persisted to blockchain - new remaining: {}", sell_order.remaining_amount);
-                            
-                            // Verify the data was written correctly
-                            drop(final_sell_order_data);
-                            let verify_data = sell_order_info.try_borrow_data()?;
-                            if let Ok(verify_order) = SellOrder::try_deserialize(&mut verify_data.as_ref()) {
-                                msg!("DEBUG: Verification - sell order remaining amount after persistence: {}", verify_order.remaining_amount);
-                            } else {
-                                msg!("DEBUG: Verification failed - could not deserialize after persistence");
-                            }
-                        }
-                    } else {
-                        msg!("DEBUG: Sell order already processed or no remaining amount - processed: {}, remaining: {}", sell_order.processed, sell_order.remaining_amount);
-                    }
-                } else {
-                    msg!("DEBUG: Failed to deserialize sell order");
-                }
-            } else {
-                msg!("DEBUG: Sell order account has no data");
+        // Process up to 3 sell orders in sequence
+        msg!("DEBUG: Starting multi-order processing - Head: {}, Tail: {}", ctx.accounts.bonding_curve.sell_queue_head, ctx.accounts.bonding_curve.sell_queue_tail);
+        
+        // Process first sell order
+        if ctx.accounts.bonding_curve.sell_queue_head < ctx.accounts.bonding_curve.sell_queue_tail && remaining_usdc > 0 {
+            let result = process_single_sell_order(
+                &ctx.accounts.sell_order,
+                &ctx.accounts.seller_usdc_account,
+                &ctx.accounts.user_usdc_account,
+                &ctx.accounts.user_ever_account,
+                &ctx.accounts.program_ever_account,
+                &ctx.accounts.token_program,
+                &bonding_curve_account_info,
+                &mut ctx.accounts.bonding_curve,
+                remaining_usdc,
+            )?;
+            
+            remaining_usdc = result.remaining_usdc;
+            total_ever_received = total_ever_received.checked_add(result.ever_received).unwrap();
+            queue_usdc_used = queue_usdc_used.checked_add(result.usdc_used).unwrap();
+            
+            if result.order_fully_processed {
+                ctx.accounts.bonding_curve.sell_queue_head = ctx.accounts.bonding_curve.sell_queue_head.checked_add(1).unwrap();
             }
-        } else {
-            msg!("DEBUG: No sell orders in queue");
         }
+
+        // Process second sell order if available and USDC remaining
+        if ctx.accounts.bonding_curve.sell_queue_head < ctx.accounts.bonding_curve.sell_queue_tail && remaining_usdc > 0 {
+            if let (Some(sell_order_2), Some(seller_usdc_account_2)) = 
+                (&ctx.accounts.sell_order_2, &ctx.accounts.seller_usdc_account_2) {
+                
+                let result = process_single_sell_order(
+                    sell_order_2,
+                    seller_usdc_account_2,
+                    &ctx.accounts.user_usdc_account,
+                    &ctx.accounts.user_ever_account,
+                    &ctx.accounts.program_ever_account,
+                    &ctx.accounts.token_program,
+                    &bonding_curve_account_info,
+                    &mut ctx.accounts.bonding_curve,
+                    remaining_usdc,
+                )?;
+                
+                remaining_usdc = result.remaining_usdc;
+                total_ever_received = total_ever_received.checked_add(result.ever_received).unwrap();
+                queue_usdc_used = queue_usdc_used.checked_add(result.usdc_used).unwrap();
+                
+                if result.order_fully_processed {
+                    ctx.accounts.bonding_curve.sell_queue_head = ctx.accounts.bonding_curve.sell_queue_head.checked_add(1).unwrap();
+                }
+            }
+        }
+
+        // Process third sell order if available and USDC remaining
+        if ctx.accounts.bonding_curve.sell_queue_head < ctx.accounts.bonding_curve.sell_queue_tail && remaining_usdc > 0 {
+            if let (Some(sell_order_3), Some(seller_usdc_account_3)) = 
+                (&ctx.accounts.sell_order_3, &ctx.accounts.seller_usdc_account_3) {
+                
+                let result = process_single_sell_order(
+                    sell_order_3,
+                    seller_usdc_account_3,
+                    &ctx.accounts.user_usdc_account,
+                    &ctx.accounts.user_ever_account,
+                    &ctx.accounts.program_ever_account,
+                    &ctx.accounts.token_program,
+                    &bonding_curve_account_info,
+                    &mut ctx.accounts.bonding_curve,
+                    remaining_usdc,
+                )?;
+                
+                remaining_usdc = result.remaining_usdc;
+                total_ever_received = total_ever_received.checked_add(result.ever_received).unwrap();
+                queue_usdc_used = queue_usdc_used.checked_add(result.usdc_used).unwrap();
+                
+                if result.order_fully_processed {
+                    ctx.accounts.bonding_curve.sell_queue_head = ctx.accounts.bonding_curve.sell_queue_head.checked_add(1).unwrap();
+                }
+            }
+        }
+
+        msg!("DEBUG: Multi-order processing complete - remaining USDC: {}, queue USDC used: {}", remaining_usdc, queue_usdc_used);
 
         // If there's still USDC remaining, buy from reserves using bonding curve
         if remaining_usdc > 0 {
@@ -298,19 +226,19 @@ pub mod everrise_dex {
             
             msg!("DEBUG: Commission amount: {} USDC, Reserve amount: {} USDC", commission_amount, reserve_usdc);
             
-                if commission_amount > 0 {
-                    // Transfer commission to referrer (or treasury if no referrer)
-                    let (commission_recipient, is_referrer) = {
-                        let account_info = ctx.accounts.referrer_usdc_account.to_account_info();
-                        
-                        // Check if this is a valid token account (not a system program or dummy account)
-                        if account_info.owner == &token::ID && account_info.key() != Pubkey::from_str("11111111111111111111111111111111").unwrap() {
-                            (account_info, true)
-                        } else {
-                            (ctx.accounts.treasury_usdc_account.to_account_info(), false)
-                        }
-                    };
-                
+            if commission_amount > 0 {
+                // Transfer commission to referrer (or treasury if no referrer)
+                let (commission_recipient, is_referrer) = {
+                    let account_info = ctx.accounts.referrer_usdc_account.to_account_info();
+                    
+                    // Check if this is a valid token account (not a system program or dummy account)
+                    if account_info.owner == &token::ID && account_info.key() != Pubkey::from_str("11111111111111111111111111111111").unwrap() {
+                        (account_info, true)
+                    } else {
+                        (ctx.accounts.treasury_usdc_account.to_account_info(), false)
+                    }
+                };
+            
                 let cpi_accounts_commission = token::Transfer {
                     from: ctx.accounts.user_usdc_account.to_account_info(),
                     to: commission_recipient,
@@ -327,7 +255,7 @@ pub mod everrise_dex {
                 }
             }
             
-            let tokens_from_reserves = calculate_buy_amount(bonding_curve, reserve_usdc)?;
+            let tokens_from_reserves = calculate_buy_amount(&ctx.accounts.bonding_curve, reserve_usdc)?;
             require!(tokens_from_reserves > 0, ErrorCode::InvalidAmount);
             require!(ctx.accounts.program_ever_account.amount >= tokens_from_reserves, ErrorCode::InsufficientFunds);
 
@@ -342,38 +270,41 @@ pub mod everrise_dex {
             token::transfer(cpi_ctx_usdc, reserve_usdc)?;
 
             // Transfer EVER tokens from reserves to buyer
-            let seeds = &[&b"bonding_curve"[..], &[bonding_curve.bump]];
+            let seeds = &[&b"bonding_curve"[..], &[ctx.accounts.bonding_curve.bump]];
             let signer_seeds = &[&seeds[..]];
             let cpi_accounts_ever = token::Transfer {
                 from: ctx.accounts.program_ever_account.to_account_info(),
                 to: ctx.accounts.user_ever_account.to_account_info(),
-                authority: bonding_curve.to_account_info(),
+                authority: bonding_curve_account_info.clone(),
             };
             let cpi_program_ever = ctx.accounts.token_program.to_account_info();
             let cpi_ctx_ever = CpiContext::new_with_signer(cpi_program_ever, cpi_accounts_ever, signer_seeds);
             token::transfer(cpi_ctx_ever, tokens_from_reserves)?;
 
             // Update bonding curve state for reserve purchase (after commission)
-            bonding_curve.x = bonding_curve.x.checked_add(reserve_usdc).ok_or(ErrorCode::MathOverflow)?;
-            bonding_curve.y = bonding_curve.y.checked_sub(tokens_from_reserves).ok_or(ErrorCode::MathOverflow)?;
-            bonding_curve.k = u128::from(bonding_curve.x).checked_mul(u128::from(bonding_curve.y)).ok_or(ErrorCode::MathOverflow)?;
-            bonding_curve.circulating_supply = bonding_curve.circulating_supply.checked_add(tokens_from_reserves).ok_or(ErrorCode::MathOverflow)?;
+            ctx.accounts.bonding_curve.x = ctx.accounts.bonding_curve.x.checked_add(reserve_usdc).ok_or(ErrorCode::MathOverflow)?;
+            ctx.accounts.bonding_curve.y = ctx.accounts.bonding_curve.y.checked_sub(tokens_from_reserves).ok_or(ErrorCode::MathOverflow)?;
+            ctx.accounts.bonding_curve.k = u128::from(ctx.accounts.bonding_curve.x).checked_mul(u128::from(ctx.accounts.bonding_curve.y)).ok_or(ErrorCode::MathOverflow)?;
+            ctx.accounts.bonding_curve.circulating_supply = ctx.accounts.bonding_curve.circulating_supply.checked_add(tokens_from_reserves).ok_or(ErrorCode::MathOverflow)?;
             
             total_ever_received = total_ever_received.checked_add(tokens_from_reserves).unwrap();
         }
 
         // Update global state
-        bonding_curve.total_volume_24h = bonding_curve.total_volume_24h.checked_add(usdc_amount).ok_or(ErrorCode::MathOverflow)?;
-        bonding_curve.current_price = calculate_effective_price(bonding_curve);
-        bonding_curve.last_price_update = clock.unix_timestamp;
+        ctx.accounts.bonding_curve.total_volume_24h = ctx.accounts.bonding_curve.total_volume_24h.checked_add(usdc_amount).ok_or(ErrorCode::MathOverflow)?;
+        ctx.accounts.bonding_curve.current_price = calculate_effective_price(&ctx.accounts.bonding_curve);
+        ctx.accounts.bonding_curve.last_price_update = clock.unix_timestamp;
         
         emit!(AtomicBuyEvent {
             buyer: ctx.accounts.user.key(),
             usdc_amount,
             ever_received: total_ever_received,
-            new_price: bonding_curve.current_price,
+            new_price: ctx.accounts.bonding_curve.current_price,
             timestamp: clock.unix_timestamp,
         });
+
+        msg!("DEBUG: Buy completed - Total EVER received: {}, Queue USDC: {}, Reserve USDC: {}", 
+             total_ever_received, queue_usdc_used, usdc_amount - queue_usdc_used);
 
         Ok(())
     }
@@ -793,6 +724,185 @@ struct BuyProcessingResult {
     appreciation_bonus: u64,
 }
 
+// Result struct for single sell order processing
+#[derive(Debug)]
+struct SellOrderProcessingResult {
+    remaining_usdc: u64,
+    ever_received: u64,
+    usdc_used: u64,
+    order_fully_processed: bool,
+}
+
+// Helper function to process a single sell order
+fn process_single_sell_order<'info>(
+    sell_order_account: &UncheckedAccount<'info>,
+    seller_usdc_account: &UncheckedAccount<'info>,
+    user_usdc_account: &Account<'info, TokenAccount>,
+    user_ever_account: &Account<'info, TokenAccount>,
+    program_ever_account: &Account<'info, TokenAccount>,
+    token_program: &Program<'info, Token>,
+    bonding_curve_account: &AccountInfo<'info>,
+    bonding_curve: &mut BondingCurve,
+    remaining_usdc: u64,
+) -> Result<SellOrderProcessingResult> {
+    msg!("DEBUG: Processing single sell order - account: {}", sell_order_account.key());
+    
+    // Check if sell order account has data
+    if sell_order_account.data_len() == 0 {
+        msg!("DEBUG: Sell order account has no data");
+        return Ok(SellOrderProcessingResult {
+            remaining_usdc,
+            ever_received: 0,
+            usdc_used: 0,
+            order_fully_processed: false,
+        });
+    }
+    
+    // Deserialize sell order
+    let mut sell_order_data = sell_order_account.try_borrow_mut_data()?;
+    let mut sell_order = SellOrder::try_deserialize(&mut sell_order_data.as_ref())?;
+    
+    msg!("DEBUG: Sell order - processed: {}, remaining: {}, locked_price: {}", 
+         sell_order.processed, sell_order.remaining_amount, sell_order.locked_price);
+    
+    // Check if order is already processed or empty
+    if sell_order.processed || sell_order.remaining_amount == 0 {
+        msg!("DEBUG: Sell order already processed or empty");
+        drop(sell_order_data);
+        return Ok(SellOrderProcessingResult {
+            remaining_usdc,
+            ever_received: 0,
+            usdc_used: 0,
+            order_fully_processed: true,
+        });
+    }
+    
+    // Calculate how much USDC we can spend on this sell order
+    let usdc_for_this_sell = sell_order.remaining_amount
+        .checked_mul(sell_order.locked_price)
+        .unwrap_or(0)
+        .checked_div(1_000_000_000) // Convert from 9 decimals to 6
+        .unwrap_or(0);
+
+    msg!("DEBUG: USDC for this sell: {}, remaining USDC: {}", usdc_for_this_sell, remaining_usdc);
+    
+    if usdc_for_this_sell > 0 && usdc_for_this_sell <= remaining_usdc {
+        // Full fill of this sell order
+        msg!("DEBUG: Full fill - transferring {} USDC for {} EVER", usdc_for_this_sell, sell_order.remaining_amount);
+        let ever_from_sell = sell_order.remaining_amount;
+        
+        // Release the borrow before making transfers
+        drop(sell_order_data);
+        
+        // Transfer USDC from buyer to seller
+        let cpi_accounts_usdc = token::Transfer {
+            from: user_usdc_account.to_account_info(),
+            to: seller_usdc_account.to_account_info(),
+            authority: bonding_curve_account.clone(),
+        };
+        let cpi_program_usdc = token_program.to_account_info();
+        let cpi_ctx_usdc = CpiContext::new(cpi_program_usdc, cpi_accounts_usdc);
+        token::transfer(cpi_ctx_usdc, usdc_for_this_sell)?;
+
+        // Transfer EVER tokens from program to buyer
+        let seeds = &[&b"bonding_curve"[..], &[bonding_curve.bump]];
+        let signer_seeds = &[&seeds[..]];
+        let cpi_accounts_ever = token::Transfer {
+            from: program_ever_account.to_account_info(),
+            to: user_ever_account.to_account_info(),
+            authority: bonding_curve_account.clone(),
+        };
+        let cpi_program_ever = token_program.to_account_info();
+        let cpi_ctx_ever = CpiContext::new_with_signer(cpi_program_ever, cpi_accounts_ever, signer_seeds);
+        token::transfer(cpi_ctx_ever, ever_from_sell)?;
+
+        // Mark sell order as processed
+        let mut final_sell_order_data = sell_order_account.try_borrow_mut_data()?;
+        sell_order.processed = true;
+        sell_order.remaining_amount = 0;
+        sell_order.try_serialize(&mut final_sell_order_data.as_mut())?;
+        drop(final_sell_order_data);
+        
+        msg!("DEBUG: Full fill completed");
+        
+        Ok(SellOrderProcessingResult {
+            remaining_usdc: remaining_usdc.checked_sub(usdc_for_this_sell).unwrap(),
+            ever_received: ever_from_sell,
+            usdc_used: usdc_for_this_sell,
+            order_fully_processed: true,
+        })
+        
+    } else if remaining_usdc > 0 {
+        // Partial fill of this sell order
+        msg!("DEBUG: Partial fill - using all remaining USDC: {}", remaining_usdc);
+        let ever_for_partial = remaining_usdc
+            .checked_mul(1_000_000_000) // Convert to 9 decimals
+            .unwrap_or(0)
+            .checked_div(sell_order.locked_price)
+            .unwrap_or(0);
+
+        if ever_for_partial > 0 && ever_for_partial <= sell_order.remaining_amount {
+            msg!("DEBUG: Processing partial sell - transferring {} USDC for {} EVER", remaining_usdc, ever_for_partial);
+            
+            // Release the borrow before making transfers
+            drop(sell_order_data);
+            
+            // Transfer USDC from buyer to seller
+            let cpi_accounts_usdc = token::Transfer {
+                from: user_usdc_account.to_account_info(),
+                to: seller_usdc_account.to_account_info(),
+                authority: bonding_curve_account.clone(),
+            };
+            let cpi_program_usdc = token_program.to_account_info();
+            let cpi_ctx_usdc = CpiContext::new(cpi_program_usdc, cpi_accounts_usdc);
+            token::transfer(cpi_ctx_usdc, remaining_usdc)?;
+
+            // Transfer EVER tokens from program to buyer
+            let seeds = &[&b"bonding_curve"[..], &[bonding_curve.bump]];
+            let signer_seeds = &[&seeds[..]];
+            let cpi_accounts_ever = token::Transfer {
+                from: program_ever_account.to_account_info(),
+                to: user_ever_account.to_account_info(),
+                authority: bonding_curve_account.clone(),
+            };
+            let cpi_program_ever = token_program.to_account_info();
+            let cpi_ctx_ever = CpiContext::new_with_signer(cpi_program_ever, cpi_accounts_ever, signer_seeds);
+            token::transfer(cpi_ctx_ever, ever_for_partial)?;
+
+            // Update sell order remaining amount (partial fill)
+            let mut final_sell_order_data = sell_order_account.try_borrow_mut_data()?;
+            sell_order.remaining_amount = sell_order.remaining_amount.checked_sub(ever_for_partial).unwrap();
+            sell_order.try_serialize(&mut final_sell_order_data.as_mut())?;
+            drop(final_sell_order_data);
+            
+            msg!("DEBUG: Partial fill completed - remaining sell order amount: {}", sell_order.remaining_amount);
+            
+            Ok(SellOrderProcessingResult {
+                remaining_usdc: 0, // All USDC used for this sell order
+                ever_received: ever_for_partial,
+                usdc_used: remaining_usdc,
+                order_fully_processed: false, // Order not fully processed
+            })
+        } else {
+            msg!("DEBUG: Invalid partial fill calculation - ever_for_partial: {}, sell_remaining: {}", ever_for_partial, sell_order.remaining_amount);
+            Ok(SellOrderProcessingResult {
+                remaining_usdc,
+                ever_received: 0,
+                usdc_used: 0,
+                order_fully_processed: false,
+            })
+        }
+    } else {
+        msg!("DEBUG: No USDC remaining for this sell order");
+        Ok(SellOrderProcessingResult {
+            remaining_usdc,
+            ever_received: 0,
+            usdc_used: 0,
+            order_fully_processed: false,
+        })
+    }
+}
+
 // Helper function to process buy with sell queue (one sell order at a time)
 fn process_buy_with_sell_queue(
     accounts: &ProcessBuyQueue,
@@ -1144,13 +1254,29 @@ pub struct BuyWithSellProcessing<'info> {
     )]
     pub program_ever_account: Account<'info, TokenAccount>,
     
-    // Sell order account - only used when sell queue is not empty
+    // First sell order account - only used when sell queue is not empty
     /// CHECK: This account is only validated/used when sell queue is not empty
     pub sell_order: UncheckedAccount<'info>,
     
-    // Seller's USDC account - only used when processing sell orders
+    // First seller's USDC account - only used when processing sell orders
     /// CHECK: This account is only validated/used when processing a sell order
     pub seller_usdc_account: UncheckedAccount<'info>,
+    
+    // Second sell order account - optional for multi-order processing
+    /// CHECK: This account is only validated/used when processing multiple sell orders
+    pub sell_order_2: Option<UncheckedAccount<'info>>,
+    
+    // Second seller's USDC account - optional for multi-order processing
+    /// CHECK: This account is only validated/used when processing multiple sell orders
+    pub seller_usdc_account_2: Option<UncheckedAccount<'info>>,
+    
+    // Third sell order account - optional for multi-order processing
+    /// CHECK: This account is only validated/used when processing multiple sell orders
+    pub sell_order_3: Option<UncheckedAccount<'info>>,
+    
+    // Third seller's USDC account - optional for multi-order processing
+    /// CHECK: This account is only validated/used when processing multiple sell orders
+    pub seller_usdc_account_3: Option<UncheckedAccount<'info>>,
     
     // Referrer account - always required but may be dummy if no referrer
     /// CHECK: This account is validated in the instruction logic
