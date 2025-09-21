@@ -1038,29 +1038,29 @@ export default function DocsPage() {
   const currentLang = translations[selectedLanguage as keyof typeof translations] || translations.en;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{currentLang.title}</h1>
-              <p className="text-gray-600 mt-2">{currentLang.subtitle}</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{currentLang.title}</h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2">{currentLang.subtitle}</p>
             </div>
             
             {/* Language Dropdown */}
             <div className="flex items-center space-x-2">
-              <label htmlFor="language-select" className="text-sm font-medium text-gray-700">
+              <label htmlFor="language-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {currentLang.language.label}:
               </label>
               <select
                 id="language-select"
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400"
               >
                 {Object.entries(currentLang.language.options).map(([code, name]) => (
-                  <option key={code} value={code}>
+                  <option key={code} value={code} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
                     {name}
                   </option>
                 ))}
@@ -1166,6 +1166,25 @@ export default function DocsPage() {
               </div>
             </a>
           </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-12 text-center text-gray-500 dark:text-gray-400 text-sm">
+          <p>© 2024 EverRise. All rights reserved.</p>
+          <div className="mt-4 flex justify-center space-x-6">
+            <a href="/docs" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+              Documentation
+            </a>
+            <a href="/litepaper/en" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+              Litepaper
+            </a>
+            <a href="https://github.com/everrise-dex" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+              GitHub
+            </a>
+          </div>
+          <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
+            Built on Solana • Powered by EverRise DEX
+          </p>
         </div>
       </div>
     </div>

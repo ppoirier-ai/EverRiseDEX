@@ -206,6 +206,50 @@ export class ContractService {
     return getAssociatedTokenAddress(EVER_MINT, this.wallet.publicKey!);
   }
 
+  // Check if a token account exists and create it if it doesn't
+  async ensureTokenAccountExists(mint: PublicKey, owner: PublicKey): Promise<PublicKey> {
+    const { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } = await import('@solana/spl-token');
+    const { Transaction } = await import('@solana/web3.js');
+    
+    const tokenAccount = await getAssociatedTokenAddress(mint, owner);
+    
+    // Check if the account exists
+    const accountInfo = await this.connection.getAccountInfo(tokenAccount);
+    
+    if (!accountInfo) {
+      console.log(`Creating token account for mint ${mint.toString()}`);
+      
+      // Create the associated token account instruction
+      const instruction = createAssociatedTokenAccountInstruction(
+        this.wallet.publicKey!, // payer
+        tokenAccount, // associated token account
+        owner, // owner
+        mint // mint
+      );
+      
+      // Create and send transaction
+      const transaction = new Transaction().add(instruction);
+      
+      // Get recent blockhash
+      const { blockhash } = await this.connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = this.wallet.publicKey!;
+      
+      // Sign and send transaction
+      const signedTransaction = await this.wallet.signTransaction!(transaction);
+      const tx = await this.connection.sendRawTransaction(signedTransaction.serialize());
+      
+      // Wait for confirmation
+      await this.connection.confirmTransaction(tx);
+      
+      console.log(`✅ Token account created: ${tokenAccount.toString()}`);
+    } else {
+      console.log(`✅ Token account already exists: ${tokenAccount.toString()}`);
+    }
+    
+    return tokenAccount;
+  }
+
   // Get program's USDC token account (owned by bonding curve PDA)
   async getProgramUsdcAccount(): Promise<PublicKey> {
     // Program USDC account owned by the bonding curve PDA
@@ -365,11 +409,19 @@ export class ContractService {
         }
       }
 
+      // Ensure user's token accounts exist before proceeding
+      const USDC_MINT = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
+      const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb');
+      
+      console.log('🔍 Ensuring token accounts exist...');
+      const userUsdcAccount = await this.ensureTokenAccountExists(USDC_MINT, this.wallet.publicKey!);
+      const userEverAccount = await this.ensureTokenAccountExists(EVER_MINT, this.wallet.publicKey!);
+
       const accounts = {
         bondingCurve: bondingCurvePDA,
         user: this.wallet.publicKey!,
-        userUsdcAccount: await this.getUserUsdcAccount(),
-        userEverAccount: await this.getUserEverAccount(),
+        userUsdcAccount: userUsdcAccount,
+        userEverAccount: userEverAccount,
         treasuryUsdcAccount: await this.getTreasuryUsdcAccount(),
         programEverAccount: await this.getProgramEverAccount(),
         sellOrder: sellOrderPDA,
@@ -634,8 +686,10 @@ export class ContractService {
       console.log('  Sell Order Seed (tail + 1):', bondingCurveData.sellQueueTail + 1);
       console.log('  Generated Sell Order PDA:', sellOrderPDA.toString());
 
-      // Get required token accounts (sell only needs EVER accounts)
-      const userEverAccount = await this.getUserEverAccount();
+      // Ensure user's EVER account exists before proceeding
+      const EVER_MINT = new PublicKey('85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb');
+      console.log('🔍 Ensuring EVER token account exists...');
+      const userEverAccount = await this.ensureTokenAccountExists(EVER_MINT, this.wallet.publicKey!);
       const programEverAccount = await this.getProgramEverAccount();
 
       const instruction = await this.program.methods

@@ -1,9 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { WalletContextProvider } from '@/contexts/WalletContext'
-import { ContractProvider } from '@/contexts/ContractContext'
-import { Navbar } from '@/components/Navbar'
+import ConditionalWalletProvider from '@/components/ConditionalWalletProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -34,12 +32,9 @@ export default function RootLayout({
             🚧 STAGING ENVIRONMENT - FOR TESTING ONLY 🚧
           </div>
         )}
-        <WalletContextProvider>
-          <ContractProvider>
-            <Navbar />
-            {children}
-          </ContractProvider>
-        </WalletContextProvider>
+        <ConditionalWalletProvider>
+          {children}
+        </ConditionalWalletProvider>
       </body>
     </html>
   )

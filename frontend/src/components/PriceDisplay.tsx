@@ -88,7 +88,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
             <span className="text-sm text-gray-600">Market Cap</span>
           </div>
           <div className="text-lg font-semibold text-gray-900">
-            ${formattedMarketCap}
+            {formattedMarketCap}
           </div>
         </div>
 
@@ -119,7 +119,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
             {treasuryBitcoin.toFixed(4)} BTC
           </div>
           <div className="text-sm text-gray-600">
-            ${formattedTreasuryUSDC} USDC
+            {formattedTreasuryUSDC} USDC
           </div>
           <div className="flex items-center space-x-1 mt-1">
             <Clock className="w-3 h-3 text-gray-400" />

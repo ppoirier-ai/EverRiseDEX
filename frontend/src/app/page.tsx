@@ -79,7 +79,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error Display */}
         {error && (
@@ -102,7 +102,7 @@ export default function Home() {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Bitcoin pioneered money that cannot be printed. EverRise improved with prices that cannot be haggled.
           </p>
         </div>
@@ -171,8 +171,8 @@ export default function Home() {
         </div>
 
         {/* Features Section */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
             Why EverRise is Different
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -182,8 +182,8 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Perpetual Growth</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Perpetual Growth</h3>
+              <p className="text-gray-600 dark:text-gray-300">
                 Bonding curve mechanics ensure price only goes up. No dips, no crashes, just continuous upward momentum.
               </p>
             </div>
@@ -193,8 +193,8 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Daily Guarantee</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Daily Guarantee</h3>
+              <p className="text-gray-600 dark:text-gray-300">
                 Minimum 0.02% daily growth guarantee ensures consistent appreciation even during low activity periods.
               </p>
             </div>
@@ -204,12 +204,31 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Peer-to-Peer</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Peer-to-Peer</h3>
+              <p className="text-gray-600 dark:text-gray-300">
                 Smart queue system matches buyers and sellers directly, with treasury buybacks as backup liquidity.
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-12 text-center text-gray-500 dark:text-gray-400 text-sm">
+          <p>© 2024 EverRise. All rights reserved.</p>
+          <div className="mt-4 flex justify-center space-x-6">
+            <a href="/docs" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+              Documentation
+            </a>
+            <a href="/litepaper/en" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+              Litepaper
+            </a>
+            <a href="https://github.com/everrise-dex" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+              GitHub
+            </a>
+          </div>
+          <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
+            Built on Solana • Powered by EverRise DEX
+          </p>
         </div>
       </div>
     </div>
