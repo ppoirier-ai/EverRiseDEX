@@ -352,7 +352,7 @@ export class ContractService {
       let sellOrderPDA = new PublicKey('11111111111111111111111111111111'); // SystemProgram.programId
       let sellerUsdcAccount = new PublicKey('11111111111111111111111111111111'); // SystemProgram.programId
 
-      // If there are sell orders, get the first one
+      // If there are sell orders, get the first one (smart contract will handle the rest)
       if (bondingCurveData.sellQueueHead < bondingCurveData.sellQueueTail) {
         console.log('🔍 Processing sell orders - head:', bondingCurveData.sellQueueHead, 'tail:', bondingCurveData.sellQueueTail);
         const firstSellOrderPosition = bondingCurveData.sellQueueHead;
@@ -434,8 +434,8 @@ export class ContractService {
       console.log('🔍 Accounts being passed to instruction:', Object.keys(accounts));
       console.log('🔍 referrerUsdcAccount:', referrerUsdcAccount?.toString() || 'null');
       console.log('🔍 referrer:', referrer || 'null');
-      console.log('🔍 sellerUsdcAccount:', sellerUsdcAccount.toString());
       console.log('🔍 sellOrderPDA:', sellOrderPDA.toString());
+      console.log('🔍 sellerUsdcAccount:', sellerUsdcAccount.toString());
 
       const instruction = await this.program.methods
         .buySmart(amount)
