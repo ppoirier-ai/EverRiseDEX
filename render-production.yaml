@@ -22,5 +22,5 @@ services:
         value: 3q4YFYMKHrdYw5FPANQ7nrCQMT4t12XKgzYX8JaTeEx8
       - key: NEXT_PUBLIC_USDC_MINT
         value: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
-      - key: NEXT_PUBLIC_RPC_URL
-        value: https://api.mainnet-beta.solana.com
+             - key: NEXT_PUBLIC_RPC_URL
+               value: https://solana-mainnet.g.alchemy.com/v2/demo

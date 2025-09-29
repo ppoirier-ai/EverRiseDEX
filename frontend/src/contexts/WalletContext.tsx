@@ -34,7 +34,7 @@ export const WalletContextProvider: React.FC<WalletContextProviderProps> = ({ ch
   // You can also provide a custom RPC endpoint
   const endpoint = useMemo(() => {
     // Use environment variable for RPC endpoint
-    return process.env.NEXT_PUBLIC_RPC_URL || 'https://api.mainnet-beta.solana.com';
+    return process.env.NEXT_PUBLIC_RPC_URL || 'https://solana-mainnet.g.alchemy.com/v2/demo';
   }, []);
 
   const wallets = useMemo(
