@@ -1105,27 +1105,40 @@ export default function DocsPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{video.title}</h3>
                 <p className="text-gray-600 text-sm mb-4">{(video as { description?: string }).description || ''}</p>
                 
-                {/* Embedded YouTube Video */}
-                <div className="aspect-video rounded-lg overflow-hidden mb-4">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    src={`https://www.youtube.com/embed/${video.videoId}`}
-                    title={video.title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    className="w-full h-full"
-                  ></iframe>
-                </div>
-                
-                {/* Special note for Phantom wallet video */}
-                {video.videoId === 'bStvWbUdsMw' && (
-                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                    <p className="text-sm text-blue-800">
-                      <strong>💡 Important:</strong> After installing Phantom wallet, you&apos;ll need to purchase a few dollars worth of Solana (SOL) for transaction fees and the rest in USDC (USD Coin) which will be used to purchase EverRise tokens. You can buy these cryptocurrencies on exchanges like Coinbase, Binance, or directly through Phantom&apos;s built-in swap feature.
-                    </p>
+                {/* Show Coming Soon for last 2 videos */}
+                {index >= 2 ? (
+                  <div className="aspect-video rounded-lg overflow-hidden mb-4 bg-gray-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-4xl mb-2">🚧</div>
+                      <p className="text-lg font-semibold text-gray-600">Coming Soon</p>
+                      <p className="text-sm text-gray-500">This video will be available soon</p>
+                    </div>
                   </div>
+                ) : (
+                  <>
+                    {/* Embedded YouTube Video */}
+                    <div className="aspect-video rounded-lg overflow-hidden mb-4">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={`https://www.youtube.com/embed/${video.videoId}`}
+                        title={video.title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        className="w-full h-full"
+                      ></iframe>
+                    </div>
+                    
+                    {/* Special note for Phantom wallet video */}
+                    {video.videoId === 'bStvWbUdsMw' && (
+                      <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                        <p className="text-sm text-blue-800">
+                          <strong>💡 Important:</strong> After installing Phantom wallet, you&apos;ll need to purchase a few dollars worth of Solana (SOL) for transaction fees and the rest in USDC (USD Coin) which will be used to purchase EverRise tokens. You can buy these cryptocurrencies on exchanges like Coinbase, Binance, or directly through Phantom&apos;s built-in swap feature.
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             ))}
@@ -1152,17 +1165,19 @@ export default function DocsPage() {
             </Link>
             
             <a
-              href="mailto:support@everrise.com"
+              href="https://t.me/+bUWN0_nj2Do4MDRl"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center p-4 bg-white rounded-lg hover:shadow-md transition-shadow"
             >
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
                 </svg>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900">Support</h4>
-                <p className="text-sm text-gray-600">Get help & support</p>
+                <h4 className="font-medium text-gray-900">Telegram</h4>
+                <p className="text-sm text-gray-600">Join our community</p>
               </div>
             </a>
           </div>
