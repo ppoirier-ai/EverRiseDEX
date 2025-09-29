@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
             <Link href="/docs" className="text-gray-600 hover:text-gray-900 transition-colors">
               Docs
             </Link>
-            {connected && publicKey?.toString() === 'FEVyge83aMu6gP2uSXUFFH7ujVs2SQqfA425S7mJJGqA' && (
+            {connected && publicKey?.toString() === 'DTA5uQocoAaZwXL59DoVZwWUxJCsxjfBCM6mzpws8T4' && (
               <a href="/admin" className="text-blue-600 hover:text-blue-800 transition-colors font-medium">
                 Admin
               </a>
@@ -189,7 +189,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
               <a href="/docs" className="block text-gray-600 hover:text-gray-900 transition-colors">
                 Docs
               </a>
-              {connected && publicKey?.toString() === 'FEVyge83aMu6gP2uSXUFFH7ujVs2SQqfA425S7mJJGqA' && (
+              {connected && publicKey?.toString() === 'DTA5uQocoAaZwXL59DoVZwWUxJCsxjfBCM6mzpws8T4' && (
                 <a href="/admin" className="block text-blue-600 hover:text-blue-800 transition-colors font-medium">
                   Admin
                 </a>

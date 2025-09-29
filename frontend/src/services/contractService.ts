@@ -7,7 +7,7 @@ import IDL from '../everrise_dex.json';
 // Contract configuration
 export const PROGRAM_ID = new PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID || '9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy');
 export const BONDING_CURVE_SEED = process.env.NEXT_PUBLIC_BONDING_CURVE_SEED || 'bonding_curve';
-export const TREASURY_WALLET = new PublicKey(process.env.NEXT_PUBLIC_TREASURY_WALLET || 'FEVyge83aMu6gP2uSXUFFH7ujVs2SQqfA425S7mJJGqA');
+export const TREASURY_WALLET = new PublicKey(process.env.NEXT_PUBLIC_TREASURY_WALLET || 'DTA5uQocoAaZwXL59DoVZwWUxJCsxjfBCM6mzpws8T4');
 
 export interface BondingCurveData {
   authority: PublicKey;
@@ -202,7 +202,7 @@ export class ContractService {
   // Get user's EVER token account
   async getUserEverAccount(): Promise<PublicKey> {
     const { getAssociatedTokenAddress } = await import('@solana/spl-token');
-    const EVER_MINT = new PublicKey(process.env.NEXT_PUBLIC_EVER_MINT || '85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb');
+    const EVER_MINT = new PublicKey(process.env.NEXT_PUBLIC_EVER_MINT || '3q4YFYMKHrdYw5FPANQ7nrCQMT4t12XKgzYX8JaTeEx8');
     return getAssociatedTokenAddress(EVER_MINT, this.wallet.publicKey!);
   }
 
@@ -411,7 +411,7 @@ export class ContractService {
 
       // Ensure user's token accounts exist before proceeding
       const USDC_MINT = new PublicKey(process.env.NEXT_PUBLIC_USDC_MINT || 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
-      const EVER_MINT = new PublicKey(process.env.NEXT_PUBLIC_EVER_MINT || '85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb');
+      const EVER_MINT = new PublicKey(process.env.NEXT_PUBLIC_EVER_MINT || '3q4YFYMKHrdYw5FPANQ7nrCQMT4t12XKgzYX8JaTeEx8');
       
       console.log('🔍 Ensuring token accounts exist...');
       const userUsdcAccount = await this.ensureTokenAccountExists(USDC_MINT, this.wallet.publicKey!);
@@ -687,7 +687,7 @@ export class ContractService {
       console.log('  Generated Sell Order PDA:', sellOrderPDA.toString());
 
       // Ensure user's EVER account exists before proceeding
-      const EVER_MINT = new PublicKey(process.env.NEXT_PUBLIC_EVER_MINT || '85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb');
+      const EVER_MINT = new PublicKey(process.env.NEXT_PUBLIC_EVER_MINT || '3q4YFYMKHrdYw5FPANQ7nrCQMT4t12XKgzYX8JaTeEx8');
       console.log('🔍 Ensuring EVER token account exists...');
       const userEverAccount = await this.ensureTokenAccountExists(EVER_MINT, this.wallet.publicKey!);
       const programEverAccount = await this.getProgramEverAccount();
