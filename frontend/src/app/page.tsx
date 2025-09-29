@@ -103,7 +103,7 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-8">
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Bitcoin pioneered money that cannot be printed. EverRise improved with prices that cannot be haggled.
+            Bitcoin pioneered money that cannot be printed. EverRise improved with prices that cannot be negotiated.
           </p>
         </div>
 
@@ -215,17 +215,17 @@ export default function Home() {
         {/* Footer */}
         <div className="mt-12 text-center text-gray-500 dark:text-gray-400 text-sm">
           <p>© 2024 EverRise. All rights reserved.</p>
-          <div className="mt-4 flex justify-center space-x-6">
-            <a href="/docs" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
-              Documentation
-            </a>
-            <a href="/litepaper/en" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
-              Litepaper
-            </a>
-            <a href="https://github.com/everrise-dex" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
-              GitHub
-            </a>
-          </div>
+           <div className="mt-4 flex justify-center space-x-6">
+             <a href="/docs" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+               Documentation
+             </a>
+             <a href="/litepaper/en" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+               Litepaper
+             </a>
+             <a href="https://t.me/+bUWN0_nj2Do4MDRl" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+               Telegram
+             </a>
+           </div>
           <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
             Built on Solana • Powered by EverRise DEX
           </p>

@@ -2,12 +2,12 @@ import LitepaperLayout from '@/components/LitepaperLayout';
 
 const litepaperContent = {
   title: 'EverRise - Litepaper',
-  subtitle: 'Bitcoin pioneered money that cannot be printed. EverRise improved with prices that cannot be haggled.',
+  subtitle: 'Bitcoin pioneered money that cannot be printed. EverRise improved with prices that cannot be negotiated.',
   sections: [
     {
       id: 'introduction',
       title: 'Introduction',
-      content: `Ever fell prey to pump and dump schemes? Buying an asset at the top, only to suffer a massive crash not long after? You'll want to pay attention to EverRise, the innovative asset that is programmatically designed to never decrease in price. While Bitcoin pioneered money that cannot be printed, EverRise improved with prices that cannot be haggled.
+      content: `Ever fell prey to pump and dump schemes? Buying an asset at the top, only to suffer a massive crash not long after? You'll want to pay attention to EverRise, the innovative asset that is programmatically designed to never decrease in price. While Bitcoin pioneered money that cannot be printed, EverRise improved with prices that cannot be negotiated.
 
 In an era where financial markets are increasingly plagued by short-term volatility, the world demands a new breed of store of value—one that shields investors from the erratic swings of traditional assets while delivering consistent, long-term growth. Traditional stores like gold or government bonds offer stability but often lag in appreciation, while cryptocurrencies like Bitcoin promise revolutionary upside yet expose holders to dramatic drawdowns driven by speculation and macroeconomic pressures.
 
