@@ -7,9 +7,9 @@ async function main() {
   const idl = JSON.parse(fs.readFileSync('./target/idl/everrise_dex.json', 'utf8'));
   
   // Setup connection and wallet
-  const connection = new Connection('https://api.devnet.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=75a68bf2-6062-4a1d-a4b5-ef717adf211b');
   const wallet = Keypair.fromSecretKey(
-    new Uint8Array(JSON.parse(fs.readFileSync('/Users/ppoirier/.config/solana/id.json', 'utf8')))
+    new Uint8Array(JSON.parse(fs.readFileSync('/Users/ppoirier/.config/solana/production-deployer.json', 'utf8')))
   );
   
   // Create a proper wallet interface
@@ -30,7 +30,7 @@ async function main() {
   
   // Program and PDA addresses
   const PROGRAM_ID = new PublicKey('9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy');
-  const TREASURY_WALLET = new PublicKey('FEVyge83aMu6gP2uSXUFFH7ujVs2SQqfA425S7mJJGqA');
+  const TREASURY_WALLET = new PublicKey('DTA5uQocoAaZwXL59DoVZwWUxJCsxjfBCM6mzpws8T4');
   const [bondingCurvePDA] = PublicKey.findProgramAddressSync(
     [Buffer.from('bonding_curve')],
     PROGRAM_ID
@@ -73,7 +73,7 @@ async function main() {
     console.log('K (constant):', bondingCurve.k.toString());
     console.log('Initial Price:', (Number(bondingCurve.x) / Number(bondingCurve.y) * 1_000_000_000 / 1_000_000).toFixed(6), 'USDC per EVER');
     
-    console.log('\n🎉 Bonding curve successfully initialized on DevNet!');
+    console.log('\n🎉 Bonding curve successfully initialized on Mainnet!');
     
   } catch (error) {
     console.error('❌ Error:', error);

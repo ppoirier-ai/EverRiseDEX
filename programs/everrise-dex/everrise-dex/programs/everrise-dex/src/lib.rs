@@ -934,7 +934,7 @@ fn process_buy_with_sell_queue(
         msg!("CRITICAL DEBUG: Sufficient balance: {}", accounts.program_ever_account.amount >= reserve_ever);
         
         // Check if this is the correct account
-        let expected_program_ever_account = Pubkey::from_str("8t4CT8pfMjvVTGmvdtKUkVfaqrLZuEW8WaVKLPqaogpN").unwrap();
+        let expected_program_ever_account = Pubkey::from_str("2zxSEQRegNfZddGHC7xBcCtXzfafnMKdEhh2rp3KDzrz").unwrap();
         msg!("CRITICAL DEBUG: Expected program EVER account: {}", expected_program_ever_account);
         msg!("CRITICAL DEBUG: Account matches expected: {}", accounts.program_ever_account.key() == expected_program_ever_account);
         
@@ -953,7 +953,7 @@ fn process_buy_with_sell_queue(
         
         // Check if the account is the right mint
         msg!("CRITICAL DEBUG: Program EVER account mint: {}", accounts.program_ever_account.mint);
-        let expected_ever_mint = Pubkey::from_str("85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb").unwrap();
+        let expected_ever_mint = Pubkey::from_str("3q4YFYMKHrdYw5FPANQ7nrCQMT4t12XKgzYX8JaTeEx8").unwrap();
         msg!("CRITICAL DEBUG: Expected EVER mint: {}", expected_ever_mint);
         msg!("CRITICAL DEBUG: Mint matches expected: {}", accounts.program_ever_account.mint == expected_ever_mint);
         

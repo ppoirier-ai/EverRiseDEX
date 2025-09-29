@@ -94,9 +94,73 @@ anchor test
 ```
 
 ### Deploy
+
+#### Development/Staging
 ```bash
 anchor deploy --provider.cluster devnet
 ```
+
+#### Production Deployment (CRITICAL STEPS)
+
+**⚠️ IMPORTANT: Follow these steps exactly to prevent address mismatches**
+
+1. **Pre-deployment Setup**
+   ```bash
+   # Set to mainnet
+   solana config set --url https://api.mainnet-beta.solana.com
+   
+   # Verify wallet has sufficient SOL (minimum 5 SOL recommended)
+   solana balance
+   ```
+
+2. **Build and Deploy**
+   ```bash
+   cd programs/everrise-dex/everrise-dex
+   anchor build
+   anchor deploy --provider.cluster mainnet-beta
+   ```
+
+3. **Get Program ID**
+   ```bash
+   PROGRAM_ID=$(solana address --keypair target/deploy/everrise_dex-keypair.json)
+   echo "Program ID: $PROGRAM_ID"
+   ```
+
+4. **Create Bonding Curve PDA**
+   ```bash
+   # Derive bonding curve PDA
+   BONDING_CURVE_PDA=$(solana address --keypair <(echo "bonding_curve" | xxd -p -c 256))
+   echo "Bonding Curve PDA: $BONDING_CURVE_PDA"
+   ```
+
+5. **Create Program Token Accounts (CRITICAL)**
+   ```bash
+   # Create program EVER account (owned by bonding curve PDA)
+   node create-ever-account-simple.js
+   
+   # Create program USDC account (owned by bonding curve PDA)  
+   node create-program-accounts.js
+   ```
+
+6. **Initialize Bonding Curve**
+   ```bash
+   node init-bonding-curve.js
+   ```
+
+7. **Verify Deployment**
+   ```bash
+   # Check bonding curve exists
+   solana account $BONDING_CURVE_PDA
+   
+   # Check program token accounts exist
+   node check-program-ever-balance.js
+   ```
+
+**🚨 CRITICAL NOTES:**
+- **NEVER hardcode token account addresses** - they must be created dynamically
+- **Program token accounts MUST be owned by bonding curve PDA** for autonomous operation
+- **Always verify addresses match between smart contract and actual accounts**
+- **Test thoroughly on devnet before mainnet deployment**
 
 ## 📝 Constants
 
@@ -131,3 +195,23 @@ For detailed technical specifications, see:
 - Sales queue enables peer-to-peer matching
 - Treasury wallet receives all USDC from buys
 - Program ID: `9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy`
+
+## 🏭 Production Addresses
+
+### Current Production Configuration
+- **Program ID**: `9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy`
+- **Bonding Curve PDA**: `9pdSYBWZfgm9S8qJJA2vVs1iRfPeosoagh1aKsm83ddU`
+- **Treasury Wallet**: `DTA5uQocoAaZwXL59DoVZwWUxJCsxjfBCM6mzpws8T4`
+- **EVER Mint**: `3q4YFYMKHrdYw5FPANQ7nrCQMT4t12XKgzYX8JaTeEx8`
+- **USDC Mint**: `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`
+
+### Program Token Accounts
+- **Program USDC Account**: `CcpCLzvrwcY9Ufupvp69BDKuYZieE2ExQLoHdPKa3Aus`
+- **Program EVER Account**: `2zxSEQRegNfZddGHC7xBcCtXzfafnMKdEhh2rp3KDzrz` ⚠️ **UPDATED**
+
+### ⚠️ CRITICAL ISSUE IDENTIFIED
+The smart contract currently has a hardcoded incorrect address for the program EVER account:
+- **Smart contract expects**: `8t4CT8pfMjvVTGmvdtKUkVfaqrLZuEW8WaVKLPqaogpN` (INVALID)
+- **Actually created**: `2zxSEQRegNfZddGHC7xBcCtXzfafnMKdEhh2rp3KDzrz` (VALID)
+
+**This mismatch prevents buy orders from working and requires a smart contract update.**

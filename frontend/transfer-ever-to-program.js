@@ -16,7 +16,7 @@ async function transferEverToProgram() {
     
     // Account addresses
     const treasuryEverAccount = new PublicKey('81xDWLArux2ni1HWXxzzrxFGrb5UyPJhByXahwPm2D6K');
-    const programEverAccount = new PublicKey('8t4CT8pfMjvVTGmvdtKUkVfaqrLZuEW8WaVKLPqaogpN');
+    const programEverAccount = new PublicKey('2zxSEQRegNfZddGHC7xBcCtXzfafnMKdEhh2rp3KDzrz');
     
     // Check current balances
     const treasuryBalance = await getAccount(connection, treasuryEverAccount);

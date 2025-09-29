@@ -253,13 +253,13 @@ export class ContractService {
   // Get program's USDC token account (owned by bonding curve PDA)
   async getProgramUsdcAccount(): Promise<PublicKey> {
     // Program USDC account owned by the bonding curve PDA
-    return new PublicKey('CcpCLzvrwcY9Ufupvp69BDKuYZieE2ExQLoHdPKa3Aus');
+    return new PublicKey('5ZYxeV1qQJmynuKs1m1jonrw8pUTaHonr5anP3YwRYLA');
   }
 
   // Get program's EVER token account (owned by bonding curve PDA)
   async getProgramEverAccount(): Promise<PublicKey> {
     // Program EVER account owned by the bonding curve PDA
-    return new PublicKey('8t4CT8pfMjvVTGmvdtKUkVfaqrLZuEW8WaVKLPqaogpN');
+    return new PublicKey('2zxSEQRegNfZddGHC7xBcCtXzfafnMKdEhh2rp3KDzrz');
   }
 
   // Get treasury's USDC token account
