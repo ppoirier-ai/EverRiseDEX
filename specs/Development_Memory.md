@@ -8,7 +8,13 @@
   - Used for development and testing purposes
   - **IMPORTANT**: Always use this address when referencing the EVER token in development
 
-### Treasury Wallet
+### Production Token (Mainnet)
+- **EVER Token Mint**: `3q4YFYMKHrdYw5FPANQ7nrCQMT4t12XKgzYX8JaTeEx8`
+  - This is the production EVER token on Solana mainnet
+  - Used for production deployment
+  - **IMPORTANT**: This is the LIVE token address for production
+
+### Treasury Wallet (Devnet)
 - **Treasury Address**: `FEVyge83aMu6gP2uSXUFFH7ujVs2SQqfA425S7mJJGqA`
   - This wallet receives USDC when buys are taken from the reserve
   - Used for bonding curve mechanics (X variable in the formula)
@@ -18,12 +24,28 @@
   - **CRITICAL**: Treasury wallet only receives USDC and optionally sets treasury values once a week
   - **CRITICAL**: Treasury wallet should be kept secure and separate from DEX operations
 
-### Smart Contract Program ID
+### Treasury Wallet (Production)
+- **Treasury Address**: `DTA5uQocoAaZwXL59DoVZwWUxJCsxjfBCM6mzpws8T4`
+  - This is the production treasury wallet on Solana mainnet
+  - Receives USDC when buys are taken from the reserve
+  - Used for bonding curve mechanics (X variable in the formula)
+  - **IMPORTANT**: This is the LIVE treasury address for production
+  - **CRITICAL**: Keep this wallet secure and separate from DEX operations
+
+### Smart Contract Program ID (DevNet)
 - **Program ID**: `9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy`
   - This is the deployed EverRise DEX smart contract program ID
   - **Network**: Solana DevNet
   - **Deployment Status**: ✅ Successfully Deployed and Initialized
   - **Last Deployment**: January 3, 2025
+
+### Smart Contract Program ID (Production)
+- **Program ID**: `9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy`
+  - This is the production EverRise DEX smart contract program ID
+  - **Network**: Solana Mainnet
+  - **Deployment Status**: ✅ Successfully Deployed
+  - **Last Deployment**: January 3, 2025
+  - **Deployment Signature**: `2CWGUb5riYFrAm29kWXcx16LpKWbcHk9qtAjj92rp7vB1dXdBJPVeMdadeURjNTNz1n6XQJcvjo1T8aNL3VBXt18`
 - **Deployment Signature**: `3HqeDbKpKM3W49HX1xUFMgKQaE9LyZvGxKmwgW5WB2MBgkCEeVS2hBthVvBsnw2xgHvP47udtPQ39ws61JsWYxU6`
   - **CRITICAL**: Always use this exact ID when interacting with the contract
   - **IMPORTANT**: If redeployed, this ID will change - update this memory file immediately

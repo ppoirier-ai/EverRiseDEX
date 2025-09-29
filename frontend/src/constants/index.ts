@@ -1,5 +1,5 @@
 // Treasury constants
-export const TREASURY_WALLET_ADDRESS = 'FEVyge83aMu6gP2uSXUFFH7ujVs2SQqfA425S7mJJGqA';
+export const TREASURY_WALLET_ADDRESS = process.env.NEXT_PUBLIC_TREASURY_WALLET || 'FEVyge83aMu6gP2uSXUFFH7ujVs2SQqfA425S7mJJGqA';
 
 // Default treasury values
 export const DEFAULT_TREASURY_BITCOIN = 0.5;

@@ -6,8 +6,8 @@ use std::str::FromStr;
 pub const AFFILIATE_PROGRAM_ID: Pubkey = pubkey!("11111111111111111111111111111111");
 
 // Mint addresses for validation
-const USDC_MINT: Pubkey = pubkey!("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
-const EVER_MINT: Pubkey = pubkey!("85XVWBtfKcycymJehFWAJcH1iDfHQRihxryZjugUkgnb");
+const USDC_MINT: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"); // Mainnet USDC
+const EVER_MINT: Pubkey = pubkey!("3q4YFYMKHrdYw5FPANQ7nrCQMT4t12XKgzYX8JaTeEx8"); // Production EVER mint
 
 declare_id!("9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy");
 

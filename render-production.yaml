@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: everrise-dex-production
+    env: node
+    plan: starter
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: NEXT_PUBLIC_SOLANA_NETWORK
+        value: mainnet-beta
+      - key: NEXT_PUBLIC_PROGRAM_ID
+        value: 9tXMAMrSrdkQ6ojkU87TRn3w13joZioz6iuab44ywwpy
+      - key: NEXT_PUBLIC_BONDING_CURVE_SEED
+        value: bonding_curve
+      - key: NEXT_PUBLIC_TREASURY_WALLET
+        value: DTA5uQocoAaZwXL59DoVZwWUxJCsxjfBCM6mzpws8T4
+      - key: NEXT_PUBLIC_EVER_MINT
+        value: 3q4YFYMKHrdYw5FPANQ7nrCQMT4t12XKgzYX8JaTeEx8
+      - key: NEXT_PUBLIC_USDC_MINT
+        value: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+      - key: NEXT_PUBLIC_RPC_URL
+        value: https://api.mainnet-beta.solana.com
