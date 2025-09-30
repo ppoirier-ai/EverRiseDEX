@@ -273,9 +273,26 @@ export class ContractService {
 
   // Get treasury's USDC token account
   async getTreasuryUsdcAccount(): Promise<PublicKey> {
-    const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+    // Treasury is a Squad multi-sig wallet, so we need to use a regular token account
+    // instead of an Associated Token Account (which requires the owner to be on the curve)
     const USDC_MINT = new PublicKey(process.env.NEXT_PUBLIC_USDC_MINT || 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
-    return await getAssociatedTokenAddress(USDC_MINT, TREASURY_WALLET);
+    
+    // For Squad multi-sig wallets, we need to use a pre-created regular token account
+    // This should be the actual treasury USDC account address that was created manually
+    const TREASURY_USDC_ACCOUNT = process.env.NEXT_PUBLIC_TREASURY_USDC_ACCOUNT;
+    
+    if (TREASURY_USDC_ACCOUNT) {
+      return new PublicKey(TREASURY_USDC_ACCOUNT);
+    }
+    
+    // Fallback: try to create an ATA (this will fail for Squad wallets)
+    try {
+      const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+      return await getAssociatedTokenAddress(USDC_MINT, TREASURY_WALLET);
+    } catch (error) {
+      console.error('Failed to get treasury USDC account:', error);
+      throw new Error('Treasury USDC account not found. Please create a regular token account for the Squad multi-sig wallet.');
+    }
   }
 
   // Debug function to verify smart contract connection
