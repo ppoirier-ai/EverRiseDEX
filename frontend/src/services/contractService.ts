@@ -37,6 +37,13 @@ export class ContractService {
     this.connection = connection;
     this.wallet = wallet;
     
+    // Debug connection details
+    console.log('🔧 ContractService Debug:', {
+      connectionEndpoint: connection.rpcEndpoint,
+      walletConnected: !!wallet.publicKey,
+      walletPublicKey: wallet.publicKey?.toString()
+    });
+    
     // Ensure wallet is connected before creating provider
     if (!wallet.publicKey) {
       throw new Error('Wallet must be connected to create ContractService');
