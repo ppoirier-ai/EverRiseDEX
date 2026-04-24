@@ -7,7 +7,7 @@
 NODE_ENV=production
 PORT=3000
 NEXT_PUBLIC_SOLANA_NETWORK=mainnet-beta
-NEXT_PUBLIC_RPC_URL=https://mainnet.helius-rpc.com/?api-key=75a68bf2-6062-4a1d-a4b5-ef717adf211b
+NEXT_PUBLIC_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_HELIUS_KEY
 ```
 
 ### Smart Contract Addresses
@@ -37,7 +37,12 @@ PROGRAM_USDC_ACCOUNT=5ZYxeV1qQJmynuKs1m1jonrw8pUTaHonr5anP3YwRYLA
 
 # Bonding Curve PDA (derived from program ID + seed)
 BONDING_CURVE_PDA=9pdSYBWZfgm9S8qJJA2vVs1iRfPeosoagh1aKsm83ddU
+
+# Optional (frontend only): if treasury USDC is not the ATA of the treasury wallet
+# NEXT_PUBLIC_TREASURY_USDC_ACCOUNT=<TOKEN_ACCOUNT_PUBKEY>
 ```
+
+Set `NEXT_PUBLIC_RPC_URL` and other secrets in the **Vercel** project; see [frontend/DEPLOYMENT_VERCEL.md](../../../frontend/DEPLOYMENT_VERCEL.md) and [frontend/.env.example](../../../frontend/.env.example).
 
 ---
 
@@ -97,11 +102,11 @@ BONDING_CURVE_PDA=<DEVNET_BONDING_CURVE_PDA>
 - All addresses are verified and tested
 
 ### Deployment Checklist
-1. ✅ Smart contract deployed to mainnet
-2. ✅ Program token accounts created and funded
-3. ✅ Frontend code updated with correct addresses
-4. ⚠️ Frontend needs redeployment to Render.com
-5. ⚠️ Testing required after frontend deployment
+1. Smart contract deployed to mainnet
+2. Program token accounts created and funded
+3. Frontend code updated with correct addresses
+4. Environment variables set in **Vercel** (or host of choice) for production; see [frontend/DEPLOYMENT_VERCEL.md](../../../frontend/DEPLOYMENT_VERCEL.md)
+5. Test after deploy (Preview URL or production)
 
 ### Cost Summary
 - Smart Contract Deployment: ~0.002 SOL (~$0.40)

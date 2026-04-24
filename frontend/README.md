@@ -108,12 +108,9 @@ The app supports multiple Solana wallets:
 
 ## Deployment
 
-The app can be deployed to any platform that supports Next.js:
+Primary production path: **Vercel** — see [DEPLOYMENT_VERCEL.md](./DEPLOYMENT_VERCEL.md) (Root Directory `frontend`, env vars, preview checks, domain cutover from Render).
 
-- Vercel (recommended)
-- Netlify
-- AWS Amplify
-- Self-hosted
+The app can also be deployed to any platform that supports Next.js (Netlify, AWS Amplify, self-hosted, etc.).
 
 ## Smart Contract Integration
 

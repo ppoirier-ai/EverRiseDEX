@@ -33,14 +33,8 @@ export const WalletContextProvider: React.FC<WalletContextProviderProps> = ({ ch
 
   // You can also provide a custom RPC endpoint
   const endpoint = useMemo(() => {
-    // Use environment variable for RPC endpoint
-    const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || 'https://mainnet.helius-rpc.com/?api-key=75a68bf2-6062-4a1d-a4b5-ef717adf211b';
-    console.log('🔧 RPC URL Debug:', {
-      envVar: process.env.NEXT_PUBLIC_RPC_URL,
-      fallback: 'https://mainnet.helius-rpc.com/?api-key=75a68bf2-6062-4a1d-a4b5-ef717adf211b',
-      final: rpcUrl
-    });
-    return rpcUrl;
+    // Prefer NEXT_PUBLIC_RPC_URL (set in Vercel / .env.local). Fallback is public mainnet RPC (rate-limited).
+    return process.env.NEXT_PUBLIC_RPC_URL || 'https://api.mainnet-beta.solana.com';
   }, []);
 
   const wallets = useMemo(
