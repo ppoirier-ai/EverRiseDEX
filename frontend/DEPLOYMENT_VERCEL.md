@@ -2,6 +2,14 @@
 
 The app lives in this directory (`frontend/`). Production hosting uses [Vercel](https://vercel.com) (Next.js is supported out of the box).
 
+## Troubleshooting: “No Next.js version detected” (or build cannot find `next`)
+
+Vercel is almost certainly using the **repository root** as the app root. The monorepo root [`package.json`](../package.json) does **not** list `next` — only [`frontend/package.json`](./package.json) does, so the detector fails.
+
+**Fix:** In the Vercel project, open **Settings** → **Build and Deployment** (or **General** in older UIs) → **Root Directory** → **Edit** → set the path to **`frontend`** (no leading slash) → **Save** → trigger a new **Redeploy**.
+
+If you are importing the repo for the first time, expand **Root Directory** and choose **`frontend`** *before* the first deploy.
+
 ## 1. Create the Vercel project
 
 1. In the [Vercel dashboard](https://vercel.com/dashboard), **Add New** → **Project** and import this Git repository.
