@@ -26,7 +26,7 @@ In **Settings** → **Environment Variables**, add every variable you use in pro
 | Variable | Notes |
 |----------|--------|
 | `NEXT_PUBLIC_SOLANA_NETWORK` | e.g. `mainnet-beta` |
-| `NEXT_PUBLIC_RPC_URL` | Helius or other RPC; set in Vercel only, do not commit real keys to git |
+| `NEXT_PUBLIC_RPC_URL` | **Required for production** on Vercel: Helius, Triton, QuickNode, or similar. The public `https://api.mainnet-beta.solana.com` endpoint often returns **403 Forbidden** to cloud / serverless clients, so the UI cannot load on-chain data without a dedicated URL. Set in the Vercel dashboard only, do not commit live API keys to git. |
 | `NEXT_PUBLIC_PROGRAM_ID` | Program ID |
 | `NEXT_PUBLIC_BONDING_CURVE_SEED` | e.g. `bonding_curve` |
 | `NEXT_PUBLIC_EVER_MINT` / `NEXT_PUBLIC_USDC_MINT` | Mints |

@@ -6,6 +6,7 @@ import { TradingInterface } from '@/components/TradingInterface';
 import { QueueStatus } from '@/components/QueueStatus';
 import ReferralComponent from '@/components/ReferralComponent';
 import { useContract } from '@/contexts/ContractContext';
+import { RpcStatusBanner } from '@/components/RpcStatusBanner';
 import { useTreasuryState } from '@/hooks/useTreasuryState';
 
 export default function Home() {
@@ -80,6 +81,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <RpcStatusBanner />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error Display */}
         {error && (

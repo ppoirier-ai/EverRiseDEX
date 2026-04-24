@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 import ConditionalWalletProvider from '@/components/ConditionalWalletProvider'
 
@@ -35,6 +36,7 @@ export default function RootLayout({
         <ConditionalWalletProvider>
           {children}
         </ConditionalWalletProvider>
+        <Analytics />
       </body>
     </html>
   )

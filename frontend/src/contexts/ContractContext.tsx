@@ -2,7 +2,12 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { ContractService, BondingCurveData } from '../services/contractService';
+import {
+  ContractService,
+  BondingCurveData,
+  fetchBondingCurveDataForConnection,
+  isRpcAccessForbiddenError,
+} from '../services/contractService';
 
 interface ContractContextType {
   contractService: ContractService | null;
@@ -11,6 +16,8 @@ interface ContractContextType {
   userEverBalance: number;
   isLoading: boolean;
   error: string | null;
+  /** RPC or network issue loading on-chain data (e.g. 403 from public mainnet) */
+  connectionError: string | null;
   refreshData: () => Promise<void>;
   buyTokens: (usdcAmount: number, referrer?: string) => Promise<string>;
   sellTokens: (everAmount: number) => Promise<string>;
@@ -33,6 +40,7 @@ const ContractContext = createContext<ContractContextType>({
   userEverBalance: 0,
   isLoading: false,
   error: null,
+  connectionError: null,
   refreshData: async () => {},
   buyTokens: async () => '',
   sellTokens: async () => '',
@@ -69,6 +77,7 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
   const [userEverBalance, setUserEverBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const [dexData, setDexData] = useState({
     currentPrice: 0,
     marketCap: 0,
@@ -102,59 +111,84 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
     }
   }, [connection, wallet]);
 
-  // Fetch bonding curve data and user balances
-  const refreshData = useCallback(async () => {
-    if (!contractService) return;
+  const applyBondingDataToState = useCallback((data: BondingCurveData | null) => {
+    setBondingCurveData(data);
+    if (data) {
+      const currentPrice = data.currentPrice / 1_000_000;
+      const circulatingSupply = data.circulatingSupply / 1e9;
+      const newDexData = {
+        currentPrice,
+        marketCap: circulatingSupply * currentPrice,
+        circulatingSupply,
+        reserveSupply: data.y / 1e9,
+        sellQueueHead: data.sellQueueHead,
+        sellQueueTail: data.sellQueueTail,
+        buyQueueHead: data.buyQueueHead,
+        buyQueueTail: data.buyQueueTail,
+      };
+      setDexData(newDexData);
+      console.log('📊 Updated dexData in context:', newDexData);
+    }
+  }, []);
 
+  // Fetch bonding curve (always) and wallet balances when a wallet is connected
+  const refreshData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // First debug the smart contract connection
-      await contractService.debugConnection();
-      
-      const [data, usdcBalance, everBalance] = await Promise.all([
-        contractService.getBondingCurveData(),
-        contractService.getUserUSDCBalance(),
-        contractService.getUserEverBalance(),
-      ]);
-      setBondingCurveData(data);
-      setUserUsdcBalance(usdcBalance);
-      setUserEverBalance(everBalance);
+      let data: BondingCurveData | null = null;
+
+      if (contractService) {
+        try {
+          await contractService.debugConnection();
+        } catch {
+          // debug is non-fatal
+        }
+        data = await contractService.getBondingCurveData();
+        const [usdcBalance, everBalance] = await Promise.all([
+          contractService.getUserUSDCBalance(),
+          contractService.getUserEverBalance(),
+        ]);
+        setUserUsdcBalance(usdcBalance);
+        setUserEverBalance(everBalance);
+      } else {
+        data = await fetchBondingCurveDataForConnection(connection);
+        setUserUsdcBalance(0);
+        setUserEverBalance(0);
+      }
 
       if (data) {
-        const currentPrice = data.currentPrice / 1_000_000;
-        const circulatingSupply = data.circulatingSupply / 1e9;
-        const newDexData = {
-          currentPrice,
-          marketCap: circulatingSupply * currentPrice,
-          circulatingSupply,
-          reserveSupply: data.y / 1e9,
-          sellQueueHead: data.sellQueueHead,
-          sellQueueTail: data.sellQueueTail,
-          buyQueueHead: data.buyQueueHead,
-          buyQueueTail: data.buyQueueTail,
-        };
-        setDexData(newDexData);
-        console.log('📊 Updated dexData in context:', newDexData);
+        setConnectionError(null);
+        applyBondingDataToState(data);
+      } else {
+        setConnectionError(
+          'Could not load on-chain data. If you are on a public Solana endpoint, it may be blocked. Set NEXT_PUBLIC_RPC_URL in Vercel to a private RPC (Helius, Triton, QuickNode, etc.) and redeploy.'
+        );
       }
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Failed to fetch contract data');
+      if (isRpcAccessForbiddenError(err)) {
+        setConnectionError(
+          'RPC blocked this request (403). Public https://api.mainnet-beta.solana.com often returns 403 from cloud hosts. Add NEXT_PUBLIC_RPC_URL with a Helius / QuickNode / Triton (or other) mainnet key in the Vercel project Environment Variables, then redeploy.'
+        );
+      } else {
+        setError('Failed to fetch contract data');
+        setConnectionError('Network error while loading market data. Check the RPC configuration.');
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [contractService]);
+  }, [connection, contractService, applyBondingDataToState]);
 
-  // Auto-refresh data when contract service is available
+  // Refresh when connection or service changes; also poll while the page is open
   useEffect(() => {
-    if (contractService) {
-      refreshData();
-      // Set up periodic refresh every 30 seconds
-      const interval = setInterval(refreshData, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [contractService, refreshData]);
+    void refreshData();
+    const interval = setInterval(() => {
+      void refreshData();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [refreshData]);
 
   // Buy tokens function
   const buyTokens = useCallback(async (usdcAmount: number, referrer?: string): Promise<string> => {
@@ -223,6 +257,7 @@ export const ContractProvider: React.FC<ContractProviderProps> = ({ children }) 
     userEverBalance,
     isLoading,
     error,
+    connectionError,
     refreshData,
     buyTokens,
     sellTokens,

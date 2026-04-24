@@ -28,6 +28,135 @@ export interface BondingCurveData {
   totalVolume24h: number;
 }
 
+function getBondingCurvePDAKey(): PublicKey {
+  const [pda] = PublicKey.findProgramAddressSync(
+    [Buffer.from(BONDING_CURVE_SEED)],
+    PROGRAM_ID
+  );
+  return pda;
+}
+
+function createReadOnlyProgram(connection: Connection): Program {
+  const readOnlyWallet = {
+    publicKey: new PublicKey('So11111111111111111111111111111111111111112'),
+    signTransaction: async <T extends Transaction | VersionedTransaction>(t: T) => t,
+    signAllTransactions: async <T extends Transaction | VersionedTransaction>(txs: T[]) => txs,
+  };
+  return new Program(
+    IDL as unknown,
+    new AnchorProvider(connection, readOnlyWallet as never, { commitment: 'confirmed' })
+  );
+}
+
+/**
+ * Public market data (bonding curve) without a connected wallet. Use the same `Connection` as the app.
+ */
+export async function fetchBondingCurveDataForConnection(
+  connection: Connection
+): Promise<BondingCurveData | null> {
+  const program = createReadOnlyProgram(connection);
+  return fetchBondingCurveDataWithProgram(program, connection);
+}
+
+export function isRpcAccessForbiddenError(err: unknown): boolean {
+  const m = err instanceof Error ? err.message : String(err);
+  return (
+    m.includes('403') ||
+    m.includes('Access forbidden') ||
+    /"code":\s*403/.test(m) ||
+    m.includes('"code": 403')
+  );
+}
+
+/**
+ * Core fetch + parse used for both read-only and wallet-backed program instances.
+ */
+export async function fetchBondingCurveDataWithProgram(
+  program: Program,
+  connection: Connection
+): Promise<BondingCurveData | null> {
+  try {
+    const bondingCurvePDA = getBondingCurvePDAKey();
+    try {
+      const data = await (program.account as { bondingCurve: { fetch: (pda: PublicKey) => Promise<unknown> } }).bondingCurve.fetch(bondingCurvePDA);
+      const dataTyped = data as {
+        authority: PublicKey;
+        treasuryWallet: PublicKey;
+        x: { toString(): string };
+        y: { toString(): string };
+        k: { toString(): string };
+        currentPrice: { toString(): string };
+        sellQueueHead: { toString(): string };
+        sellQueueTail: { toString(): string };
+        buyQueueHead: { toString(): string };
+        buyQueueTail: { toString(): string };
+        cumulativeBonus: { toString(): string };
+        lastPriceUpdate: { toString(): string };
+        dailyBoostApplied: boolean;
+        circulatingSupply: { toString(): string };
+        lastDailyBoost: { toString(): string };
+        totalVolume24h: { toString(): string };
+      };
+      return {
+        authority: dataTyped.authority,
+        treasuryWallet: dataTyped.treasuryWallet,
+        x: dataTyped.x ? parseInt(dataTyped.x.toString(), 10) : 0,
+        y: dataTyped.y ? parseInt(dataTyped.y.toString(), 10) : 0,
+        k: dataTyped.k ? dataTyped.k.toString() : '0',
+        currentPrice: dataTyped.currentPrice ? parseInt(dataTyped.currentPrice.toString(), 10) : 0,
+        sellQueueHead: dataTyped.sellQueueHead ? parseInt(dataTyped.sellQueueHead.toString(), 10) : 0,
+        sellQueueTail: dataTyped.sellQueueTail ? parseInt(dataTyped.sellQueueTail.toString(), 10) : 0,
+        buyQueueHead: dataTyped.buyQueueHead ? parseInt(dataTyped.buyQueueHead.toString(), 10) : 0,
+        buyQueueTail: dataTyped.buyQueueTail ? parseInt(dataTyped.buyQueueTail.toString(), 10) : 0,
+        cumulativeBonus: dataTyped.cumulativeBonus ? parseInt(dataTyped.cumulativeBonus.toString(), 10) : 0,
+        lastPriceUpdate: dataTyped.lastPriceUpdate ? parseInt(dataTyped.lastPriceUpdate.toString(), 10) : 0,
+        dailyBoostApplied: dataTyped.dailyBoostApplied || false,
+        circulatingSupply: dataTyped.circulatingSupply ? parseInt(dataTyped.circulatingSupply.toString(), 10) : 0,
+        lastDailyBoost: dataTyped.lastDailyBoost ? parseInt(dataTyped.lastDailyBoost.toString(), 10) : 0,
+        totalVolume24h: dataTyped.totalVolume24h ? parseInt(dataTyped.totalVolume24h.toString(), 10) : 0,
+      };
+    } catch (fetchError) {
+      console.error('Could not fetch bonding curve data:', fetchError);
+      if (isRpcAccessForbiddenError(fetchError)) {
+        return null;
+      }
+      try {
+        const accountInfo = await connection.getAccountInfo(bondingCurvePDA);
+        if (!accountInfo) {
+          throw new Error('Bonding curve account not found');
+        }
+        console.log('Raw account data length:', accountInfo.data.length);
+      } catch (rawFetchError) {
+        console.error('Could not fetch raw account data:', rawFetchError);
+        if (isRpcAccessForbiddenError(rawFetchError)) {
+          return null;
+        }
+      }
+      return {
+        authority: bondingCurvePDA,
+        treasuryWallet: TREASURY_WALLET,
+        x: 10_000_000_000,
+        y: 100_000_000_000_000_000,
+        k: '1000000000000000000000000000',
+        currentPrice: 100,
+        sellQueueHead: 0,
+        sellQueueTail: 0,
+        buyQueueHead: 0,
+        buyQueueTail: 0,
+        cumulativeBonus: 0,
+        lastPriceUpdate: Math.floor(Date.now() / 1000),
+        dailyBoostApplied: false,
+        circulatingSupply: 0,
+        lastDailyBoost: Math.floor(Date.now() / 1000),
+        totalVolume24h: 0,
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching bonding curve data:', error);
+    return null;
+  }
+}
+
 export class ContractService {
   private program: Program;
   private connection: Connection;
@@ -72,110 +201,12 @@ export class ContractService {
 
   // Get bonding curve PDA
   getBondingCurvePDA(): PublicKey {
-    const [pda] = PublicKey.findProgramAddressSync(
-      [Buffer.from(BONDING_CURVE_SEED)],
-      PROGRAM_ID
-    );
-    return pda;
+    return getBondingCurvePDAKey();
   }
 
   // Fetch bonding curve data
   async getBondingCurveData(): Promise<BondingCurveData | null> {
-    try {
-      const bondingCurvePDA = this.getBondingCurvePDA();
-      
-      // Try to fetch the account data using the program
-      try {
-        const data = await (this.program.account as { bondingCurve: { fetch: (pda: PublicKey) => Promise<unknown> } }).bondingCurve.fetch(bondingCurvePDA);
-        
-        console.log('Raw bonding curve data:', data);
-        
-        // Parse the data correctly - handle BN objects properly
-        const dataTyped = data as {
-          authority: PublicKey;
-          treasuryWallet: PublicKey;
-          x: { toString(): string };
-          y: { toString(): string };
-          k: { toString(): string };
-          currentPrice: { toString(): string };
-          sellQueueHead: { toString(): string };
-          sellQueueTail: { toString(): string };
-          buyQueueHead: { toString(): string };
-          buyQueueTail: { toString(): string };
-          cumulativeBonus: { toString(): string };
-          lastPriceUpdate: { toString(): string };
-          dailyBoostApplied: boolean;
-          circulatingSupply: { toString(): string };
-          lastDailyBoost: { toString(): string };
-          totalVolume24h: { toString(): string };
-        };
-        
-        const parsedData = {
-          authority: dataTyped.authority,
-          treasuryWallet: dataTyped.treasuryWallet,
-          x: dataTyped.x ? parseInt(dataTyped.x.toString()) : 0,
-          y: dataTyped.y ? parseInt(dataTyped.y.toString()) : 0,
-          k: dataTyped.k ? dataTyped.k.toString() : "0",
-          currentPrice: dataTyped.currentPrice ? parseInt(dataTyped.currentPrice.toString()) : 0,
-          sellQueueHead: dataTyped.sellQueueHead ? parseInt(dataTyped.sellQueueHead.toString()) : 0,
-          sellQueueTail: dataTyped.sellQueueTail ? parseInt(dataTyped.sellQueueTail.toString()) : 0,
-          buyQueueHead: dataTyped.buyQueueHead ? parseInt(dataTyped.buyQueueHead.toString()) : 0,
-          buyQueueTail: dataTyped.buyQueueTail ? parseInt(dataTyped.buyQueueTail.toString()) : 0,
-          cumulativeBonus: dataTyped.cumulativeBonus ? parseInt(dataTyped.cumulativeBonus.toString()) : 0,
-          lastPriceUpdate: dataTyped.lastPriceUpdate ? parseInt(dataTyped.lastPriceUpdate.toString()) : 0,
-          dailyBoostApplied: dataTyped.dailyBoostApplied || false,
-          circulatingSupply: dataTyped.circulatingSupply ? parseInt(dataTyped.circulatingSupply.toString()) : 0,
-          lastDailyBoost: dataTyped.lastDailyBoost ? parseInt(dataTyped.lastDailyBoost.toString()) : 0,
-          totalVolume24h: dataTyped.totalVolume24h ? parseInt(dataTyped.totalVolume24h.toString()) : 0,
-        };
-        
-        console.log('Parsed bonding curve data:', parsedData);
-        return parsedData;
-        
-      } catch (fetchError) {
-        console.error('Could not fetch bonding curve data:', fetchError);
-        
-        // Try alternative method - fetch raw account data
-        try {
-          const accountInfo = await this.connection.getAccountInfo(bondingCurvePDA);
-          if (!accountInfo) {
-            throw new Error('Bonding curve account not found');
-          }
-          
-          console.log('Raw account data length:', accountInfo.data.length);
-          console.log('Raw account data:', accountInfo.data);
-          
-          // For now, return mock data but log the error for debugging
-          console.log('Using mock data due to parsing error');
-          
-        } catch (rawFetchError) {
-          console.error('Could not fetch raw account data:', rawFetchError);
-        }
-        
-        // Fallback to mock data
-        return {
-          authority: bondingCurvePDA, // Placeholder
-          treasuryWallet: TREASURY_WALLET,
-          x: 10_000_000_000, // 10,000 USDC in 6 decimals
-          y: 100_000_000_000_000_000, // 100M EVER in 9 decimals
-          k: "1000000000000000000000000000", // K constant
-          currentPrice: 100, // 0.0001 USDC per EVER
-          sellQueueHead: 0,
-          sellQueueTail: 0, // Start with 0 for new orders
-          buyQueueHead: 0,
-          buyQueueTail: 0, // Start with 0 for new orders
-          cumulativeBonus: 0,
-          lastPriceUpdate: Math.floor(Date.now() / 1000),
-          dailyBoostApplied: false,
-          circulatingSupply: 0,
-          lastDailyBoost: Math.floor(Date.now() / 1000),
-          totalVolume24h: 0,
-        };
-      }
-    } catch (error) {
-      console.error('Error fetching bonding curve data:', error);
-      return null;
-    }
+    return fetchBondingCurveDataWithProgram(this.program, this.connection);
   }
 
   // Calculate current price from bonding curve
