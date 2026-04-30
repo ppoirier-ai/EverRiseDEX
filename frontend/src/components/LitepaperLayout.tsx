@@ -1,5 +1,7 @@
 'use client';
 
+import { TOKEN_DISPLAY_NAME, DEX_DISPLAY_NAME } from '@/constants/tokenBrand';
+
 interface LitepaperLayoutProps {
   title: string;
   sections: Array<{
@@ -22,7 +24,7 @@ export default function LitepaperLayout({ title, sections, languageCode }: Litep
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">{title}</h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300">Bitcoin pioneered money that cannot be printed. EverRise improved with prices that cannot be negotiated.</p>
+            <p className="text-xl text-gray-600 dark:text-gray-300">Bitcoin pioneered money that cannot be printed. {TOKEN_DISPLAY_NAME} improved with prices that cannot be negotiated.</p>
             <div className="mt-4">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                 {languageCode}
@@ -87,7 +89,7 @@ export default function LitepaperLayout({ title, sections, languageCode }: Litep
 
         {/* Footer */}
         <div className="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
-          <p>© 2024 EverRise. All rights reserved.</p>
+          <p>© 2024 {DEX_DISPLAY_NAME}. All rights reserved.</p>
            <div className="mt-4 flex justify-center space-x-6">
              <a href="/docs" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
                Documentation
@@ -100,7 +102,7 @@ export default function LitepaperLayout({ title, sections, languageCode }: Litep
              </a>
            </div>
           <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
-            Built on Solana • Powered by EverRise DEX
+            Built on Solana • Powered by {DEX_DISPLAY_NAME}
           </p>
         </div>
       </div>

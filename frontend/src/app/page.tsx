@@ -8,6 +8,7 @@ import ReferralComponent from '@/components/ReferralComponent';
 import { useContract } from '@/contexts/ContractContext';
 import { RpcStatusBanner } from '@/components/RpcStatusBanner';
 import { useTreasuryState } from '@/hooks/useTreasuryState';
+import { DEX_DISPLAY_NAME, REBRAND_NOTE, TOKEN_DISPLAY_NAME, TOKEN_TICKER } from '@/constants/tokenBrand';
 
 export default function Home() {
   const { 
@@ -105,7 +106,10 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-8">
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Bitcoin pioneered money that cannot be printed. EverRise improved with prices that cannot be negotiated.
+            Bitcoin pioneered money that cannot be printed. {TOKEN_DISPLAY_NAME} improved with prices that cannot be negotiated.
+          </p>
+          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+            {REBRAND_NOTE}
           </p>
         </div>
 
@@ -121,7 +125,7 @@ export default function Home() {
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-green-800">Welcome! You were referred by a friend</h3>
                 <p className="text-sm text-green-700 mt-1">
-                  You&apos;re here through a referral link. When you buy EVER tokens from reserves, 
+                  You&apos;re here through a referral link. When you buy {TOKEN_TICKER} tokens from reserves, 
                   your referrer will earn a 5% commission!
                 </p>
               </div>
@@ -175,7 +179,7 @@ export default function Home() {
         {/* Features Section */}
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
-            Why EverRise is Different
+            Why {DEX_DISPLAY_NAME} is Different
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
@@ -216,7 +220,7 @@ export default function Home() {
 
         {/* Footer */}
         <div className="mt-12 text-center text-gray-500 dark:text-gray-400 text-sm">
-          <p>© 2024 EverRise. All rights reserved.</p>
+          <p>© 2024 {DEX_DISPLAY_NAME}. All rights reserved.</p>
            <div className="mt-4 flex justify-center space-x-6">
              <a href="/docs" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
                Documentation
@@ -229,7 +233,7 @@ export default function Home() {
              </a>
            </div>
           <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
-            Built on Solana • Powered by EverRise DEX
+            Built on Solana • Powered by {DEX_DISPLAY_NAME}
           </p>
         </div>
       </div>

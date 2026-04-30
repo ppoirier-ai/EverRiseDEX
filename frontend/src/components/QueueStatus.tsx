@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { ContractService } from '../services/contractService';
+import { TOKEN_TICKER } from '@/constants/tokenBrand';
 
 interface SaleOrder {
   orderNumber: number;
@@ -125,7 +126,7 @@ export const QueueStatus: React.FC<QueueStatusProps> = ({
                       Seller
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Quantity (EVER)
+                      Quantity ({TOKEN_TICKER})
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Price (USDC)

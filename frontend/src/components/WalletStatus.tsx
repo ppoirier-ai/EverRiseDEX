@@ -5,6 +5,7 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { Copy, RefreshCw, CheckCircle } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { TOKEN_DISPLAY_NAME } from '@/constants/tokenBrand';
 
 interface WalletStatusProps {
   className?: string;
@@ -137,7 +138,7 @@ export const WalletStatus: React.FC<WalletStatusProps> = ({ className }) => {
               <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
               <div className="text-xs text-green-800">
                 <p className="font-medium mb-1">Ready for Trading</p>
-                <p>Your wallet is connected and ready to trade EverRise tokens on Solana Devnet.</p>
+                <p>Your wallet is connected and ready to trade {TOKEN_DISPLAY_NAME} tokens on Solana Devnet.</p>
               </div>
             </div>
           </div>

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { ArrowUpDown, ArrowUp, ArrowDown, Info } from 'lucide-react';
 import { EnhancedWalletButton } from './EnhancedWalletButton';
+import { TOKEN_DISPLAY_NAME, TOKEN_TICKER } from '@/constants/tokenBrand';
 
 interface TradingInterfaceProps {
   currentPrice: number;
@@ -87,7 +88,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Connect Your Wallet</h2>
           <p className="text-gray-600">
-            Connect your Solana wallet to start trading EverRise tokens
+            Connect your Solana wallet to start trading {TOKEN_DISPLAY_NAME} tokens
           </p>
         </div>
         <EnhancedWalletButton className="w-full" />
@@ -104,7 +105,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Connect Your Wallet</h2>
           <p className="text-gray-600">
-            Connect your Solana wallet to start trading EverRise tokens
+            Connect your Solana wallet to start trading {TOKEN_DISPLAY_NAME} tokens
           </p>
         </div>
         <EnhancedWalletButton className="w-full" />
@@ -115,7 +116,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200">
       <div className="p-6 border-b border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Trade EverRise</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Trade {TOKEN_DISPLAY_NAME}</h2>
         <p className="text-gray-600">Current Price: {formattedPrice}</p>
         
         {/* Total Capital Display */}
@@ -127,7 +128,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
                 {formatPrice(userEverBalance * currentPrice)}
               </p>
               <p className="text-xs text-gray-500">
-                {userEverBalance.toFixed(2)} EVER × {formattedPrice}
+                {userEverBalance.toFixed(2)} {TOKEN_TICKER} × {formattedPrice}
               </p>
             </div>
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
@@ -169,12 +170,12 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="block text-sm font-medium text-gray-700">
-                {activeTab === 'buy' ? 'Amount in USDC' : 'Amount in EVER'}
+                {activeTab === 'buy' ? 'Amount in USDC' : `Amount in ${TOKEN_TICKER}`}
               </label>
               <div className="text-sm text-gray-500">
                 Balance: {activeTab === 'buy' 
                   ? `${userUsdcBalance.toFixed(2)} USDC` 
-                  : `${userEverBalance.toFixed(2)} EVER`}
+                  : `${userEverBalance.toFixed(2)} ${TOKEN_TICKER}`}
               </div>
             </div>
             <div className="relative">
@@ -186,7 +187,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
                 className="w-full px-4 py-3 pr-20 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
               />
               <div className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-500">
-                {activeTab === 'buy' ? 'USDC' : 'EVER'}
+                {activeTab === 'buy' ? 'USDC' : TOKEN_TICKER}
               </div>
               <button
                 type="button"
@@ -214,7 +215,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
                 Processing...
               </div>
             ) : (
-              `${activeTab === 'buy' ? 'Buy' : 'Sell'} EverRise`
+              `${activeTab === 'buy' ? 'Buy' : 'Sell'} ${TOKEN_DISPLAY_NAME}`
             )}
           </button>
         </form>
@@ -223,7 +224,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
           <div className="flex items-start space-x-2">
             <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-blue-800">
-              <p className="font-medium mb-1">How EverRise Works:</p>
+              <p className="font-medium mb-1">How {TOKEN_DISPLAY_NAME} Works:</p>
               <ul className="space-y-1 text-xs">
                 <li>• Price only goes up with bonding curve mechanics</li>
                 <li>• Daily minimum 0.02% growth guarantee</li>

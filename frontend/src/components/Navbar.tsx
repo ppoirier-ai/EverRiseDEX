@@ -6,6 +6,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Wallet, Copy, ExternalLink, CheckCircle, Menu, X } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { DEX_DISPLAY_NAME } from '@/constants/tokenBrand';
 
 interface NavbarProps {
   className?: string;
@@ -47,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <span className="text-xl font-bold text-gray-900">EverRise DEX</span>
+              <span className="text-xl font-bold text-gray-900">{DEX_DISPLAY_NAME}</span>
             </div>
             <div className="h-8 w-32 bg-gray-200 rounded animate-pulse"></div>
           </div>
@@ -62,7 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className }) => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <span className="text-xl font-bold text-gray-900">EverRise DEX</span>
+            <span className="text-xl font-bold text-gray-900">{DEX_DISPLAY_NAME}</span>
           </div>
 
           {/* Desktop Navigation */}

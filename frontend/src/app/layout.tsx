@@ -3,17 +3,18 @@ import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 import ConditionalWalletProvider from '@/components/ConditionalWalletProvider'
+import { DEX_DISPLAY_NAME, TOKEN_DISPLAY_NAME, TOKEN_TICKER } from '@/constants/tokenBrand'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'EverRise DEX - Perpetual Growth Trading',
-  description: 'The first decentralized exchange with guaranteed perpetual upward price momentum. Built on Solana with bonding curve mechanics.',
-  keywords: ['DeFi', 'DEX', 'Solana', 'Trading', 'EverRise', 'Bonding Curve'],
-  authors: [{ name: 'EverRise Team' }],
+  title: `${DEX_DISPLAY_NAME} — Perpetual Growth Trading`,
+  description: `${DEX_DISPLAY_NAME}: trade ${TOKEN_DISPLAY_NAME} (${TOKEN_TICKER}) against USDC on Solana with bonding curve mechanics and guaranteed daily minimum upward momentum.`,
+  keywords: ['DeFi', 'DEX', 'Solana', 'Trading', DEX_DISPLAY_NAME, TOKEN_DISPLAY_NAME, TOKEN_TICKER, 'Bonding Curve'],
+  authors: [{ name: `${DEX_DISPLAY_NAME} Team` }],
   openGraph: {
-    title: 'EverRise DEX - Perpetual Growth Trading',
-    description: 'Trade with guaranteed upward momentum on Solana',
+    title: `${DEX_DISPLAY_NAME} — Perpetual Growth Trading`,
+    description: `Trade ${TOKEN_DISPLAY_NAME} (${TOKEN_TICKER}) with upward momentum safeguards on Solana.`,
     type: 'website',
   },
 }

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
+import { DEX_DISPLAY_NAME } from '@/constants/tokenBrand';
 
 interface SimpleNavbarProps {
   className?: string;
@@ -18,7 +19,7 @@ export const SimpleNavbar: React.FC<SimpleNavbarProps> = ({ className }) => {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              EverRise DEX
+              {DEX_DISPLAY_NAME}
             </Link>
           </div>
 

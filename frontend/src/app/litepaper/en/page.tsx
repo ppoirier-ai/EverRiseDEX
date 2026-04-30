@@ -1,17 +1,16 @@
 import LitepaperLayout from '@/components/LitepaperLayout';
 
 const litepaperContent = {
-  title: 'EverRise - Litepaper',
-  subtitle: 'Bitcoin pioneered money that cannot be printed. EverRise improved with prices that cannot be negotiated.',
+  title: 'SnapCinema — Litepaper',
   sections: [
     {
       id: 'introduction',
       title: 'Introduction',
-      content: `Ever fell prey to pump and dump schemes? Buying an asset at the top, only to suffer a massive crash not long after? You'll want to pay attention to EverRise, the innovative asset that is programmatically designed to never decrease in price. While Bitcoin pioneered money that cannot be printed, EverRise improved with prices that cannot be negotiated.
+      content: `Ever fell prey to pump and dump schemes? Buying an asset at the top, only to suffer a massive crash not long after? You'll want to pay attention to SnapCinema, the innovative asset that is programmatically designed to never decrease in price. While Bitcoin pioneered money that cannot be printed, SnapCinema improved with prices that cannot be negotiated.
 
 In an era where financial markets are increasingly plagued by short-term volatility, the world demands a new breed of store of value—one that shields investors from the erratic swings of traditional assets while delivering consistent, long-term growth. Traditional stores like gold or government bonds offer stability but often lag in appreciation, while cryptocurrencies like Bitcoin promise revolutionary upside yet expose holders to dramatic drawdowns driven by speculation and macroeconomic pressures.
 
-EverRise ($EVER) emerges as an innovative alternative—a cryptocurrency engineered for perpetual upward momentum, offering a different paradigm from traditional approaches. By eliminating traditional liquidity pools and incorporating an atomic transaction system, EverRise aims to provide stability and long-term value accrual for holders.`
+SnapCinema ($SNAP) emerges as an innovative alternative—a cryptocurrency engineered for perpetual upward momentum, offering a different paradigm from traditional approaches. By eliminating traditional liquidity pools and incorporating an atomic transaction system, SnapCinema aims to provide stability and long-term value accrual for holders through EverRise DEX.`
     },
     {
       id: 'need-for-new-store',
@@ -22,12 +21,12 @@ Since the beginning of time, every asset humanity has known has bowed to expansi
 
 Bitcoin shattered that cycle as the first truly unprintable money: A fixed 21 million cap, code-enforced scarcity that no one could inflate away. It was a big bang for programmable currency, proving money could resist endless dilution.
 
-But what if we took it further? EverRise concepts the first unhaggleable price asset, where the algorithm prevents any downward debate—prices can't be negotiated down, designed to only go up at a manageable rate.`
+But what if we took it further? SnapCinema concepts the first unhaggleable price asset, where the algorithm prevents any downward debate—prices can't be negotiated down, designed to only go up at a manageable rate.`
     },
     {
       id: 'core-mechanics',
       title: 'Core Mechanics',
-      content: `EverRise operates on a foundation that prioritizes upward price momentum. Key features include:
+      content: `On EverRise DEX, SnapCinema operates on a foundation that prioritizes upward price momentum. Key features include:
 
 • Perpetual Price Increase: Utilizes a bonding curve model engineered such that the price never decreases and only increases with every buy transaction, creating consistent growth.
 
@@ -42,13 +41,13 @@ These elements combine to foster an environment where price appreciation is inhe
     {
       id: 'pricing-formula',
       title: 'Pricing Formula',
-      content: `The price of $EVER is calculated using a bonding curve model inspired by constant product mechanisms, augmented by a daily minimum growth assurance.
+      content: `The price of $SNAP is calculated using a bonding curve model inspired by constant product mechanisms, augmented by a daily minimum growth assurance.
 
 Variable Definitions:
 • X: USDC quantity in the virtual reserve pool. Initial value: 10,000 USDC. Increases with reserve buys.
-• Y: $EVER tokens in reserves. Initial/max supply: 100,000,000. Decreases on reserve buys.
+• Y: $SNAP tokens in reserves. Initial/max supply: 100,000,000. Decreases on reserve buys.
 • K: Constant product (K = X * Y), updated after reserve transactions.
-• SC: Circulating supply of $EVER, starting at 0 and increasing with buys.
+• SC: Circulating supply of $SNAP, starting at 0 and increasing with buys.
 • P(Y): Current price in USDC.
 
 Organic Price Calculation:
@@ -71,7 +70,7 @@ This boost is temporary and non-compounding, resetting each day.`
     {
       id: 'affiliate-program',
       title: 'Affiliate Marketing Program',
-      content: `EverRise includes an affiliate marketing program designed to drive ecosystem expansion and reward community-driven growth. 
+      content: `EverRise DEX includes an affiliate marketing program designed to drive ecosystem expansion and reward community-driven growth. 
 
 Key Features:
 • 5% Commission: Affiliates receive 5% of USDC from reserve purchases as direct commission
@@ -79,16 +78,16 @@ Key Features:
 • Direct Payment: Commissions are paid directly to the affiliate's USDC account as part of the atomic transaction
 • Treasury Fallback: If no referrer is provided, the 5% commission goes to the treasury wallet
 
-The program underscores EverRise's commitment to decentralized, incentive-aligned marketing, fostering widespread adoption while compensating promoters for their role in building the network.`
+The program underscores EverRise DEX's commitment to decentralized, incentive-aligned marketing, fostering widespread adoption while compensating promoters for their role in building the network.`
     },
     {
       id: 'roadmap',
       title: 'Roadmap',
       content: `Digital Asset Treasury Company
 
-There will be the release of a Staking Vault where users can lock their EVER tokens with the intention that they will be converted into stocks of a Nasdaq listed company. The Nasdaq listed company will be a Digital Asset Treasury (DAT) company similar to MicroStrategy.
+There will be the release of a Staking Vault where users can lock their SNAP tokens with the intention that they will be converted into stocks of a Nasdaq listed company. The Nasdaq listed company will be a Digital Asset Treasury (DAT) company similar to MicroStrategy.
 
-The EVER tokens that are staked will be used to initiate the process of either an IPO/SPAC once the capital is large enough to complete the listing process. Typically it costs roughly $4M to raise a $250M SPAC. Most of the funds raised in the public listing process will be used to grow a much larger treasury, but stakers will receive a portion of shares of the publicly traded company that is commensurate with their stake.
+The SNAP tokens that are staked will be used to initiate the process of either an IPO/SPAC once the capital is large enough to complete the listing process. Typically it costs roughly $4M to raise a $250M SPAC. Most of the funds raised in the public listing process will be used to grow a much larger treasury, but stakers will receive a portion of shares of the publicly traded company that is commensurate with their stake.
 
 Note that this staking activity will require KYC (Know Your Customer), which is a standard practice of identification to comply with regulatory authorities, in this case with the SEC.
 
@@ -101,9 +100,9 @@ Also note that stakers will become part of a Decentralized Autonomous Organizati
     {
       id: 'conclusion',
       title: 'Conclusion',
-      content: `EverRise offers a structured framework for cryptocurrency that emphasizes sustained growth and stability. By integrating bonding curves, atomic transaction mechanics, minimum appreciation guarantees, and a treasury-backed system, it positions itself as a reliable asset in the digital economy.
+      content: `SnapCinema offers a structured framework for cryptocurrency that emphasizes sustained growth and stability on EverRise DEX. By integrating bonding curves, atomic transaction mechanics, minimum appreciation guarantees, and a treasury-backed system, it positions itself as a reliable asset in the digital economy.
 
-This model draws from advancements in decentralized finance while providing a unique approach to price stability and growth. EverRise represents a new paradigm in digital assets—one where price appreciation is guaranteed by code, not speculation.`
+This model draws from advancements in decentralized finance while providing a unique approach to price stability and growth. SnapCinema represents a new paradigm in digital assets—one where price appreciation is guaranteed by code, not speculation.`
     }
   ]
 };

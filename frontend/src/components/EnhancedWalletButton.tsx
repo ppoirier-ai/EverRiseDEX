@@ -5,6 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Wallet, Copy, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { TOKEN_DISPLAY_NAME } from '@/constants/tokenBrand';
 
 interface EnhancedWalletButtonProps {
   className?: string;
@@ -138,7 +139,7 @@ export const EnhancedWalletButton: React.FC<EnhancedWalletButtonProps> = ({ clas
                   <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                   <div className="text-xs text-blue-800">
                     <p className="font-medium mb-1">Ready to Trade!</p>
-                    <p>Your wallet is connected and ready for EverRise trading on Solana Devnet.</p>
+                    <p>Your wallet is connected and ready for {TOKEN_DISPLAY_NAME} trading on Solana Devnet.</p>
                   </div>
                 </div>
               </div>

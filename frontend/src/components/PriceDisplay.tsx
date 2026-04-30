@@ -2,6 +2,7 @@
 
 import React, { useMemo, useCallback } from 'react';
 import { TrendingUp, DollarSign, Coins, Clock } from 'lucide-react';
+import { TOKEN_DISPLAY_NAME, TOKEN_TICKER_PREFIXED } from '@/constants/tokenBrand';
 
 interface PriceDisplayProps {
   currentPrice: number;
@@ -62,8 +63,8 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">EverRise</h1>
-            <p className="text-gray-500">$EVER</p>
+            <h1 className="text-2xl font-bold text-gray-900">{TOKEN_DISPLAY_NAME}</h1>
+            <p className="text-gray-500">{TOKEN_TICKER_PREFIXED}</p>
           </div>
         </div>
         <div className="text-right">

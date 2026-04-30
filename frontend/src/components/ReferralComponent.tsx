@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Copy, Check, Users, DollarSign } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { TOKEN_TICKER } from '@/constants/tokenBrand';
 
 export default function ReferralComponent() {
   const { publicKey, connected } = useWallet();
@@ -33,13 +34,13 @@ export default function ReferralComponent() {
           <h3 className="text-lg font-semibold">Earn 5% Commission</h3>
         </div>
         <p className="text-purple-100 mb-4">
-          Connect your wallet to start earning commissions by referring friends to buy EVER tokens!
+          Connect your wallet to start earning commissions by referring friends to buy {TOKEN_TICKER} tokens!
         </p>
         <div className="bg-white/20 rounded-lg p-3">
           <p className="text-sm font-medium">How it works:</p>
           <ul className="text-sm text-purple-100 mt-2 space-y-1">
             <li>• Share your referral link with friends</li>
-            <li>• Earn 5% commission on their EVER purchases</li>
+            <li>• Earn 5% commission on their {TOKEN_TICKER} purchases</li>
             <li>• Commission only applies to reserve purchases (not peer-to-peer)</li>
             <li>• No commission on sales queue transactions</li>
           </ul>
@@ -62,7 +63,7 @@ export default function ReferralComponent() {
       </div>
       
       <p className="text-purple-100 mb-4">
-        Share this link to earn 5% commission on your friends&apos; EVER token purchases from reserves.
+        Share this link to earn 5% commission on your friends&apos; {TOKEN_TICKER} token purchases from reserves.
       </p>
       
       <div className="bg-white/10 rounded-lg p-4 mb-4">

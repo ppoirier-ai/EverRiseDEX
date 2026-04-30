@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { DEX_DISPLAY_NAME, TOKEN_DISPLAY_NAME, TOKEN_TICKER } from '@/constants/tokenBrand';
 
 export default function DocsPage() {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
@@ -13,21 +14,21 @@ export default function DocsPage() {
 
   const getTranslations = (lang: string) => ({
     en: {
-      title: 'EverRise Documentation',
-      subtitle: 'Learn about the revolutionary unhaggleable price asset',
+      title: 'EverRise DEX Documentation',
+      subtitle: 'Learn about SnapCinema (SNAP), the revolutionary unhaggleable price asset on EverRise DEX',
       litepaper: {
-        title: 'EverRise Litepaper',
-        description: 'Read our comprehensive litepaper to understand the core mechanics, pricing formula, and vision of EverRise.',
+        title: 'SnapCinema Litepaper',
+        description: 'Read our comprehensive litepaper to understand SnapCinema token mechanics, the pricing formula, and the EverRise DEX vision.',
         downloadText: 'Read Online',
         downloadLink: `/litepaper/${lang}`
       },
       videos: {
         title: 'Educational Videos',
-        description: 'Watch our video series explaining EverRise concepts and mechanics',
+        description: 'Watch our video series explaining SnapCinema and EverRise DEX mechanics',
         items: [
           {
-            title: 'Introduction to EverRise',
-            description: 'Learn the basics of EverRise and why it represents a new paradigm in digital assets',
+            title: 'Introduction to SnapCinema',
+            description: 'Learn the basics of the SnapCinema token and why it represents a new paradigm in digital assets',
             videoId: 'js4fexx_Lec',
             duration: '5:30'
           },
@@ -1134,7 +1135,7 @@ export default function DocsPage() {
                     {video.videoId === 'bStvWbUdsMw' && (
                       <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
                         <p className="text-sm text-blue-800">
-                          <strong>💡 Important:</strong> After installing Phantom wallet, you&apos;ll need to purchase a few dollars worth of Solana (SOL) for transaction fees and the rest in USDC (USD Coin) which will be used to purchase EverRise tokens. You can buy these cryptocurrencies on exchanges like Coinbase, Binance, or directly through Phantom&apos;s built-in swap feature.
+                          <strong>💡 Important:</strong> After installing Phantom wallet, you&apos;ll need to purchase a few dollars worth of Solana (SOL) for transaction fees and the rest in USDC (USD Coin) which will be used to purchase {TOKEN_DISPLAY_NAME} ({TOKEN_TICKER}) tokens. You can buy these cryptocurrencies on exchanges like Coinbase, Binance, or directly through Phantom&apos;s built-in swap feature.
                         </p>
                       </div>
                     )}
@@ -1160,7 +1161,7 @@ export default function DocsPage() {
               </div>
               <div>
                 <h4 className="font-medium text-gray-900">Live Trading</h4>
-                <p className="text-sm text-gray-600">Start trading EVER tokens</p>
+                <p className="text-sm text-gray-600">Start trading {TOKEN_TICKER} tokens</p>
               </div>
             </Link>
             
@@ -1185,7 +1186,7 @@ export default function DocsPage() {
 
         {/* Footer */}
         <div className="mt-12 text-center text-gray-500 dark:text-gray-400 text-sm">
-          <p>© 2024 EverRise. All rights reserved.</p>
+          <p>© 2024 {DEX_DISPLAY_NAME}. All rights reserved.</p>
            <div className="mt-4 flex justify-center space-x-6">
              <a href="/docs" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
                Documentation
@@ -1198,7 +1199,7 @@ export default function DocsPage() {
              </a>
            </div>
           <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
-            Built on Solana • Powered by EverRise DEX
+            Built on Solana • Powered by {DEX_DISPLAY_NAME}
           </p>
         </div>
       </div>
